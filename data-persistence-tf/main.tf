@@ -19,14 +19,14 @@ data "aws_vpc" "ngap_vpc" {
 }
 
 data "aws_subnet_ids" "ngap_subnets" {
-  vpc_id = data.aws_vpc.ngap_vpc.subnet_ids
+  vpc_id = data.aws_vpc.ngap_vpc.id
 }
 
 module "data_persistence" {
   source = "https://github.com/nasa/cumulus/releases/download/v6.0.0/terraform-aws-cumulus.zip//tf-modules/data-persistence"
 
   prefix                     = var.prefix
-  subnet_ids                 = data.aws_subnet_ids.ngap_subnets
+  subnet_ids                 = data.aws_subnet_ids.ngap_subnets.ids
   include_elasticsearch      = var.include_elasticsearch
 
   tags = {
