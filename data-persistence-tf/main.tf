@@ -12,11 +12,21 @@ provider "aws" {
   }
 }
 
+data "aws_vpc" "ngap_vpc" {
+  tags = {
+    Name = "Application VPC"
+  }
+}
+
+data "aws_subnet_ids" "ngap_subnets" {
+  vpc_id = data.aws_vpc.ngap_vpc.subnet_ids
+}
+
 module "data_persistence" {
   source = "https://github.com/nasa/cumulus/releases/download/v6.0.0/terraform-aws-cumulus.zip//tf-modules/data-persistence"
 
   prefix                     = var.prefix
-  subnet_ids                 = var.subnet_ids
+  subnet_ids                 = data.aws_subnet_ids.ngap_subnets
   include_elasticsearch      = var.include_elasticsearch
 
   tags = {
