@@ -27,10 +27,7 @@ buckets = {
   }
 }
 
-ecs_cluster_instance_subnet_ids = ["subnet-12345"]
-lambda_subnet_ids    = ["subnet-12345"]
 system_bucket = "PREFIX-internal"
-vpc_id        = "vpc-12345"
 
 cmr_client_id   = "CHANGEME"
 cmr_environment = "UAT"
@@ -45,8 +42,6 @@ urs_client_password = "password"
 api_users = [
   # URS Ids of authorized users
 ]
-
-token_secret = "asdf"
 
 # Name of secret in AWS secrets manager containing SSH keys for signing JWTs
 # See https://github.com/asfadmin/thin-egress-app#setting-up-the-jwt-cookie-secrets
@@ -65,9 +60,9 @@ cmr_oauth_provider = "earthdata"
 archive_api_port            = 8000
 private_archive_api_gateway = true
 
-# Whether or not to include the S3 credentials endpoint in the Thin Egress App
-# default to true if not specified
-deploy_distribution_s3_credentials_endpoint = false
+# Optional
+
+ecs_cluster_instance_subnet_ids = ["subnet-12345"]
 
 ## Optional. Required if using cmr_oauth_provider = "launchpad"
 # launchpad_api = "launchpadApi"

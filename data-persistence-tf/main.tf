@@ -20,6 +20,11 @@ data "aws_vpc" "ngap_vpc" {
 
 data "aws_subnet_ids" "ngap_subnets" {
   vpc_id = data.aws_vpc.ngap_vpc.id
+
+  filter {
+    name   = "tag:Name"
+    values = ["Private application *"]
+  }
 }
 
 module "data_persistence" {
@@ -28,6 +33,8 @@ module "data_persistence" {
   prefix                     = var.prefix
   subnet_ids                 = data.aws_subnet_ids.ngap_subnets.ids
   include_elasticsearch      = var.include_elasticsearch
+
+  elasticsearch_config = var.elasticsearch_config
 
   tags = {
     Deployment = var.prefix

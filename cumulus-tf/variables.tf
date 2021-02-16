@@ -34,11 +34,6 @@ variable "ecs_cluster_instance_subnet_ids" {
   default = []
 }
 
-variable "lambda_subnet_ids" {
-  type    = list(string)
-  default = []
-}
-
 variable "launchpad_api" {
   type    = string
   default = "launchpadApi"
@@ -107,19 +102,11 @@ variable "thin_egress_jwt_secret_name" {
   description = "Name of AWS secret where keys for the Thin Egress App JWT encode/decode are stored"
 }
 
-variable "token_secret" {
-  type = string
-}
-
 variable "urs_client_id" {
   type = string
 }
 
 variable "urs_client_password" {
-  type = string
-}
-
-variable "vpc_id" {
   type = string
 }
 
@@ -134,12 +121,6 @@ variable "api_gateway_stage" {
 variable "buckets" {
   type    = map(object({ name = string, type = string }))
   default = {}
-}
-
-variable "deploy_distribution_s3_credentials_endpoint" {
-  description = "Whether or not to include the S3 credentials endpoint in the Thin Egress App"
-  type        = bool
-  default     = true
 }
 
 variable "distribution_url" {

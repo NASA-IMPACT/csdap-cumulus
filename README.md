@@ -26,20 +26,33 @@ terraform version
 
 ## Deployment
 
-### Deploy `data-persistence-tf`
+### Setup Terraform backends
 
-1. cd `data-persistence-tf`
-2. Copy example backend configuration and replace all instances of `PREFIX` with `***REMOVED***`:
+> Note: These steps are only necessary for the first time you set up this deployment
+> repo on your machine
+
+1. Copy example backend configuration for data-persistence:
 
     ```bash
-    cp terraform.tf.example terraform.tf
+    cp data-persistence-tf/terraform.tf.example data-persistence-tf/terraform.tf
     ```
 
-3. `terraform init`
-4. Copy example variables;
+2. Replace `PREFIX` in `data-persistence-tf/terraform.tf` configuration with correct value
+3. Copy example backend configuration for cumulus:
+
+    ```bash
+    cp cumulus-tf/terraform.tf.example cumulus-tf/terraform.tf
+    ```
+
+4. Replace `PREFIX` in `data-persistence-tf/terraform.tf` configuration with correct value
+
+### Deploy `data-persistence-tf`
+
+1. `terraform init`
+2. Copy and update example variables:
 
     ```bash
     cp terraform.tfvars.example terraform.tfvars
     ```
 
-5. `terraform apply`
+3. `terraform apply`
