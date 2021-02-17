@@ -31,7 +31,3 @@ data "aws_subnet_ids" "ngap_subnets" {
     values = ["Private application *"]
   }
 }
-
-data "aws_iam_role" "ngap_permissions_boundary" {
-  name = var.permissions_boundary_name
-}

@@ -1,7 +1,7 @@
 region = "us-west-2"
 
 cumulus_message_adapter_version = "1.3.0"
-permissions_boundary_name = "NGAPShNonProdApplicationDeveloper"
+permissions_boundary_name = "NGAPShRoleBoundary"
 
 # Replace all instances of PREFIX with your deployment prefix
 prefix  = "PREFIX"

@@ -16,11 +16,14 @@ provider "aws" {
 
 locals {
   tags = merge(var.tags, { Deployment = var.prefix })
+
   elasticsearch_alarms            = lookup(data.terraform_remote_state.data_persistence.outputs, "elasticsearch_alarms", [])
   elasticsearch_domain_arn        = lookup(data.terraform_remote_state.data_persistence.outputs, "elasticsearch_domain_arn", null)
   elasticsearch_hostname          = lookup(data.terraform_remote_state.data_persistence.outputs, "elasticsearch_hostname", null)
   elasticsearch_security_group_id = lookup(data.terraform_remote_state.data_persistence.outputs, "elasticsearch_security_group_id", "")
+
   ngap_subnet_ids = data.aws_subnet_ids.ngap_subnets.ids
+  permissions_boundary_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/${var.permissions_boundary_name}"
 }
 
 module "cumulus" {
@@ -81,7 +84,7 @@ module "cumulus" {
   saml_idp_login                  = var.saml_idp_login
   saml_launchpad_metadata_url     = var.saml_launchpad_metadata_url
 
-  permissions_boundary_arn = data.aws_iam_role.ngap_permissions_boundary.arn
+  permissions_boundary_arn = local.permissions_boundary_arn
 
   system_bucket = var.system_bucket
   buckets       = var.buckets
@@ -92,6 +95,8 @@ module "cumulus" {
   elasticsearch_security_group_id = local.elasticsearch_security_group_id
 
   dynamo_tables = data.terraform_remote_state.data_persistence.outputs.dynamo_tables
+
+  es_index_shards = 2
 
   # Archive API settings
   token_secret                = random_string.token_secret.result
