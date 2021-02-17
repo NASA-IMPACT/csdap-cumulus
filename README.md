@@ -68,12 +68,6 @@ export PREFIX=<your-prefix>
 
 ## Regular Deployment
 
-### Initialize variables
-
-```bash
-source ./init-tf-vars.sh
-```
-
 ### Deploy `data-persistence-tf`
 
 1. `terraform init`
