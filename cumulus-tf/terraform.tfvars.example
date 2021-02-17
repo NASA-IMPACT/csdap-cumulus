@@ -28,11 +28,11 @@ buckets = {
 
 system_bucket = "PREFIX-internal"
 
-cmr_client_id   = "CHANGEME"
+cmr_client_id   = "PREFIX-cumulus"
 cmr_environment = "UAT"
-cmr_password    = "password"
 cmr_provider    = "CHANGEME"
 cmr_username    = "username"
+cmr_password    = "password"
 
 # Earthdata application client ID/password for authentication
 urs_client_id       = "asdf"

@@ -62,6 +62,13 @@ export PREFIX=<your-prefix>
 
 2. Replace all instances of `PREFIX` in the newly created files with [the value determined in a previous step](#choose-a-deployment-prefix)
 
+### Configure cumulus deployment variables
+
+Guidance on specific variables in `cumulus-tf/terraform.tfvars`:
+
+- `urs_client_id` / `urs_client_password` - These are values for an Earthdata application used to handle OAuth-2 authentication for the Cumulus API. See the Cumulus documentation for [guidance on how to create an application](https://nasa.github.io/cumulus/docs/deployment/deployment-readme#configure-earthdata-application).
+- `thin_egress_jwt_secret_name` - This is used by the Thin Egress App to manage authentication with Earthdata login. See the [Thin Egress App documentation how to create this secret](https://github.com/asfadmin/thin-egress-app#jwt-cookie-secret).
+
 ## Regular Deployment
 
 ### Initialize variables
