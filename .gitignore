@@ -12,3 +12,5 @@ terraform.tf
 terraform.tfvars
 .terraform/
 cumulus-message-adapter.zip
+jwtcookie*
+jwtkeys.json
