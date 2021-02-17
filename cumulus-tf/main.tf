@@ -14,48 +14,6 @@ provider "aws" {
   }
 }
 
-data "aws_caller_identity" "current" {}
-data "aws_region" "current" {}
-
-data "terraform_remote_state" "data_persistence" {
-  backend   = "s3"
-  config    = var.data_persistence_remote_state_config
-  workspace = terraform.workspace
-}
-
-resource "random_string" "token_secret" {
-  length = 32
-  special = true
-}
-
-data "aws_ssm_parameter" "ecs_image_id" {
-  name = "image_id_ecs_amz2"
-}
-
-data "aws_vpc" "ngap_vpc" {
-  tags = {
-    Name = "Application VPC"
-  }
-}
-
-data "aws_subnet_ids" "ngap_subnets" {
-  vpc_id = data.aws_vpc.ngap_vpc.id
-
-  filter {
-    name   = "tag:Name"
-    values = ["Private application *"]
-  }
-}
-
-data "aws_subnet_ids" "ngap_subnets" {
-  vpc_id = data.aws_vpc.ngap_vpc.id
-
-  filter {
-    name   = "tag:Name"
-    values = ["Private application *"]
-  }
-}
-
 locals {
   tags = merge(var.tags, { Deployment = var.prefix })
   elasticsearch_alarms            = lookup(data.terraform_remote_state.data_persistence.outputs, "elasticsearch_alarms", [])
@@ -68,12 +26,9 @@ locals {
 module "cumulus" {
   source = "https://github.com/nasa/cumulus/releases/download/v6.0.0/terraform-aws-cumulus.zip//tf-modules/cumulus"
 
-  cumulus_message_adapter_lambda_layer_version_arn = var.cumulus_message_adapter_lambda_layer_version_arn
+  cumulus_message_adapter_lambda_layer_version_arn = aws_lambda_layer_version.cma_layer.arn
 
   prefix = var.prefix
-
-  # DO NOT CHANGE THIS VARIABLE UNLESS DEPLOYING OUTSIDE NGAP
-  deploy_to_ngap = true
 
   vpc_id            = data.aws_vpc.ngap_vpc.id
   lambda_subnet_ids = local.ngap_subnet_ids
@@ -123,7 +78,7 @@ module "cumulus" {
   saml_idp_login                  = var.saml_idp_login
   saml_launchpad_metadata_url     = var.saml_launchpad_metadata_url
 
-  permissions_boundary_arn = var.permissions_boundary_arn
+  permissions_boundary_arn = data.aws_iam_role.ngap_permissions_boundary.arn
 
   system_bucket = var.system_bucket
   buckets       = var.buckets

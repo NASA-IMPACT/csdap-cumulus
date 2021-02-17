@@ -24,6 +24,8 @@ version, run the following command:
 terraform version
 ```
 
+## Choose a deployment prefix
+
 ## First-time deployment
 
 > Note: These steps are only necessary for the first time you set up this deployment

@@ -20,7 +20,7 @@ variable "cmr_username" {
   type = string
 }
 
-variable "cumulus_message_adapter_lambda_layer_version_arn" {
+variable "cumulus_message_adapter_version" {
   type = string
 }
 
@@ -67,6 +67,10 @@ variable "s3_replicator_config" {
   type        = object({ source_bucket = string, source_prefix = string, target_bucket = string, target_prefix = string })
   default     = null
   description = "Configuration for the s3-replicator module. Items with prefix of source_prefix in the source_bucket will be replicated to the target_bucket with target_prefix."
+}
+
+variable "permissions_boundary_name" {
+  type    = string
 }
 
 variable "prefix" {
@@ -196,11 +200,6 @@ variable "key_name" {
 variable "region" {
   type    = string
   default = "us-east-1"
-}
-
-variable "permissions_boundary_arn" {
-  type    = string
-  default = null
 }
 
 variable "aws_profile" {
