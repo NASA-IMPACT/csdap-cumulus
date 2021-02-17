@@ -26,6 +26,18 @@ terraform version
 
 ## Choose a deployment prefix
 
+A prefix value is used to uniquely identify your Cumulus deployment and namespace your Cumulus resources.
+
+If you want to create your own deployment, you can use any arbitrary value, though it cannot collide with the prefix of any existing Cumulus deployments in the account that you are targeting.
+
+If you want to update an existing deployment, such as the CSDAP UAT or SIT deployments that may already exist, consult a team member for the appropriate value to use.
+
+Once you have decided on your prefix value, export it as an environment variable:
+
+```bash
+export PREFIX=<your-prefix>
+```
+
 ## First-time deployment
 
 > Note: These steps are only necessary for the first time you set up this deployment
@@ -33,7 +45,9 @@ terraform version
 
 ### Create Terraform backend resources
 
-See <https://nasa.github.io/cumulus/docs/deployment/deployment-readme#create-resources-for-terraform-state>
+```bash
+./setup-tf-backend-resources.sh
+```
 
 ### Create configuration files
 
@@ -46,20 +60,22 @@ See <https://nasa.github.io/cumulus/docs/deployment/deployment-readme#create-res
     cp cumulus-tf/terraform.tfvars.example cumulus-tf/terraform.tfvars
     ```
 
-2. Replace all instances of `PREFIX` in `data-persistence-tf/terraform.tf` and `cumulus-tf/terraform.tf` configuration with correct value
+2. Replace all instances of `PREFIX` in the newly created files with [the value determined in a previous step](#choose-a-deployment-prefix)
 
 ## Regular Deployment
 
 ### Initialize variables
 
 ```bash
-export PREFIX=<your-prefix>
 source ./init-tf-vars.sh
 ```
 
-If you are unsure what value to use for `PREFIX`, ask a fellow team member.
-
 ### Deploy `data-persistence-tf`
+
+1. `terraform init`
+2. `terraform apply`
+
+### Deploy `cumulus-tf`
 
 1. `terraform init`
 2. `terraform apply`

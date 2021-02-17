@@ -1,3 +1,4 @@
+prefix=your-prefix
 aws_region = "us-west-2"
 
 elasticsearch_config = {
