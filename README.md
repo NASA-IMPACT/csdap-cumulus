@@ -24,35 +24,40 @@ version, run the following command:
 terraform version
 ```
 
-## Deployment
-
-### Setup Terraform backends
+## First-time deployment
 
 > Note: These steps are only necessary for the first time you set up this deployment
 > repo on your machine
 
-1. Copy example backend configuration for data-persistence:
+### Create Terraform backend resources
+
+See <https://nasa.github.io/cumulus/docs/deployment/deployment-readme#create-resources-for-terraform-state>
+
+### Create configuration files
+
+1. Copy example backend configuration and variable files:
 
     ```bash
     cp data-persistence-tf/terraform.tf.example data-persistence-tf/terraform.tf
-    ```
-
-2. Replace `PREFIX` in `data-persistence-tf/terraform.tf` configuration with correct value
-3. Copy example backend configuration for cumulus:
-
-    ```bash
+    cp data-persistence-tf/terraform.tfvars.example data-persistence-tf/terraform.tfvars
     cp cumulus-tf/terraform.tf.example cumulus-tf/terraform.tf
+    cp cumulus-tf/terraform.tfvars.example cumulus-tf/terraform.tfvars
     ```
 
-4. Replace `PREFIX` in `data-persistence-tf/terraform.tf` configuration with correct value
+2. Replace all instances of `PREFIX` in `data-persistence-tf/terraform.tf` and `cumulus-tf/terraform.tf` configuration with correct value
+
+## Regular Deployment
+
+### Initialize variables
+
+```bash
+export PREFIX=<your-prefix>
+source ./init-tf-vars.sh
+```
+
+If you are unsure what value to use for `PREFIX`, ask a fellow team member.
 
 ### Deploy `data-persistence-tf`
 
 1. `terraform init`
-2. Copy and update example variables:
-
-    ```bash
-    cp terraform.tfvars.example terraform.tfvars
-    ```
-
-3. `terraform apply`
+2. `terraform apply`

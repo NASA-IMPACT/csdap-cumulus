@@ -1,5 +1,4 @@
 aws_region = "us-west-2"
-prefix     = "PREFIX"
 
 elasticsearch_config = {
   domain_name    = "es"
