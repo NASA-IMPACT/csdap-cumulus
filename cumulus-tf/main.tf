@@ -26,6 +26,9 @@ locals {
 module "cumulus" {
   source = "https://github.com/nasa/cumulus/releases/download/v6.0.0/terraform-aws-cumulus.zip//tf-modules/cumulus"
 
+  # DO NOT change this value unless deploying outside of NGAP
+  deploy_to_ngap = true
+
   cumulus_message_adapter_lambda_layer_version_arn = aws_lambda_layer_version.cma_layer.arn
 
   prefix = var.prefix
