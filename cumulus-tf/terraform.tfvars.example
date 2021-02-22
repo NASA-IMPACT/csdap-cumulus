@@ -1,4 +1,3 @@
-prefix=your-prefix
 region = "us-west-2"
 
 cumulus_message_adapter_version = "1.3.0"
@@ -23,6 +22,10 @@ buckets = {
   public = {
     name = "PREFIX-public"
     type = "public"
+  },
+  dashboard = {
+    name = "PREFIX-dashboard"
+    type = "dashboard"
   }
 }
 
