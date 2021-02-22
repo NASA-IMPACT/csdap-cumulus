@@ -49,6 +49,12 @@ export PREFIX=<your-prefix>
 ./setup-tf-backend-resources.sh
 ```
 
+### Create S3 buckets for your deployment
+
+```bash
+./create-buckets.sh
+```
+
 ### Create configuration files
 
 1. Copy example backend configuration and variable files:

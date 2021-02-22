@@ -5,12 +5,7 @@ if [ -z "$PREFIX" ]; then
   exit 1
 fi
 
-DEFAULT_AWS_REGION="us-west-2"
-if [ -z "$AWS_REGION" ]; then
-  echo "AWS_REGION not found in environment, defaulting to $DEFAULT_AWS_REGION"
-  AWS_REGION=$DEFAULT_AWS_REGION
-fi
-
+AWS_REGION=$(aws configure get region --profile "$AWS_PROFILE")
 STATE_BUCKET="$PREFIX-tf-state"
 LOCKS_TABLE="$PREFIX-tf-locks"
 
