@@ -266,3 +266,9 @@ variable "ems_deploy" {
   type        = bool
   default     = true
 }
+
+variable "archive_api_url" {
+  description = "Cloudfront endpoint for Cumulus"
+  type        = string
+  default     = null
+}
