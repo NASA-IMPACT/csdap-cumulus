@@ -1,4 +1,3 @@
-
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
@@ -9,7 +8,7 @@ data "terraform_remote_state" "data_persistence" {
 }
 
 resource "random_string" "token_secret" {
-  length = 32
+  length  = 32
   special = true
 }
 

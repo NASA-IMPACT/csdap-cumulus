@@ -1,7 +1,18 @@
 terraform {
+  required_version = "~> 0.13.6"
   required_providers {
-    aws  = ">= 3.5.0"
-    null = "~> 2.1"
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 3.14.1"
+    }
+    null = {
+      source  = "hashicorp/null"
+      version = "~> 2.1"
+    }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.1.0"
+    }
   }
 }
 
@@ -22,41 +33,8 @@ locals {
   elasticsearch_hostname          = lookup(data.terraform_remote_state.data_persistence.outputs, "elasticsearch_hostname", null)
   elasticsearch_security_group_id = lookup(data.terraform_remote_state.data_persistence.outputs, "elasticsearch_security_group_id", "")
 
-  ngap_subnet_ids = data.aws_subnet_ids.ngap_subnets.ids
+  ngap_subnet_ids          = data.aws_subnet_ids.ngap_subnets.ids
   permissions_boundary_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/${var.permissions_boundary_name}"
-}
-
-data "aws_caller_identity" "current" {}
-data "aws_region" "current" {}
-
-data "terraform_remote_state" "data_persistence" {
-  backend   = "s3"
-  config    = var.data_persistence_remote_state_config
-  workspace = terraform.workspace
-}
-
-resource "random_string" "token_secret" {
-  length = 32
-  special = true
-}
-
-data "aws_ssm_parameter" "ecs_image_id" {
-  name = "image_id_ecs_amz2"
-}
-
-data "aws_vpc" "ngap_vpc" {
-  tags = {
-    Name = "Application VPC"
-  }
-}
-
-data "aws_subnet_ids" "ngap_subnets" {
-  vpc_id = data.aws_vpc.ngap_vpc.id
-
-  filter {
-    name   = "tag:Name"
-    values = ["Private application *"]
-  }
 }
 
 module "cumulus" {
@@ -75,10 +53,10 @@ module "cumulus" {
 
   ecs_cluster_instance_image_id   = data.aws_ssm_parameter.ecs_image_id.value
   ecs_cluster_instance_subnet_ids = length(var.ecs_cluster_instance_subnet_ids) == 0 ? local.ngap_subnet_ids : var.ecs_cluster_instance_subnet_ids
-  ecs_cluster_min_size     = 1
-  ecs_cluster_desired_size = 1
-  ecs_cluster_max_size     = 2
-  key_name                 = var.key_name
+  ecs_cluster_min_size            = 1
+  ecs_cluster_desired_size        = 1
+  ecs_cluster_max_size            = 2
+  key_name                        = var.key_name
 
   urs_url             = var.urs_url
   urs_client_id       = var.urs_client_id
@@ -143,13 +121,13 @@ module "cumulus" {
   # must match stage_name variable for thin-egress-app module
   tea_api_gateway_stage = local.tea_stage_name
 
-  tea_rest_api_id = module.thin_egress_app.rest_api.id
+  tea_rest_api_id               = module.thin_egress_app.rest_api.id
   tea_rest_api_root_resource_id = module.thin_egress_app.rest_api.root_resource_id
-  tea_internal_api_endpoint = module.thin_egress_app.internal_api_endpoint
-  tea_external_api_endpoint = module.thin_egress_app.api_endpoint
+  tea_internal_api_endpoint     = module.thin_egress_app.internal_api_endpoint
+  tea_external_api_endpoint     = module.thin_egress_app.api_endpoint
 
-  log_destination_arn = var.log_destination_arn
-  additional_log_groups_to_elk  = var.additional_log_groups_to_elk
+  log_destination_arn          = var.log_destination_arn
+  additional_log_groups_to_elk = var.additional_log_groups_to_elk
 
   deploy_distribution_s3_credentials_endpoint = false
 
@@ -157,4 +135,3 @@ module "cumulus" {
 
   tags = local.tags
 }
-

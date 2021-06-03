@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+_script_dir=$(dirname "${BASH_SOURCE[0]}")
+env -S "$(<"${_script_dir}/.env")" "$@"

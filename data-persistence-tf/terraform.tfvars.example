@@ -1,5 +1,5 @@
-prefix=your-prefix
-aws_region = "us-west-2"
+prefix     = "csdap-${PREFIX}"
+aws_region = "${AWS_REGION}"
 
 elasticsearch_config = {
   domain_name    = "es"

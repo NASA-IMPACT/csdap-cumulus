@@ -1,8 +1,8 @@
 terraform {
   backend "s3" {
-    region         = "us-west-2"
-    bucket         = "PREFIX-tf-state"
-    key            = "PREFIX/cumulus/terraform.tfstate"
-    dynamodb_table = "PREFIX-tf-locks"
+    region         = "${AWS_REGION}"
+    bucket         = "csdap-${PREFIX}-tf-state"
+    key            = "cumulus/terraform.tfstate"
+    dynamodb_table = "csdap-${PREFIX}-tf-locks"
   }
 }

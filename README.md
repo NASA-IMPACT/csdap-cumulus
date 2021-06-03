@@ -1,86 +1,177 @@
-# CSDAP - Cumulus deployment
+# CSDAP Cumulus Deployment
 
 ## Prerequisites
 
-- [`tfenv`](https://github.com/tfutils/tfenv)
+### Install `tfenv` and Terraform
 
-## Install Terraform
+[Install tfenv], which you will then use to install Terraform.
 
-Install the specified version of Terraform to use for deployment:
+Once you have installed `tfenv`, install the version of Terraform specified in
+the `.terraform-version` file by running the following command at the root of
+this repository:
 
-```plain
+```bash
 tfenv install
 ```
-
-The version of Terraform used for this project can be found in the
-`.terraform-version` file at the root of this repository.  This file is
-automatically used by `tfenv` to ensure that all `terraform` commands executed
-within this repository use the version of Terraform specified in that file.
 
 To confirm that `terraform` commands will now use the expected Terraform
 version, run the following command:
 
-```plain
+```bash
 terraform version
 ```
 
-## Choose a deployment prefix
+| IMPORTANT |
+| :-------- |
+| You may see a warning message regarding `terraform` being out of date.  Ignore this warning and do _not_ upgrade to the indicated version, as using a version other than the version specified in the `.terraform-version` file may cause compatibility issues when deploying Cumulus.
 
-A prefix value is used to uniquely identify your Cumulus deployment and namespace your Cumulus resources.
+### Install and Configure the AWS CLI
 
-If you want to create your own deployment, you can use any arbitrary value, though it cannot collide with the prefix of any existing Cumulus deployments in the account that you are targeting.
+[Install AWS CLI v2] (if not already installed) so that you can create an
+AWS configuration entry for a new AWS profile to use for this project.
 
-If you want to update an existing deployment, such as the CSDAP UAT or SIT deployments that may already exist, consult a team member for the appropriate value to use.
+Once you have installed the AWS CLI, you must generate short-term access keys
+using the [NGAP cloudtamer.io portal] by doing the following after logging into
+the portal:
 
-Once you have decided on your prefix value, export it as an environment variable:
+1. Locate the correct project and click the corresponding **Cloud access** button
+
+1. Select the appropriate **account** (there may be only one account listed)
+
+1. Select the appropriate **cloud access role**
+
+1. Select **Short-term Access Keys**
+
+1. In the dialog box that appears, under the section
+   **Option 2: Add a profile to your AWS credentials file**, you should see
+   credentials similar to the following:
+
+   ```plain
+   [123456789012_NGAPShApplicationDeveloper]
+   aws_access_key_id=********************
+   aws_secret_access_key=****************************************
+   aws_session_token=********************************************
+   ```
+
+1. Hover your mouse over the credentials until the message
+   **Click to copy this text** appears, then click the area to copy the
+   credentials to your clipboard (the message should then change to **Copied!**)
+
+Store the credentials you just copied to your clipboard as follows:
+
+1. Using a text editor on your workstation, open the file
+  `$HOME/.aws/credentials`, paste the contents of the clipboard into your
+  editor, and change the name of the auto-generated profile, which will be
+  something like `123456789012_NGAPShApplicationDeveloper`, to something simpler
+  (e.g., `csdap-uat`).
+
+1. Save and close the file.
+
+1. Set the region for your newly created profile by running the following
+   command, replacing `<profile>` with the name of your new profile (e.g.,
+   `csdap-uat`) and `<region>` with the appropriate region (e.g., `us-west-2`):
+
+   ```plain
+   aws configure set --profile <profile> region <region>
+   ```
+
+1. Confirm that your new profile is correctly configured by running the following
+   command:
+
+   ```bash
+   AWS_PROFILE=<profile> aws s3 sts get-caller-identity
+   ```
+
+   which should produce output similar to the following:
+
+   ```json
+   {
+     "UserId": "*********************:<username>",
+     "Account": "123456789012",
+     "Arn": "arn:aws:sts::123456789012:assumed-role/NGAPShApplicationDeveloper/<username>"
+   }
+   ```
+
+| NOTE |
+| :--- |
+| Unfortunately, for the time being, you must **periodically repeat the steps above**, whenever you attempt to run an AWS CLI command or deploy Cumulus (see below) and you encounter an "expired token" error message.
+
+### Initialize Environment Variables
+
+Copy `.env.example` to `.env`:
 
 ```bash
-export PREFIX=<your-prefix>
+cp .env.example .env
 ```
 
-## First-time deployment
+Open `.env` in a text editor and set values as follows:
 
-> Note: These steps are only necessary for the first time you set up this deployment
-> repo on your machine
+1. `AWS_PROFILE`: specify the name of the AWS profile you created in the
+   previous section
+1. `AWS_REGION`: specify the AWS region you configured in the previous section
+1. `PREFIX`: a unique value that distinguishes your Cumulus AWS resources from
+   those used for other Cumulus deployments within the same AWS account.
+   Typically, this is some form of your name/nickname/initials, but can be
+   anything unique to you (and should _not_ be any type of "secret" value)
 
-### Create Terraform backend resources
+**NOTE:** This file is ignored by `git`, so it will _not_ be committed to source
+control.
 
-```bash
-./setup-tf-backend-resources.sh
-```
+Once you have saved your `.env` file with appropriate values, you may then use
+the `dotenv` bash script (see below) to run other commands that use the
+environment variables in your `.env` file.
 
-### Create S3 buckets for your deployment
+Doing so allows you to use the values specified in your `.env` file without
+exporting the environment variables when you want to avoid setting values that
+might conflict with other projects on your machine, particularly your values for
+`AWS_PROFILE` and `AWS_REGION`.
 
-```bash
-./create-buckets.sh
-```
+### Initialize Terraform Configuration
 
-### Create configuration files
-
-1. Copy example backend configuration and variable files:
+1. Create backend resources required by Terraform:
 
     ```bash
-    cp data-persistence-tf/terraform.tf.example data-persistence-tf/terraform.tf
-    cp data-persistence-tf/terraform.tfvars.example data-persistence-tf/terraform.tfvars
-    cp cumulus-tf/terraform.tf.example cumulus-tf/terraform.tf
-    cp cumulus-tf/terraform.tfvars.example cumulus-tf/terraform.tfvars
+    ./dotenv ./setup-tf-backend-resources.sh
     ```
 
-2. Replace all instances of `PREFIX` in the newly created files with [the value determined in a previous step](#choose-a-deployment-prefix)
-3. Update other variables in `cumulus-tf/terraform.tfvars` as necessary. Guidance on specific variables:
+1. Set variables in `cumulus-tf/terraform.tfvars` as necessary.
+   Guidance on specific variables:
 
-      - `api_users` - List of Earthdata login usernames that should be allowed to access your Cumulus API
-      - `urs_client_id` / `urs_client_password` - These are values for an Earthdata application used to handle OAuth-2 authentication for the Cumulus API. See the Cumulus documentation for [guidance on how to create an application](https://nasa.github.io/cumulus/docs/deployment/deployment-readme#configure-earthdata-application).
-      - `thin_egress_jwt_secret_name` - This is used by the Thin Egress App to manage authentication with Earthdata login. See the [Thin Egress App documentation how to create this secret](https://github.com/asfadmin/thin-egress-app#jwt-cookie-secret).
+   - `api_users`: Comma-separated list of double-quoted Earthdata Login
+     usernames (enclosed in square brackets) that should be allowed to access
+     your Cumulus API.  For a development deployment, this typically consists
+     of only your own username (e.g., `["username1"]`).
+   - `urs_client_id` / `urs_client_password`: Earthdata application credentials
+     used to handle OAuth2 authentication for the Cumulus API.  In order to
+     obtain such credentials, you must first [register an Earthdata Login
+     application].
 
 ## Regular Deployment
 
-### Deploy `data-persistence-tf`
+### Deploy the `data-persistence` Module
 
-1. `terraform init`
-2. `terraform apply`
+To deploy the data-persistence module, which must be deployed at least once
+prior to the first time the cumulus module is deployed (see below):
 
-### Deploy `cumulus-tf`
+1. Change directory to `data-persistence-tf`
+1. Run `../dotenv terraform init -reconfigure`
+1. Run `../dotenv terraform apply`
 
-1. `terraform init`
-2. `terraform apply`
+### Deploy the `cumulus` Module
+
+The `cumulus` module depends on the `data-persistence` module, so the
+`data-persistence` module must be deployed at least once prior to deploying the
+`cumulus` module.  To deploy the `cumulus` module:
+
+1. Change directory to `cumulus-tf`
+1. Run `../dotenv terraform init -reconfigure`
+1. Run `../dotenv terraform apply`
+
+[Install tfenv]:
+    https://github.com/tfutils/tfenv
+[Install AWS CLI v2]:
+    https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html
+[register an Earthdata Login application]:
+    https://nasa.github.io/cumulus/docs/deployment/deployment-readme#configure-earthdata-application
+[NGAP cloudtamer.io portal]:
+    https://cloud.earthdata.nasa.gov
