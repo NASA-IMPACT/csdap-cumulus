@@ -1,4 +1,56 @@
 #!/usr/bin/env bash
 
+# NAME
+#     dotenv -- set environment and execute command, or print environment
+#
+# SYNOPSIS
+#     ./dotenv [utility [argument ...]]
+#
+# DESCRIPTION
+#     The `dotenv` utility executes another utility after modifying the
+#     environment with the environment variables specified in the `.env` file
+#     found in the same directory as the `dotenv` utility.  It is simply a
+#     wrapper around the built-in `env` utility, for convenience.
+#
+# EXIT STATUS
+#     The `dotenv` utility exits with one of the following values:
+#
+#     0     utility was found, and executed successfully
+#     126   utility was found, but could not be executed
+#     127   utility could not be found
+#     >0    `.env` file was not found, or it was found, but contains one or more
+#           unset variables, or utility executed unsuccessfully
+#
+# EXAMPLES
+#     Run `terraform` without having to explicitly export `AWS_PROFILE` and
+#     `AWS_REGION`, and instead use the values specified in the `.env` file:
+#
+#         cd cumulus-tf
+#         ../dotenv terraform apply
+
+set -Eeou pipefail
+
 _script_dir=$(dirname "${BASH_SOURCE[0]}")
-env -S "$(<"${_script_dir}/.env")" "$@"
+_dotenv_file=${_script_dir}/.env
+
+if [[ ! -f ${_dotenv_file} ]]; then
+  echo "" >&2
+  echo "ERROR: You must first create your '${_dotenv_file}' file by copying the example file:" >&2
+  echo "" >&2
+  echo "    cp -n ${_dotenv_file}.example ${_dotenv_file}" >&2
+  echo "" >&2
+  echo "Then SET APPROPRIATE VALUES in the new '${_dotenv_file}' file." >&2
+  echo "" >&2
+  exit 1
+fi
+
+if grep "=\s*$" "${_dotenv_file}" >&2; then
+  echo "" >&2
+  echo "ERROR: Each variable shown above has no value set in your '${_dotenv_file}' file." >&2
+  echo "Set appropriate values in your '${_dotenv_file}' file and try again.  If necessary," >&2
+  echo "refer to 'README.md' for guidance." >&2
+  echo "" >&2
+  exit 1
+fi
+
+env -S "$(<"${_dotenv_file}")" "$@"

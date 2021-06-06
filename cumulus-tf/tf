@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+# The `tf` utility is a convenience for running `terraform` commands after
+# setting environment variables defined in the top level `.env` file.  It avoids
+# the need to either explicitly `export` the relevant environment variables, or
+# explicitly set them on the command line.
+
+../dotenv terraform "$@"

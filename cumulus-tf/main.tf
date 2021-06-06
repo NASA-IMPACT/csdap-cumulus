@@ -1,9 +1,13 @@
 terraform {
-  required_version = "~> 0.13.6"
+  required_version = "0.13.6"
   required_providers {
     aws = {
       source  = "hashicorp/aws"
       version = ">= 3.14.1"
+    }
+    external = {
+      source  = "hashicorp/external"
+      version = "~> 2.1.0"
     }
     null = {
       source  = "hashicorp/null"
@@ -25,6 +29,13 @@ provider "aws" {
   }
 }
 
+resource "aws_s3_bucket" "var_buckets" {
+  for_each      = var.buckets
+  bucket        = each.value.name
+  tags          = local.tags
+  force_destroy = true
+}
+
 locals {
   tags = merge(var.tags, { Deployment = var.prefix })
 
@@ -39,6 +50,8 @@ locals {
 
 module "cumulus" {
   source = "https://github.com/nasa/cumulus/releases/download/v8.1.0/terraform-aws-cumulus.zip//tf-modules/cumulus"
+
+  depends_on = [aws_s3_bucket.var_buckets]
 
   # DO NOT change this value unless deploying outside of NGAP
   deploy_to_ngap = true
