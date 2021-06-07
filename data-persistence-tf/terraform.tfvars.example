@@ -1,4 +1,4 @@
-prefix     = "csdap-${PREFIX}"
+prefix     = "cumulus-${PREFIX}"
 aws_region = "${AWS_REGION}"
 
 elasticsearch_config = {

@@ -4,32 +4,32 @@ cumulus_message_adapter_version = "1.3.0"
 permissions_boundary_name       = "NGAPShRoleBoundary"
 
 # Replace all instances of '${PREFIX}' with your deployment prefix
-prefix = "csdap-${PREFIX}"
+prefix = "cumulus-${PREFIX}"
 
 buckets = {
   internal = {
-    name = "csdap-${PREFIX}-internal"
+    name = "csdap-cumulus-${PREFIX}-internal"
     type = "internal"
   }
   private = {
-    name = "csdap-${PREFIX}-private"
+    name = "csdap-cumulus-${PREFIX}-private"
     type = "private"
   },
   protected = {
-    name = "csdap-${PREFIX}-protected"
+    name = "csdap-cumulus-${PREFIX}-protected"
     type = "protected"
   },
   public = {
-    name = "csdap-${PREFIX}-public"
+    name = "csdap-cumulus-${PREFIX}-public"
     type = "public"
   },
   dashboard = {
-    name = "csdap-${PREFIX}-dashboard"
+    name = "csdap-cumulus-${PREFIX}-dashboard"
     type = "dashboard"
   }
 }
 
-system_bucket = "csdap-${PREFIX}-internal"
+system_bucket = "csdap-cumulus-${PREFIX}-internal"
 
 cmr_client_id   = "csdap-cumulus-${PREFIX}"
 cmr_environment = "UAT"
@@ -49,10 +49,10 @@ api_users = [
 
 # Name of secret in AWS secrets manager containing SSH keys for signing JWTs
 # See https://github.com/asfadmin/thin-egress-app#jwt-cookie-secret
-thin_egress_jwt_secret_name = "csdap-${PREFIX}-thin-egress-app-jwt-keys"
+thin_egress_jwt_secret_name = "cumulus-${PREFIX}-thin-egress-app-jwt-keys"
 
 data_persistence_remote_state_config = {
-  bucket = "csdap-${PREFIX}-tf-state"
+  bucket = "csdap-cumulus-${PREFIX}-tf-state"
   key    = "data-persistence/terraform.tfstate"
   region = "${AWS_REGION}"
 }

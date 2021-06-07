@@ -11,9 +11,9 @@ set -Eeou pipefail
 # shellcheck disable=SC2016
 _region="$(echo '${AWS_REGION}' | ./dotenv envsubst)"
 # shellcheck disable=SC2016
-_tf_state_bucket="$(echo 'csdap-${PREFIX}-tf-state' | ./dotenv envsubst)"
+_tf_state_bucket="$(echo 'csdap-cumulus-${PREFIX}-tf-state' | ./dotenv envsubst)"
 # shellcheck disable=SC2016
-_tf_locks_table="$(echo 'csdap-${PREFIX}-tf-locks' | ./dotenv envsubst)"
+_tf_locks_table="$(echo 'cumulus-${PREFIX}-tf-locks' | ./dotenv envsubst)"
 
 ./dotenv aws s3api create-bucket --bucket "${_tf_state_bucket}" \
   --region "${_region}" \
