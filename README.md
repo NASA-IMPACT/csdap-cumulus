@@ -275,7 +275,7 @@ Here is guidance on some specific variables in `cumulus-tf/terraform.tfvars`:
   set correctly for publishing metadata to the CMR.  Consult with a team
   member for correct values, if and when you want to publish to the CMR.
 
-## Regular Deployment
+## Deployment
 
 ### Deploy the `data-persistence` Module
 
@@ -291,7 +291,10 @@ following:
 
 1. Change directory to `data-persistence-tf`
 1. Run `./tf init -reconfigure`
-1. Run `./tf apply`
+1. Run `./tf apply` (initially, this might take roughly 40 minutes to complete)
+
+You should generally not have to deploy this module again, except perhaps during
+a Cumulus upgrade.
 
 ### Deploy the `cumulus` Module
 
@@ -301,13 +304,61 @@ deploying the `cumulus` module.  To deploy the `cumulus` module:
 
 1. Change directory to `cumulus-tf`
 1. Run `./tf init -reconfigure`
-1. Run `./tf apply`
+1. Run `./tf apply` (initially, this might take roughly 1 hour to complete).
+   Note that at roughly the 1-hour mark, the command might fail with several
+   error messages of the following form:
 
+   ```plain
+   Error: error creating Lambda Function (1): InvalidParameterValueException: The provided execution role does not have permissions to call CreateNetworkInterface on EC2
+   {
+      RespMetadata: {
+         StatusCode: 400,
+         RequestID: "2215b3d5-9df6-4b27-8b3b-57d76a64a4cc"
+      },
+      Message_: "The provided execution role does not have permissions to call CreateNetworkInterface on EC2",
+      Type: "User"
+   }
+   ```
+
+   If this occurs, simply run `./tf apply` again, which should then succeed
+   within another 10 minutes or so.
+
+Finally, if you registered an Earthdata Login application to obtain values for
+your `urs_client_id` and `urs_client_password` variables, as mentioned above,
+then you must [update your Earthdata application] **only after your initial
+deployment** of the `cumulus` module.  If you don't do so after your initial
+deployment, you can do so later by running the following command to obtain the
+required values:
+
+```plain
+./tf output
+```
+
+### Destroying a Deployment
+
+**DANGER:** This should be used only in the event that you need to completely
+destroy a deployment, _incudling all related data_.  Typically, this should be
+used only when removing a development deployment, particularly when a team
+member leaves the team:
+
+```plan
+./destroy-all.sh
+```
+
+To prevent accidental annihilation, **the script will prompt you for explicit
+confirmation** of your intention.  If you provide explicit confirmation at the
+prompt, it performs what is described in the Cumulus documentation under
+[How to Destroy Everything].
+
+[How to Destroy Everything]:
+   https://nasa.github.io/cumulus/docs/v9.0.0/deployment/terraform-best-practices#how-to-destroy-everything
 [Install tfenv]:
-    https://github.com/tfutils/tfenv
+   https://github.com/tfutils/tfenv
 [Install AWS CLI v2]:
-    https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html
-[register an Earthdata Login application]:
-    https://nasa.github.io/cumulus/docs/deployment/deployment-readme#configure-earthdata-application
+   https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html
 [NGAP cloudtamer.io portal]:
-    https://cloud.earthdata.nasa.gov
+   https://cloud.earthdata.nasa.gov
+[register an Earthdata Login application]:
+   https://nasa.github.io/cumulus/docs/deployment/deployment-readme#configure-earthdata-application
+[update your Earthdata application]:
+   https://nasa.github.io/cumulus/docs/v9.0.0/deployment/deployment-readme#update-earthdata-application
