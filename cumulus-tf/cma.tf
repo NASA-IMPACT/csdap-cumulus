@@ -19,7 +19,7 @@ resource "null_resource" "cleanup_CMA_release" {
 }
 
 resource "aws_s3_bucket_object" "cma_release" {
-  depends_on = [null_resource.fetch_CMA_release]
+  depends_on = [aws_s3_bucket.var_buckets, null_resource.fetch_CMA_release]
   bucket     = var.system_bucket
   key        = "cumulus-message-adapter-${var.cumulus_message_adapter_version}.zip"
   source     = "${path.module}/cumulus-message-adapter.zip"
