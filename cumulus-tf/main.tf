@@ -51,7 +51,7 @@ locals {
 }
 
 module "cumulus" {
-  source = "https://github.com/nasa/cumulus/releases/download/v9.0.1/terraform-aws-cumulus.zip//tf-modules/cumulus"
+  source = "https://github.com/nasa/cumulus/releases/download/v9.1.0/terraform-aws-cumulus.zip//tf-modules/cumulus"
 
   depends_on = [aws_s3_bucket.var_buckets]
 
@@ -80,16 +80,6 @@ module "cumulus" {
   urs_url             = var.urs_url
   urs_client_id       = var.urs_client_id
   urs_client_password = var.urs_client_password
-
-  ems_host              = var.ems_host
-  ems_port              = var.ems_port
-  ems_path              = var.ems_path
-  ems_datasource        = var.ems_datasource
-  ems_private_key       = var.ems_private_key
-  ems_provider          = var.ems_provider
-  ems_retention_in_days = var.ems_retention_in_days
-  ems_submit_report     = var.ems_submit_report
-  ems_username          = var.ems_username
 
   metrics_es_host     = var.metrics_es_host
   metrics_es_password = var.metrics_es_password
@@ -149,8 +139,6 @@ module "cumulus" {
   additional_log_groups_to_elk = var.additional_log_groups_to_elk
 
   deploy_distribution_s3_credentials_endpoint = false
-
-  ems_deploy = var.ems_deploy
 
   tags = local.tags
 }

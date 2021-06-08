@@ -44,7 +44,7 @@ locals {
 }
 
 module "data_persistence" {
-  source = "https://github.com/nasa/cumulus/releases/download/v9.0.1/terraform-aws-cumulus.zip//tf-modules/data-persistence"
+  source = "https://github.com/nasa/cumulus/releases/download/v9.1.0/terraform-aws-cumulus.zip//tf-modules/data-persistence"
 
   elasticsearch_config       = var.elasticsearch_config
   include_elasticsearch      = var.include_elasticsearch
