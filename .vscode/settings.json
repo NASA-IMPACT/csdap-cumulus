@@ -2,6 +2,7 @@
   "deepscan.enable": true,
   "terraform-ls.rootModules": [
     "cumulus-tf",
-    "data-persistence-tf"
+    "data-persistence-tf",
+    "rds-cluster-tf"
   ]
 }
