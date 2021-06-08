@@ -31,14 +31,29 @@ data "aws_subnet_ids" "ngap_subnets" {
   }
 }
 
+data "terraform_remote_state" "rds_cluster" {
+  backend   = "s3"
+  config    = var.rds_cluster_remote_state_config
+  workspace = terraform.workspace
+}
+
+locals {
+  permissions_boundary_arn   = lookup(data.terraform_remote_state.rds_cluster.outputs, "permissions_boundary_arn", "")
+  rds_security_group_id      = lookup(data.terraform_remote_state.rds_cluster.outputs, "security_group_id", "")
+  rds_user_access_secret_arn = lookup(data.terraform_remote_state.rds_cluster.outputs, "user_credentials_secret_arn", "")
+}
+
 module "data_persistence" {
-  source = "https://github.com/nasa/cumulus/releases/download/v8.1.0/terraform-aws-cumulus.zip//tf-modules/data-persistence"
+  source = "https://github.com/nasa/cumulus/releases/download/v9.0.1/terraform-aws-cumulus.zip//tf-modules/data-persistence"
 
-  prefix                = var.prefix
-  subnet_ids            = data.aws_subnet_ids.ngap_subnets.ids
-  include_elasticsearch = var.include_elasticsearch
-
-  elasticsearch_config = var.elasticsearch_config
+  elasticsearch_config       = var.elasticsearch_config
+  include_elasticsearch      = var.include_elasticsearch
+  permissions_boundary_arn   = local.permissions_boundary_arn
+  prefix                     = var.prefix
+  rds_security_group_id      = local.rds_security_group_id
+  rds_user_access_secret_arn = local.rds_user_access_secret_arn
+  subnet_ids                 = data.aws_subnet_ids.ngap_subnets.ids
+  vpc_id                     = data.aws_vpc.ngap_vpc.id
 
   tags = {
     Deployment = var.prefix

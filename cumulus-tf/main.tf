@@ -44,12 +44,14 @@ locals {
   elasticsearch_hostname          = lookup(data.terraform_remote_state.data_persistence.outputs, "elasticsearch_hostname", null)
   elasticsearch_security_group_id = lookup(data.terraform_remote_state.data_persistence.outputs, "elasticsearch_security_group_id", "")
 
-  ngap_subnet_ids          = data.aws_subnet_ids.ngap_subnets.ids
-  permissions_boundary_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/${var.permissions_boundary_name}"
+  ngap_subnet_ids            = data.aws_subnet_ids.ngap_subnets.ids
+  permissions_boundary_arn   = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/${var.permissions_boundary_name}"
+  rds_security_group         = lookup(data.terraform_remote_state.data_persistence.outputs, "rds_security_group_id", "")
+  rds_user_access_secret_arn = lookup(data.terraform_remote_state.data_persistence.outputs, "rds_user_access_secret_arn", "")
 }
 
 module "cumulus" {
-  source = "https://github.com/nasa/cumulus/releases/download/v8.1.0/terraform-aws-cumulus.zip//tf-modules/cumulus"
+  source = "https://github.com/nasa/cumulus/releases/download/v9.0.1/terraform-aws-cumulus.zip//tf-modules/cumulus"
 
   depends_on = [aws_s3_bucket.var_buckets]
 
@@ -70,6 +72,10 @@ module "cumulus" {
   ecs_cluster_desired_size        = 1
   ecs_cluster_max_size            = 2
   key_name                        = var.key_name
+
+  rds_security_group         = local.rds_security_group
+  rds_user_access_secret_arn = local.rds_user_access_secret_arn
+  rds_connection_heartbeat   = true
 
   urs_url             = var.urs_url
   urs_client_id       = var.urs_client_id

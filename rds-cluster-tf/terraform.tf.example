@@ -1,0 +1,8 @@
+terraform {
+  backend "s3" {
+    region         = "${AWS_REGION}"
+    bucket         = "csdap-cumulus-${PREFIX}-tf-state"
+    key            = "rds-cluster/terraform.tfstate"
+    dynamodb_table = "cumulus-${PREFIX}-tf-locks"
+  }
+}

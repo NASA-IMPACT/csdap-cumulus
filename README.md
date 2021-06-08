@@ -277,15 +277,28 @@ Here is guidance on some specific variables in `cumulus-tf/terraform.tfvars`:
 
 ## Deployment
 
-### Deploy the `data-persistence` Module
-
 To ensure `terraform` sees the environment variable values provided in your
 `.env` file, each `*-tf` module directory includes a `tf` script to minimize
 typing effort.  The `tf` script is just a simple wrapper that invokes
 `terraform` with the same arguments supplied to the `tf` script, but takes care
 of setting the variables defined in the `.env` file.
 
-To deploy the data-persistence module, which must be deployed at least once
+### Deploy the `rds-cluster` Module
+
+To deploy the `rds-cluster` module, which must be deployed at least once
+prior to the first time the cumulus module is deployed (see below), do the
+following:
+
+1. Change directory to `rds-cluster-tf`
+1. Run `./tf init -reconfigure`
+1. Run `./tf apply` (initially, this might take roughly 5-10 minutes to complete)
+
+You should generally not have to deploy this module again, except perhaps during
+a Cumulus upgrade.
+
+### Deploy the `data-persistence` Module
+
+To deploy the `data-persistence` module, which must be deployed at least once
 prior to the first time the cumulus module is deployed (see below), do the
 following:
 
@@ -320,8 +333,8 @@ deploying the `cumulus` module.  To deploy the `cumulus` module:
    }
    ```
 
-   If this occurs, simply run `./tf apply` again, which should then succeed
-   within another 10 minutes or so.
+   If this occurs, simply run `./tf apply` again.  See
+   [Deploying Cumulus Troubleshooting] for more information.
 
 Finally, if you registered an Earthdata Login application to obtain values for
 your `urs_client_id` and `urs_client_password` variables, as mentioned above,
@@ -350,6 +363,8 @@ confirmation** of your intention.  If you provide explicit confirmation at the
 prompt, it performs what is described in the Cumulus documentation under
 [How to Destroy Everything].
 
+[Deploying Cumulus Troubleshooting]:
+   https://nasa.github.io/cumulus/docs/troubleshooting/troubleshooting-deployment#deploying-cumulus
 [How to Destroy Everything]:
    https://nasa.github.io/cumulus/docs/v9.0.0/deployment/terraform-best-practices#how-to-destroy-everything
 [Install tfenv]:
