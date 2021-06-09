@@ -1,28 +1,21 @@
-resource "null_resource" "fetch_CMA_release" {
-  triggers = {
-    version = var.cumulus_message_adapter_version
-  }
-  provisioner "local-exec" {
-    interpreter = ["bash", "-c"]
-    command     = "curl -sL -o cumulus-message-adapter.zip https://github.com/nasa/cumulus-message-adapter/releases/download/v${var.cumulus_message_adapter_version}/cumulus-message-adapter.zip"
-  }
+locals {
+  cma_zip_url  = "https://github.com/nasa/cumulus-message-adapter/releases/download/v${var.cumulus_message_adapter_version}/cumulus-message-adapter.zip"
+  cma_zip_name = "cumulus-message-adapter-${var.cumulus_message_adapter_version}.zip"
+  cma_zip_path = "${path.module}/${local.cma_zip_name}"
 }
 
-resource "null_resource" "cleanup_CMA_release" {
-  triggers = {
-    new_etag = aws_s3_bucket_object.cma_release.etag
-  }
+resource "null_resource" "fetch_CMA_release" {
   provisioner "local-exec" {
     interpreter = ["bash", "-c"]
-    command     = "rm -f cumulus-message-adapter.zip"
+    command     = "test ! -f ${local.cma_zip_path} && curl -sL -o ${local.cma_zip_path} ${local.cma_zip_url}"
   }
 }
 
 resource "aws_s3_bucket_object" "cma_release" {
   depends_on = [aws_s3_bucket.var_buckets, null_resource.fetch_CMA_release]
   bucket     = var.system_bucket
-  key        = "cumulus-message-adapter-${var.cumulus_message_adapter_version}.zip"
-  source     = "${path.module}/cumulus-message-adapter.zip"
+  key        = local.cma_zip_name
+  source     = local.cma_zip_path
 }
 
 resource "aws_lambda_layer_version" "cma_layer" {
