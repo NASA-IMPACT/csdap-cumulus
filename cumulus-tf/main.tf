@@ -29,13 +29,6 @@ provider "aws" {
   }
 }
 
-resource "aws_s3_bucket" "var_buckets" {
-  for_each      = var.buckets
-  bucket        = each.value.name
-  tags          = local.tags
-  force_destroy = true
-}
-
 locals {
   tags = merge(var.tags, { Deployment = var.prefix })
 
@@ -48,6 +41,13 @@ locals {
   permissions_boundary_arn   = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/${var.permissions_boundary_name}"
   rds_security_group         = lookup(data.terraform_remote_state.data_persistence.outputs, "rds_security_group_id", "")
   rds_user_access_secret_arn = lookup(data.terraform_remote_state.data_persistence.outputs, "rds_user_access_secret_arn", "")
+}
+
+resource "aws_s3_bucket" "var_buckets" {
+  for_each      = var.buckets
+  bucket        = each.value.name
+  force_destroy = true
+  tags          = local.tags
 }
 
 module "cumulus" {
