@@ -8,12 +8,6 @@ variable "aws_profile" {
   default = null
 }
 
-variable "cluster_identifier" {
-  description = "DB identifier for the RDS cluster that will be created"
-  type        = string
-  default     = "cumulus-rds-serverless-default-cluster"
-}
-
 variable "db_admin_username" {
   description = "Username for RDS database authentication"
   type        = string
