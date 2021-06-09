@@ -68,6 +68,16 @@ function delete_tables() {
   done
 }
 
+function delete_rds_cluster() {
+  local _prefix
+  local _tables
+
+  _prefix=${1}
+
+  echo "./dotenv aws rds modify-db-cluster --db-cluster-identifier cumulus-${_prefix}-rds-serverless --no-deletion-protection"
+  echo "./dotenv aws rds delete-db-cluster --db-cluster-identifier cumulus-${_prefix}-rds-serverless --skip-final-snapshot"
+}
+
 function delete_buckets() {
   local _prefix
   local _buckets
@@ -103,6 +113,8 @@ function make_plan() {
   destroy "cumulus-tf"
   delete_tables "${_prefix}"
   destroy "data-persistence-tf"
+  delete_rds_cluster "${_prefix}"
+  destroy "rds-cluster-tf"
   delete_buckets "${_prefix}"
 }
 
