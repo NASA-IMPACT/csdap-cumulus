@@ -237,11 +237,15 @@ control so that it does not conflict with settings appropriate for others.
 
 ### Initialize Terraform Configuration
 
+| OS X USERS |
+| :--------- |
+| You must install the `envsubst` utility.  If you have Homebrew installed, the easiest way to install the utility is by installing the `gettext` package by running `brew install gettext`.
+
 First, create backend resources required by Terraform (for managing Terraform's
 state file):
 
 ```bash
-./dotenv ./setup-tf-backend-resources.sh
+./setup-tf-backend-resources.sh
 ```
 
 Next, create Terraform configuration files (for configuring Cumulus Terraform
