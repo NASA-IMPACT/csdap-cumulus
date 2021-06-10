@@ -6,6 +6,22 @@ locals {
   tea_stage_name = "DEV"
 }
 
+resource "aws_secretsmanager_secret" "thin_egress_app_jwt_keys" {
+  name_prefix = "${var.prefix}-thin-egress-app-jwt-keys"
+  description = "RS256 keys for Thin Egress App JWT cookies"
+  tags        = local.tags
+}
+
+resource "aws_secretsmanager_secret_version" "thin_egress_app_jwt_keys" {
+  secret_id     = aws_secretsmanager_secret.thin_egress_app_jwt_keys.id
+  secret_string = jsonencode(data.external.generate_tea_jwt_cookie_keys.result)
+}
+
+data "external" "generate_tea_jwt_cookie_keys" {
+  working_dir = path.module
+  program     = ["./generate-tea-jwt-cookie-keys.sh"]
+}
+
 resource "aws_secretsmanager_secret" "thin_egress_urs_creds" {
   name_prefix = "${var.prefix}-tea-urs-creds-"
   description = "URS credentials for the ${var.prefix} Thin Egress App"
@@ -13,25 +29,26 @@ resource "aws_secretsmanager_secret" "thin_egress_urs_creds" {
 }
 
 resource "aws_secretsmanager_secret_version" "thin_egress_urs_creds" {
-  secret_id     = aws_secretsmanager_secret.thin_egress_urs_creds.id
+  secret_id = aws_secretsmanager_secret.thin_egress_urs_creds.id
   secret_string = jsonencode({
-    UrsId       = var.urs_client_id
-    UrsAuth     = base64encode("${var.urs_client_id}:${var.urs_client_password}")
+    UrsId   = var.urs_client_id
+    UrsAuth = base64encode("${var.urs_client_id}:${var.urs_client_password}")
   })
 }
 
 resource "aws_s3_bucket_object" "bucket_map_yaml" {
-  bucket  = var.system_bucket
-  key     = "${var.prefix}/thin-egress-app/bucket_map.yaml"
+  depends_on = [aws_s3_bucket.var_buckets]
+  bucket     = var.system_bucket
+  key        = "${var.prefix}/thin-egress-app/bucket_map.yaml"
   content = templatefile("${path.module}/thin-egress-app/bucket_map.yaml.tmpl", {
     protected_buckets = local.protected_bucket_names,
-    public_buckets = local.public_bucket_names
+    public_buckets    = local.public_bucket_names
   })
-  etag    = md5(templatefile("${path.module}/thin-egress-app/bucket_map.yaml.tmpl", {
+  etag = md5(templatefile("${path.module}/thin-egress-app/bucket_map.yaml.tmpl", {
     protected_buckets = local.protected_bucket_names,
-    public_buckets = local.public_bucket_names
+    public_buckets    = local.public_bucket_names
   }))
-  tags    = var.tags
+  tags = var.tags
 }
 
 module "thin_egress_app" {

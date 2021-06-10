@@ -1,7 +1,22 @@
 terraform {
+  required_version = "0.13.6"
   required_providers {
-    aws  = ">= 3.5.0"
-    null = "~> 2.1"
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 3.14.1"
+    }
+    external = {
+      source  = "hashicorp/external"
+      version = "~> 2.1.0"
+    }
+    null = {
+      source  = "hashicorp/null"
+      version = "~> 2.1"
+    }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.1.0"
+    }
   }
 }
 
@@ -22,45 +37,23 @@ locals {
   elasticsearch_hostname          = lookup(data.terraform_remote_state.data_persistence.outputs, "elasticsearch_hostname", null)
   elasticsearch_security_group_id = lookup(data.terraform_remote_state.data_persistence.outputs, "elasticsearch_security_group_id", "")
 
-  ngap_subnet_ids = data.aws_subnet_ids.ngap_subnets.ids
-  permissions_boundary_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/${var.permissions_boundary_name}"
+  ngap_subnet_ids            = data.aws_subnet_ids.ngap_subnets.ids
+  permissions_boundary_arn   = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/${var.permissions_boundary_name}"
+  rds_security_group         = lookup(data.terraform_remote_state.data_persistence.outputs, "rds_security_group_id", "")
+  rds_user_access_secret_arn = lookup(data.terraform_remote_state.data_persistence.outputs, "rds_user_access_secret_arn", "")
 }
 
-data "aws_caller_identity" "current" {}
-data "aws_region" "current" {}
-
-data "terraform_remote_state" "data_persistence" {
-  backend   = "s3"
-  config    = var.data_persistence_remote_state_config
-  workspace = terraform.workspace
-}
-
-resource "random_string" "token_secret" {
-  length = 32
-  special = true
-}
-
-data "aws_ssm_parameter" "ecs_image_id" {
-  name = "image_id_ecs_amz2"
-}
-
-data "aws_vpc" "ngap_vpc" {
-  tags = {
-    Name = "Application VPC"
-  }
-}
-
-data "aws_subnet_ids" "ngap_subnets" {
-  vpc_id = data.aws_vpc.ngap_vpc.id
-
-  filter {
-    name   = "tag:Name"
-    values = ["Private application *"]
-  }
+resource "aws_s3_bucket" "var_buckets" {
+  for_each      = var.buckets
+  bucket        = each.value.name
+  force_destroy = true
+  tags          = local.tags
 }
 
 module "cumulus" {
-  source = "https://github.com/nasa/cumulus/releases/download/v8.1.0/terraform-aws-cumulus.zip//tf-modules/cumulus"
+  source = "https://github.com/nasa/cumulus/releases/download/v9.1.0/terraform-aws-cumulus.zip//tf-modules/cumulus"
+
+  depends_on = [aws_s3_bucket.var_buckets]
 
   # DO NOT change this value unless deploying outside of NGAP
   deploy_to_ngap = true
@@ -75,24 +68,18 @@ module "cumulus" {
 
   ecs_cluster_instance_image_id   = data.aws_ssm_parameter.ecs_image_id.value
   ecs_cluster_instance_subnet_ids = length(var.ecs_cluster_instance_subnet_ids) == 0 ? local.ngap_subnet_ids : var.ecs_cluster_instance_subnet_ids
-  ecs_cluster_min_size     = 1
-  ecs_cluster_desired_size = 1
-  ecs_cluster_max_size     = 2
-  key_name                 = var.key_name
+  ecs_cluster_min_size            = 1
+  ecs_cluster_desired_size        = 1
+  ecs_cluster_max_size            = 2
+  key_name                        = var.key_name
+
+  rds_security_group         = local.rds_security_group
+  rds_user_access_secret_arn = local.rds_user_access_secret_arn
+  rds_connection_heartbeat   = true
 
   urs_url             = var.urs_url
   urs_client_id       = var.urs_client_id
   urs_client_password = var.urs_client_password
-
-  ems_host              = var.ems_host
-  ems_port              = var.ems_port
-  ems_path              = var.ems_path
-  ems_datasource        = var.ems_datasource
-  ems_private_key       = var.ems_private_key
-  ems_provider          = var.ems_provider
-  ems_retention_in_days = var.ems_retention_in_days
-  ems_submit_report     = var.ems_submit_report
-  ems_username          = var.ems_username
 
   metrics_es_host     = var.metrics_es_host
   metrics_es_password = var.metrics_es_password
@@ -143,18 +130,15 @@ module "cumulus" {
   # must match stage_name variable for thin-egress-app module
   tea_api_gateway_stage = local.tea_stage_name
 
-  tea_rest_api_id = module.thin_egress_app.rest_api.id
+  tea_rest_api_id               = module.thin_egress_app.rest_api.id
   tea_rest_api_root_resource_id = module.thin_egress_app.rest_api.root_resource_id
-  tea_internal_api_endpoint = module.thin_egress_app.internal_api_endpoint
-  tea_external_api_endpoint = module.thin_egress_app.api_endpoint
+  tea_internal_api_endpoint     = module.thin_egress_app.internal_api_endpoint
+  tea_external_api_endpoint     = module.thin_egress_app.api_endpoint
 
-  log_destination_arn = var.log_destination_arn
-  additional_log_groups_to_elk  = var.additional_log_groups_to_elk
+  log_destination_arn          = var.log_destination_arn
+  additional_log_groups_to_elk = var.additional_log_groups_to_elk
 
   deploy_distribution_s3_credentials_endpoint = false
 
-  ems_deploy = var.ems_deploy
-
   tags = local.tags
 }
-

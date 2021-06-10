@@ -1,24 +1,31 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-if [ -z "$PREFIX" ]; then
-  echo "PREFIX is a required variable, exiting"
-  exit 1
-fi
+set -Eeou pipefail
 
-AWS_REGION=$(aws configure get region --profile "$AWS_PROFILE")
-STATE_BUCKET="$PREFIX-tf-state"
-LOCKS_TABLE="$PREFIX-tf-locks"
+# Creates the resources necessary for managing the Terraform state files using
+# AWS.  This includes a bucket for persisting the state files, along with a
+# DynamoDB table for managing locks on the state files (to avoid simultaneous
+# updates).  Versioning is enabled on the bucket to facilitate restoring
+# previous versions of state files in the event of corruption.
 
-aws s3api create-bucket --bucket "$STATE_BUCKET" \
-  --region "$AWS_REGION" \
-  --create-bucket-configuration LocationConstraint="$AWS_REGION"
-aws s3api put-bucket-versioning \
-    --bucket "$STATE_BUCKET" \
-    --versioning-configuration Status=Enabled
+# shellcheck disable=SC2016
+_region="$(echo '${AWS_REGION}' | ./dotenv envsubst)"
+# shellcheck disable=SC2016
+_tf_state_bucket="$(echo 'csdap-cumulus-${PREFIX}-tf-state' | ./dotenv envsubst)"
+# shellcheck disable=SC2016
+_tf_locks_table="$(echo 'cumulus-${PREFIX}-tf-locks' | ./dotenv envsubst)"
 
- aws dynamodb create-table \
-    --table-name "$LOCKS_TABLE" \
-    --attribute-definitions AttributeName=LockID,AttributeType=S \
-    --key-schema AttributeName=LockID,KeyType=HASH \
-    --billing-mode PAY_PER_REQUEST \
-    --region "$AWS_REGION"
+./dotenv aws s3api create-bucket --bucket "${_tf_state_bucket}" \
+  --region "${_region}" \
+  --create-bucket-configuration LocationConstraint="${_region}"
+
+./dotenv aws s3api put-bucket-versioning \
+  --bucket "${_tf_state_bucket}" \
+  --versioning-configuration Status=Enabled
+
+./dotenv aws dynamodb create-table \
+  --table-name "${_tf_locks_table}" \
+  --attribute-definitions AttributeName=LockID,AttributeType=S \
+  --key-schema AttributeName=LockID,KeyType=HASH \
+  --billing-mode PAY_PER_REQUEST \
+  --region "${_region}"

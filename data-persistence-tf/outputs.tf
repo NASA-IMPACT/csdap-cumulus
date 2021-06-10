@@ -17,3 +17,11 @@ output "elasticsearch_security_group_id" {
 output "elasticsearch_alarms" {
   value = module.data_persistence.elasticsearch_alarms
 }
+
+output "rds_security_group_id" {
+  value = local.rds_security_group_id
+}
+
+output "rds_user_access_secret_arn" {
+  value = local.rds_user_access_secret_arn
+}

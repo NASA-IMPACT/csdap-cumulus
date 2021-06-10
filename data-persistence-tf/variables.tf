@@ -1,15 +1,6 @@
-variable "prefix" {
-  type = string
-}
-
 variable "aws_region" {
   type    = string
   default = "us-east-1"
-}
-
-variable "include_elasticsearch" {
-  type    = bool
-  default = true
 }
 
 variable "elasticsearch_config" {
@@ -28,4 +19,17 @@ variable "elasticsearch_config" {
     version        = "5.3"
     volume_size    = 10
   }
+}
+
+variable "include_elasticsearch" {
+  type    = bool
+  default = true
+}
+
+variable "prefix" {
+  type = string
+}
+
+variable "rds_cluster_remote_state_config" {
+  type = object({ bucket = string, key = string, region = string })
 }

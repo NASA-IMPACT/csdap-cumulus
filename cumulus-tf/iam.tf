@@ -1,9 +1,13 @@
 # temporary workaround for dashboard permissions issue
 data "aws_iam_role" "api_gateway_role" {
+  depends_on = [module.cumulus]
+
   name = "${var.prefix}-lambda-api-gateway"
 }
 
 data "aws_s3_bucket" "dashboard_bucket" {
+  depends_on = [aws_s3_bucket.var_buckets]
+
   bucket = var.buckets.dashboard.name
 }
 
