@@ -19,7 +19,7 @@ resource "aws_secretsmanager_secret_version" "thin_egress_app_jwt_keys" {
 
 data "external" "generate_tea_jwt_cookie_keys" {
   working_dir = path.module
-  program     = ["./generate-tea-jwt-cookie-keys.sh"]
+  program     = ["bin/generate-tea-jwt-cookie-keys.sh"]
 }
 
 resource "aws_secretsmanager_secret" "thin_egress_urs_creds" {
