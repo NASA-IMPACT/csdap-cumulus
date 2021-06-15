@@ -241,8 +241,8 @@ control so that it does not conflict with settings appropriate for others.
 | :--------- |
 | You must install the `envsubst` utility.  If you have Homebrew installed, the easiest way to install the utility is by installing the `gettext` package by running `brew install gettext`.
 
-First, create backend resources required by Terraform (for managing Terraform's
-state file):
+First, create backend resources required by Terraform (for managing Terraform
+state files):
 
 ```bash
 ./setup-tf-backend-resources.sh
@@ -354,7 +354,7 @@ required values:
 ### Destroying a Deployment
 
 **DANGER:** This should be used only in the event that you need to completely
-destroy a deployment, _incudling all related data_.  Typically, this should be
+destroy a deployment, _including all related data_.  Typically, this should be
 used only when removing a development deployment, particularly when a team
 member leaves the team:
 
