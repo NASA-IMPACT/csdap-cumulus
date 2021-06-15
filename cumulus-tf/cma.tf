@@ -11,6 +11,14 @@ resource "null_resource" "fetch_CMA_release" {
   }
 }
 
+resource "null_resource" "clean_CMA_release" {
+  depends_on = [aws_lambda_layer_version.cma_layer]
+  provisioner "local-exec" {
+    interpreter = ["bash", "-c"]
+    command     = "rm -f ${local.cma_zip_path}"
+  }
+}
+
 resource "aws_s3_bucket_object" "cma_release" {
   depends_on = [aws_s3_bucket.var_buckets, null_resource.fetch_CMA_release]
   bucket     = var.system_bucket
