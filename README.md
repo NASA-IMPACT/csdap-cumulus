@@ -281,75 +281,68 @@ Here is guidance on some specific variables in `cumulus-tf/terraform.tfvars`:
 
 ## Deployment
 
-To ensure `terraform` sees the environment variable values provided in your
-`.env` file, each `*-tf` module directory includes a `tf` script to minimize
-typing effort.  The `tf` script is just a simple wrapper that invokes
-`terraform` with the same arguments supplied to the `tf` script, but takes care
-of setting the variables defined in the `.env` file.
+To deploy all out-of-date Terraform modules, simply run the following:
 
-### Deploy the `rds-cluster` Module
+```plain
+make up
+```
 
-To deploy the `rds-cluster` module, which must be deployed at least once
-prior to the first time the cumulus module is deployed (see below), do the
-following:
+This will deploy all out-of-date modules in the correct order dictated by their
+dependencies specified in `Makefile`.
 
-1. Change directory to `rds-cluster-tf`
-1. Run `./tf init -reconfigure`
-1. Run `./tf apply` (initially, this might take roughly 5-10 minutes to complete)
+Upon initial deployment, all modules will be deployed, and this will take
+roughly 2 hours in total, as follows:
 
-You should generally not have to deploy this module again, except perhaps during
-a Cumulus upgrade.
+- `rds-cluster`: Initially, this might take roughly 5-10 minutes to complete.
+- `data-persistence`: Initially, this might take roughly 40 minutes to complete.
+- `cumulus`: Initially, this might take roughly 1 hour to complete.  Note that
+  at roughly the 1-hour mark, the command might fail with several error messages
+  of the following form:
 
-### Deploy the `data-persistence` Module
+  ```plain
+  Error: error creating Lambda Function (1): InvalidParameterValueException: The provided execution role does not have permissions to call CreateNetworkInterface on EC2
+  {
+     RespMetadata: {
+        StatusCode: 400,
+        RequestID: "2215b3d5-9df6-4b27-8b3b-57d76a64a4cc"
+     },
+     Message_: "The provided execution role does not have permissions to call CreateNetworkInterface on EC2",
+     Type: "User"
+  }
+  ```
 
-To deploy the `data-persistence` module, which must be deployed at least once
-prior to the first time the cumulus module is deployed (see below), do the
-following:
+  If this occurs, simply run `make up` again.  See
+  [Deploying Cumulus Troubleshooting] for more information.
 
-1. Change directory to `data-persistence-tf`
-1. Run `./tf init -reconfigure`
-1. Run `./tf apply` (initially, this might take roughly 40 minutes to complete)
-
-You should generally not have to deploy this module again, except perhaps during
-a Cumulus upgrade.
-
-### Deploy the `cumulus` Module
-
-As noted above, the `cumulus` module depends on the `data-persistence` module,
-so the `data-persistence` module must be deployed at least once prior to
-deploying the `cumulus` module.  To deploy the `cumulus` module:
-
-1. Change directory to `cumulus-tf`
-1. Run `./tf init -reconfigure`
-1. Run `./tf apply` (initially, this might take roughly 1 hour to complete).
-   Note that at roughly the 1-hour mark, the command might fail with several
-   error messages of the following form:
-
-   ```plain
-   Error: error creating Lambda Function (1): InvalidParameterValueException: The provided execution role does not have permissions to call CreateNetworkInterface on EC2
-   {
-      RespMetadata: {
-         StatusCode: 400,
-         RequestID: "2215b3d5-9df6-4b27-8b3b-57d76a64a4cc"
-      },
-      Message_: "The provided execution role does not have permissions to call CreateNetworkInterface on EC2",
-      Type: "User"
-   }
-   ```
-
-   If this occurs, simply run `./tf apply` again.  See
-   [Deploying Cumulus Troubleshooting] for more information.
-
-Finally, if you registered an Earthdata Login application to obtain values for
+If you registered an Earthdata Login application to obtain values for
 your `urs_client_id` and `urs_client_password` variables, as mentioned above,
 then you must [update your Earthdata application] **only after your initial
 deployment** of the `cumulus` module.  If you don't do so after your initial
 deployment, you can do so later by running the following command to obtain the
-required values:
+values required to update your application:
 
 ```plain
-./tf output
+make -C cumulus-tf output
 ```
+
+### Running Arbitrary Terraform Commands
+
+To ensure `terraform` commands use the environment variable values provided in
+your `.env` file, each `*-tf` module directory includes a `tf` script to
+minimize typing effort.  The `tf` script is just a simple wrapper that invokes
+`terraform` with the same arguments that you supply to the `tf` script, but
+takes care of setting the environment variables defined in your `.env` file.
+
+In order to run a specific `terraform` command for a specific module, you must
+first change directory to the appropriate `*-tf` subdirectory, then invoke the
+script as follows:
+
+```plain
+./tf COMMAND [OPTIONS] [ARGS]
+```
+
+This is provided simply for convenience in cases where the available `make`
+commands are insufficient.
 
 ### Destroying a Deployment
 

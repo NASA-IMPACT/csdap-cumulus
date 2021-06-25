@@ -1,5 +1,6 @@
 .env
 *.zip
+deploy
 terraform.tf
 terraform.tfvars
 
