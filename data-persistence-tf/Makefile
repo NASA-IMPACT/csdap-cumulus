@@ -1,7 +1,16 @@
+TF = ../dotenv terraform
+
 deploy: *.tf *.tfvars
-	../dotenv terraform init -reconfigure
-	../dotenv terraform apply -auto-approve
+	$(TF) fmt -check
+	$(TF) init -reconfigure
+	$(TF) apply -auto-approve
 	touch deploy
 
+clean:
+	rm -f deploy
+
+format:
+	$(TF) fmt -check
+
 output:
-	../dotenv terraform output
+	$(TF) output
