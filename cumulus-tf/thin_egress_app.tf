@@ -7,7 +7,7 @@ locals {
 }
 
 resource "aws_secretsmanager_secret" "thin_egress_app_jwt_keys" {
-  name_prefix = "${var.prefix}-thin-egress-app-jwt-keys"
+  name_prefix = "${var.prefix}-thin-egress-app-jwt-keys-"
   description = "RS256 keys for Thin Egress App JWT cookies"
   tags        = local.tags
 }
@@ -19,7 +19,7 @@ resource "aws_secretsmanager_secret_version" "thin_egress_app_jwt_keys" {
 
 data "external" "generate_tea_jwt_cookie_keys" {
   working_dir = path.module
-  program     = ["./generate-tea-jwt-cookie-keys.sh"]
+  program     = ["bin/generate-tea-jwt-cookie-keys.sh"]
 }
 
 resource "aws_secretsmanager_secret" "thin_egress_urs_creds" {
@@ -59,7 +59,7 @@ module "thin_egress_app" {
   bucketname_prefix             = ""
   config_bucket                 = var.system_bucket
   domain_name                   = var.distribution_url == null ? null : replace(replace(var.distribution_url, "/^https?:///", ""), "//$/", "")
-  jwt_secret_name               = var.thin_egress_jwt_secret_name
+  jwt_secret_name               = aws_secretsmanager_secret.thin_egress_app_jwt_keys.name
   permissions_boundary_name     = var.permissions_boundary_name
   private_vpc                   = data.aws_vpc.ngap_vpc.id
   stack_name                    = local.tea_stack_name

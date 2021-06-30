@@ -53,4 +53,5 @@ if grep "=\s*$" "${_dotenv_file}" >&2; then
   exit 1
 fi
 
-env -S "$(<"${_dotenv_file}")" "$@"
+# shellcheck disable=SC2046
+env $(<"${_dotenv_file}") "$@"

@@ -9,4 +9,9 @@ if [[ ! -f ${_keyfile} ]]; then
   ssh-keygen -q -t rsa -b 4096 -m PEM -f "${_keyfile}" -N ""
 fi
 
-echo "{\"rsa_priv_key\":\"$(openssl base64 -in "${_keyfile}" -A)\",\"rsa_pub_key\":\"$(openssl base64 -in "${_keyfile}.pub" -A)\"}"
+cat <<JSON
+{
+  "rsa_priv_key": "$(openssl base64 -in "${_keyfile}" -A)",
+  "rsa_pub_key": "$(openssl base64 -in "${_keyfile}.pub" -A)"
+}
+JSON

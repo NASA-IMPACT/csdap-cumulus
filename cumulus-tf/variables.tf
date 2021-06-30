@@ -70,7 +70,7 @@ variable "s3_replicator_config" {
 }
 
 variable "permissions_boundary_name" {
-  type    = string
+  type = string
 }
 
 variable "prefix" {
@@ -123,7 +123,7 @@ variable "api_gateway_stage" {
 }
 
 variable "buckets" {
-  type    = map(object({ name = string, type = string }))
+  type    = map(object({ name = string, type = string, managed = bool }))
   default = {}
 }
 

@@ -37,6 +37,7 @@ locals {
   elasticsearch_hostname          = lookup(data.terraform_remote_state.data_persistence.outputs, "elasticsearch_hostname", null)
   elasticsearch_security_group_id = lookup(data.terraform_remote_state.data_persistence.outputs, "elasticsearch_security_group_id", "")
 
+  managed_buckets            = toset([for _, bucket in var.buckets : bucket.name if bucket.managed == true])
   ngap_subnet_ids            = data.aws_subnet_ids.ngap_subnets.ids
   permissions_boundary_arn   = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/${var.permissions_boundary_name}"
   rds_security_group         = lookup(data.terraform_remote_state.data_persistence.outputs, "rds_security_group_id", "")
@@ -44,10 +45,15 @@ locals {
 }
 
 resource "aws_s3_bucket" "var_buckets" {
-  for_each      = var.buckets
-  bucket        = each.value.name
+  for_each      = local.managed_buckets
+  bucket        = each.value
   force_destroy = true
   tags          = local.tags
+}
+
+data "aws_s3_bucket" "system_bucket" {
+  depends_on = [aws_s3_bucket.var_buckets]
+  bucket     = var.system_bucket
 }
 
 module "cumulus" {

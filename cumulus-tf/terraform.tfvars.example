@@ -8,24 +8,39 @@ prefix = "cumulus-${PREFIX}"
 
 buckets = {
   internal = {
-    name = "csdap-cumulus-${PREFIX}-internal"
-    type = "internal"
+    name    = "csdap-cumulus-${PREFIX}-internal"
+    type    = "internal"
+    managed = true
   }
   private = {
-    name = "csdap-cumulus-${PREFIX}-private"
-    type = "private"
+    name    = "csdap-cumulus-${PREFIX}-private"
+    type    = "private"
+    managed = true
   },
   protected = {
-    name = "csdap-cumulus-${PREFIX}-protected"
-    type = "protected"
+    name    = "csdap-cumulus-${PREFIX}-protected"
+    type    = "protected"
+    managed = true
   },
   public = {
-    name = "csdap-cumulus-${PREFIX}-public"
-    type = "public"
+    name    = "csdap-cumulus-${PREFIX}-public"
+    type    = "public"
+    managed = true
   },
   dashboard = {
-    name = "csdap-cumulus-${PREFIX}-dashboard"
-    type = "dashboard"
+    name    = "csdap-cumulus-${PREFIX}-dashboard"
+    type    = "dashboard"
+    managed = true
+  }
+  provider = {
+    name    = "csdap-cumulus-test-data-bucket"
+    type    = "internal"
+    managed = false
+  }
+  download = {
+    name    = "csdap-uat-protected"
+    type    = "protected"
+    managed = false
   }
 }
 

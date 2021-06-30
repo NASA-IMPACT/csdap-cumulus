@@ -1,5 +1,6 @@
 .env
 *.zip
+deploy
 terraform.tf
 terraform.tfvars
 
@@ -8,7 +9,7 @@ terraform.tfvars
 
 ### Terraform ###
 # Local .terraform directories
-**/.terraform/*
+**/.terraform/
 
 # .tfstate files
 *.tfstate

@@ -5,9 +5,20 @@ locals {
 }
 
 resource "null_resource" "fetch_CMA_release" {
+  triggers = {
+    updated_buckets = data.aws_s3_bucket.system_bucket.id
+  }
   provisioner "local-exec" {
     interpreter = ["bash", "-c"]
-    command     = "test ! -f ${local.cma_zip_path} && curl -sL -o ${local.cma_zip_path} ${local.cma_zip_url}"
+    command     = "curl -L -o ${local.cma_zip_path} ${local.cma_zip_url}"
+  }
+}
+
+resource "null_resource" "clean_CMA_release" {
+  depends_on = [null_resource.fetch_CMA_release, aws_lambda_layer_version.cma_layer]
+  provisioner "local-exec" {
+    interpreter = ["bash", "-c"]
+    command     = "rm -f ${local.cma_zip_path}"
   }
 }
 

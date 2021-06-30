@@ -241,8 +241,8 @@ control so that it does not conflict with settings appropriate for others.
 | :--------- |
 | You must install the `envsubst` utility.  If you have Homebrew installed, the easiest way to install the utility is by installing the `gettext` package by running `brew install gettext`.
 
-First, create backend resources required by Terraform (for managing Terraform's
-state file):
+First, create backend resources required by Terraform (for managing Terraform
+state files):
 
 ```bash
 ./setup-tf-backend-resources.sh
@@ -281,80 +281,73 @@ Here is guidance on some specific variables in `cumulus-tf/terraform.tfvars`:
 
 ## Deployment
 
-To ensure `terraform` sees the environment variable values provided in your
-`.env` file, each `*-tf` module directory includes a `tf` script to minimize
-typing effort.  The `tf` script is just a simple wrapper that invokes
-`terraform` with the same arguments supplied to the `tf` script, but takes care
-of setting the variables defined in the `.env` file.
+To deploy all out-of-date Terraform modules, simply run the following:
 
-### Deploy the `rds-cluster` Module
+```plain
+make up
+```
 
-To deploy the `rds-cluster` module, which must be deployed at least once
-prior to the first time the cumulus module is deployed (see below), do the
-following:
+This will deploy all out-of-date modules in the correct order dictated by their
+dependencies specified in `Makefile`.
 
-1. Change directory to `rds-cluster-tf`
-1. Run `./tf init -reconfigure`
-1. Run `./tf apply` (initially, this might take roughly 5-10 minutes to complete)
+Upon initial deployment, all modules will be deployed, and this will take
+roughly 2 hours in total, as follows:
 
-You should generally not have to deploy this module again, except perhaps during
-a Cumulus upgrade.
+- `rds-cluster`: Initially, this might take roughly 5-10 minutes to complete.
+- `data-persistence`: Initially, this might take roughly 40 minutes to complete.
+- `cumulus`: Initially, this might take roughly 1 hour to complete.  Note that
+  at roughly the 1-hour mark, the command might fail with several error messages
+  of the following form:
 
-### Deploy the `data-persistence` Module
+  ```plain
+  Error: error creating Lambda Function (1): InvalidParameterValueException: The provided execution role does not have permissions to call CreateNetworkInterface on EC2
+  {
+     RespMetadata: {
+        StatusCode: 400,
+        RequestID: "2215b3d5-9df6-4b27-8b3b-57d76a64a4cc"
+     },
+     Message_: "The provided execution role does not have permissions to call CreateNetworkInterface on EC2",
+     Type: "User"
+  }
+  ```
 
-To deploy the `data-persistence` module, which must be deployed at least once
-prior to the first time the cumulus module is deployed (see below), do the
-following:
+  If this occurs, simply run `make up` again.  See
+  [Deploying Cumulus Troubleshooting] for more information.
 
-1. Change directory to `data-persistence-tf`
-1. Run `./tf init -reconfigure`
-1. Run `./tf apply` (initially, this might take roughly 40 minutes to complete)
-
-You should generally not have to deploy this module again, except perhaps during
-a Cumulus upgrade.
-
-### Deploy the `cumulus` Module
-
-As noted above, the `cumulus` module depends on the `data-persistence` module,
-so the `data-persistence` module must be deployed at least once prior to
-deploying the `cumulus` module.  To deploy the `cumulus` module:
-
-1. Change directory to `cumulus-tf`
-1. Run `./tf init -reconfigure`
-1. Run `./tf apply` (initially, this might take roughly 1 hour to complete).
-   Note that at roughly the 1-hour mark, the command might fail with several
-   error messages of the following form:
-
-   ```plain
-   Error: error creating Lambda Function (1): InvalidParameterValueException: The provided execution role does not have permissions to call CreateNetworkInterface on EC2
-   {
-      RespMetadata: {
-         StatusCode: 400,
-         RequestID: "2215b3d5-9df6-4b27-8b3b-57d76a64a4cc"
-      },
-      Message_: "The provided execution role does not have permissions to call CreateNetworkInterface on EC2",
-      Type: "User"
-   }
-   ```
-
-   If this occurs, simply run `./tf apply` again.  See
-   [Deploying Cumulus Troubleshooting] for more information.
-
-Finally, if you registered an Earthdata Login application to obtain values for
+If you registered an Earthdata Login application to obtain values for
 your `urs_client_id` and `urs_client_password` variables, as mentioned above,
 then you must [update your Earthdata application] **only after your initial
 deployment** of the `cumulus` module.  If you don't do so after your initial
 deployment, you can do so later by running the following command to obtain the
-required values:
+values required to update your application:
 
 ```plain
-./tf output
+make -C cumulus-tf output
 ```
+
+### Running Arbitrary Terraform Commands
+
+To ensure `terraform` commands use the environment variable values provided in
+your `.env` file, each `*-tf` module directory includes a `tf` script to
+minimize typing effort.  The `tf` script is just a simple wrapper that invokes
+`terraform` with the same arguments that you supply to the `tf` script, but
+takes care of setting the environment variables defined in your `.env` file.
+
+In order to run a specific `terraform` command for a specific module, you must
+first change directory to the appropriate `*-tf` subdirectory, then invoke the
+script as follows:
+
+```plain
+./tf COMMAND [OPTIONS] [ARGS]
+```
+
+This is provided simply for convenience in cases where the available `make`
+commands are insufficient.
 
 ### Destroying a Deployment
 
 **DANGER:** This should be used only in the event that you need to completely
-destroy a deployment, _incudling all related data_.  Typically, this should be
+destroy a deployment, _including all related data_.  Typically, this should be
 used only when removing a development deployment, particularly when a team
 member leaves the team:
 
@@ -366,6 +359,51 @@ To prevent accidental annihilation, **the script will prompt you for explicit
 confirmation** of your intention.  If you provide explicit confirmation at the
 prompt, it performs what is described in the Cumulus documentation under
 [How to Destroy Everything].
+
+## Upgrading Cumulus
+
+The instructions in the following subsections assume that you have already
+completed all of the preceding instructions for setup and deployment of an
+earlier version of Cumulus.
+
+When upgrading Cumulus, unless specified otherwise, you must perform the
+upgrade steps for each version from your existing version _through_ the target
+version.  In other words, you cannot skip upgrade steps and simply perform only
+the steps listed for the target version you wish to reach.
+
+For example, if you currently have version 8.0.1 deployed, and you want to
+upgrade to 9.2.0, you must first upgrade to 9.1.0, and then upgrade to 9.2.0.
+
+### Upgrading to Cumulus 9.1.0
+
+The module `rds-cluster` has been added.  Therefore, you must first generate the
+corresponding Terraform configuration files in the `rds-cluster-tf` directory by
+running the following command from the root of the repository:
+
+```plain
+./setup-tf-config.sh
+```
+
+This will generate the following files for you:
+
+- `rds-cluster-tf/terraform.tf`
+- `rds-cluster-tf/terraform.tfvars`
+
+It will also add a reference in your `data-persistence-tf/terraform.tfvars` file
+to the Terraform state file for the `rds-cluster` module, as the
+`data-persistence` module now depends upon the `rds-cluster` module.
+
+You should now (re)deploy everything:
+
+```plain
+make up
+```
+
+This might take roughly 30 minutes to complete.
+
+### Upgrading to Cumulus 9.2.0
+
+TBD
 
 [Deploying Cumulus Troubleshooting]:
    https://nasa.github.io/cumulus/docs/troubleshooting/troubleshooting-deployment#deploying-cumulus
