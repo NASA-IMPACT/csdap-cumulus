@@ -51,6 +51,11 @@ resource "aws_s3_bucket" "var_buckets" {
   tags          = local.tags
 }
 
+data "aws_s3_bucket" "system_bucket" {
+  depends_on = [aws_s3_bucket.var_buckets]
+  bucket     = var.system_bucket
+}
+
 module "cumulus" {
   source = "https://github.com/nasa/cumulus/releases/download/v9.1.0/terraform-aws-cumulus.zip//tf-modules/cumulus"
 

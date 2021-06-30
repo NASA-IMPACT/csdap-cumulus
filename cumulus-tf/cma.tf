@@ -6,7 +6,7 @@ locals {
 
 resource "null_resource" "fetch_CMA_release" {
   triggers = {
-    updated_buckets = aws_s3_bucket.var_buckets["csdap-${var.prefix}-internal"].id
+    updated_buckets = data.aws_s3_bucket.system_bucket.id
   }
   provisioner "local-exec" {
     interpreter = ["bash", "-c"]
