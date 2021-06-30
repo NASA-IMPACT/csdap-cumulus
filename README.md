@@ -360,6 +360,51 @@ confirmation** of your intention.  If you provide explicit confirmation at the
 prompt, it performs what is described in the Cumulus documentation under
 [How to Destroy Everything].
 
+## Upgrading Cumulus
+
+The instructions in the following subsections assume that you have already
+completed all of the preceding instructions for setup and deployment of an
+earlier version of Cumulus.
+
+When upgrading Cumulus, unless specified otherwise, you must perform the
+upgrade steps for each version from your existing version _through_ the target
+version.  In other words, you cannot skip upgrade steps and simply perform only
+the steps listed for the target version you wish to reach.
+
+For example, if you currently have version 8.0.1 deployed, and you want to
+upgrade to 9.2.0, you must first upgrade to 9.1.0, and then upgrade to 9.2.0.
+
+### Upgrading to Cumulus 9.1.0
+
+The module `rds-cluster` has been added.  Therefore, you must first generate the
+corresponding Terraform configuration files in the `rds-cluster-tf` directory by
+running the following command from the root of the repository:
+
+```plain
+./setup-tf-config.sh
+```
+
+This will generate the following files for you:
+
+- `rds-cluster-tf/terraform.tf`
+- `rds-cluster-tf/terraform.tfvars`
+
+It will also add a reference in your `data-persistence-tf/terraform.tfvars` file
+to the Terraform state file for the `rds-cluster` module, as the
+`data-persistence` module now depends upon the `rds-cluster` module.
+
+You should now (re)deploy everything:
+
+```plain
+make up
+```
+
+This might take roughly 30 minutes to complete.
+
+### Upgrading to Cumulus 9.2.0
+
+TBD
+
 [Deploying Cumulus Troubleshooting]:
    https://nasa.github.io/cumulus/docs/troubleshooting/troubleshooting-deployment#deploying-cumulus
 [How to Destroy Everything]:
