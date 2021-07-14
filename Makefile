@@ -83,7 +83,7 @@ $(CLEAN_TARGETS):
 ## MODULE_DIR/deploy: Deploy the Terraform module (and dependencies) in the directory MODULE_DIR
 %/deploy: %/*.tf %/*.tfvars
 	$(ENV) bin/setup-tf-backend-resources.sh
-	$(DOCKER_RUN) --workdir $(WORKDIR)/$(patsubst %/deploy,%,$@) $(TERRAFORM) fmt
+	$(DOCKER_RUN) --workdir $(WORKDIR)/$(patsubst %/deploy,%,$@) $(TERRAFORM) fmt -check -diff
 	$(DOCKER_RUN) --workdir $(WORKDIR)/$(patsubst %/deploy,%,$@) $(TERRAFORM) init -reconfigure
 	$(DOCKER_RUN) --workdir $(WORKDIR)/$(patsubst %/deploy,%,$@) $(TERRAFORM) apply -input=false -auto-approve
 	touch $@
