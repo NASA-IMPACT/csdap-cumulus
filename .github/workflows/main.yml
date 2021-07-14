@@ -1,0 +1,160 @@
+name: Cumulus
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  TF_IN_AUTOMATION: 1
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Run unit tests
+        run: |
+          echo "Nothing to unit test yet"
+
+  deploy-dev:
+    if: ${{ env.ACT }}
+    runs-on: ubuntu-20.04
+    needs: [unit-tests]
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+
+      - name: Touch .env file
+        run: touch .env
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: Install AWS CLI
+        run: |
+          curl --silent "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip -q awscliv2.zip
+          sudo ./aws/install
+
+      - name: Install tfenv
+        run: |
+          git clone https://github.com/tfutils/tfenv.git ${HOME}/.tfenv
+          ln -s ${HOME}/.tfenv/bin/* /usr/local/bin
+
+      - name: Install Terraform
+        run: tfenv install
+
+      - name: Setup Terraform backend resources
+        run: bin/env.sh bin/setup-tf-backend-resources.sh
+
+      - name: Deploy Terraform module rds-cluster
+        run: |
+          source bin/env.sh
+          bin/generate-rds-cluster-tf-configs.sh
+          cd rds-cluster-tf
+          terraform fmt -check -diff
+          terraform init -reconfigure
+          terraform apply -input=false -auto-approve
+
+      - name: Deploy Terraform module data-persistence
+        run: |
+          source bin/env.sh
+          bin/generate-data-persistence-tf-configs.sh
+          cd data-persistence-tf
+          terraform fmt -check -diff
+          terraform init -reconfigure
+          terraform apply -input=false -auto-approve
+
+      - name: Deploy Terraform module cumulus
+        run: |
+          source bin/env.sh
+          bin/generate-cumulus-tf-configs.sh
+          cd cumulus-tf
+          terraform fmt -check -diff
+          terraform init -reconfigure
+          terraform apply -input=false -auto-approve
+
+  deploy-uat:
+    if: ${{ !env.ACT }}
+    runs-on: ubuntu-20.04
+    needs: [unit-tests]
+    environment:
+      name: uat
+    env:
+      STACK_SLUG: uat
+      PREFIX: csdap-uat
+      BUCKET_PREFIX: csdap-uat
+      TERRAFORM_BACKEND_KEY_PREFIX: csdap-uat/
+      CMR_ENVIRONMENT: UAT
+      CMR_USERNAME: ${{ secrets.CMR_USERNAME }}
+      CMR_PASSWORD: ${{ secrets.CMR_PASSWORD }}
+      URS_CLIENT_ID: ${{ secrets.URS_CLIENT_ID }}
+      URS_CLIENT_PASSWORD: ${{ secrets.URS_CLIENT_PASSWORD }}
+      API_USERS: |
+        [
+          "mattocks",
+          "kaulfusa",
+          "jsrikish",
+          "chuckwondo"
+        ]
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+
+      - name: Touch .env file
+        run: touch .env
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: Install AWS CLI
+        run: |
+          curl --silent "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip -q awscliv2.zip
+          sudo ./aws/install
+
+      - name: Install tfenv
+        run: |
+          git clone https://github.com/tfutils/tfenv.git ${HOME}/.tfenv
+          ln -s ${HOME}/.tfenv/bin/* /usr/local/bin
+
+      - name: Install Terraform
+        run: tfenv install
+
+      - name: Setup Terraform backend resources
+        run: bin/env.sh bin/setup-tf-backend-resources.sh
+
+      - name: Deploy Terraform module rds-cluster
+        run: |
+          source bin/env.sh
+          bin/generate-rds-cluster-tf-configs.sh
+          cd rds-cluster-tf
+          terraform fmt -check -diff
+          terraform init -reconfigure
+          terraform apply -input=false -auto-approve
+
+      - name: Deploy Terraform module data-persistence
+        run: |
+          source bin/env.sh
+          bin/generate-data-persistence-tf-configs.sh
+          cd data-persistence-tf
+          terraform fmt -check -diff
+          terraform init -reconfigure
+          terraform apply -input=false -auto-approve
+
+      - name: Deploy Terraform module cumulus
+        run: |
+          source bin/env.sh
+          bin/generate-cumulus-tf-configs.sh
+          cd cumulus-tf
+          terraform fmt -check -diff
+          terraform init -reconfigure
+          terraform apply -input=false -auto-approve
