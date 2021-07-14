@@ -43,39 +43,32 @@ prefix = "${PREFIX}"
 
 buckets = {
   internal = {
-    name    = "${BUCKETS_INTERNAL}"
-    type    = "internal"
-    managed = true
+    name = "${BUCKETS_INTERNAL}"
+    type = "internal"
   }
   private = {
-    name    = "${BUCKETS_PRIVATE}"
-    type    = "private"
-    managed = true
+    name = "${BUCKETS_PRIVATE}"
+    type = "private"
   },
   protected = {
-    name    = "${BUCKETS_PROTECTED}"
-    type    = "protected"
-    managed = true
+    name = "${BUCKETS_PROTECTED}"
+    type = "protected"
   },
   public = {
-    name    = "${BUCKETS_PUBLIC}"
-    type    = "public"
-    managed = true
+    name = "${BUCKETS_PUBLIC}"
+    type = "public"
   },
   dashboard = {
-    name    = "${BUCKETS_DASHBOARD}"
-    type    = "dashboard"
-    managed = true
+    name = "${BUCKETS_DASHBOARD}"
+    type = "dashboard"
   }
   provider = {
-    name    = "${BUCKETS_PROVIDER}"
-    type    = "internal"
-    managed = false
+    name = "${BUCKETS_PROVIDER}"
+    type = "internal"
   }
   download = {
-    name    = "${BUCKETS_DOWNLOAD}"
-    type    = "protected"
-    managed = false
+    name = "${BUCKETS_DOWNLOAD}"
+    type = "protected"
   }
 }
 

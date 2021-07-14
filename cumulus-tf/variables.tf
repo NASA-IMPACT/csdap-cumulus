@@ -123,7 +123,7 @@ variable "api_gateway_stage" {
 }
 
 variable "buckets" {
-  type    = map(object({ name = string, type = string, managed = bool }))
+  type    = map(object({ name = string, type = string }))
   default = {}
 }
 

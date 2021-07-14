@@ -37,9 +37,8 @@ resource "aws_secretsmanager_secret_version" "thin_egress_urs_creds" {
 }
 
 resource "aws_s3_bucket_object" "bucket_map_yaml" {
-  depends_on = [aws_s3_bucket.var_buckets]
-  bucket     = var.system_bucket
-  key        = "${var.prefix}/thin-egress-app/bucket_map.yaml"
+  bucket = data.aws_s3_bucket.system_bucket.id
+  key    = "${var.prefix}/thin-egress-app/bucket_map.yaml"
   content = templatefile("${path.module}/thin-egress-app/bucket_map.yaml.tmpl", {
     protected_buckets = local.protected_bucket_names,
     public_buckets    = local.public_bucket_names

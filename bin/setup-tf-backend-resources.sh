@@ -30,3 +30,27 @@ if ! aws dynamodb describe-table --table-name "${TERRAFORM_BACKEND_DYNAMODB_TABL
     --billing-mode PAY_PER_REQUEST \
     --region "${AWS_REGION}"
 fi
+
+# TODO: Consider moving everything below to a separate script, add a `make`
+# target, and add step to list of prereqs in README.md.  Further, consider
+# the impact to the `destroy` target.
+
+_buckets=(
+  "${BUCKETS_INTERNAL}"
+  "${BUCKETS_PRIVATE}"
+  "${BUCKETS_PROTECTED}"
+  "${BUCKETS_PUBLIC}"
+  "${BUCKETS_DASHBOARD}"
+  "${BUCKETS_PROVIDER}"
+  "${BUCKETS_DOWNLOAD}"
+)
+
+for _bucket in ${_buckets[*]}; do
+  if ! aws s3api head-bucket --bucket "${_bucket}"; then
+    echo "Creating bucket '${_bucket}'..."
+
+    aws s3api create-bucket --bucket "${_bucket}" \
+      --region "${AWS_REGION}" \
+      --create-bucket-configuration LocationConstraint="${AWS_REGION}"
+  fi
+done
