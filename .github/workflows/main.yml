@@ -1,9 +1,13 @@
 name: Cumulus
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    branches:
+      - main
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
 
 env:
   TF_IN_AUTOMATION: 1
@@ -11,16 +15,17 @@ env:
 jobs:
   unit-tests:
     runs-on: ubuntu-20.04
-    steps:
-      - name: Run unit tests
+    steps: &unit-test-steps
+      - name: unit tests
         run: |
           echo "Nothing to unit test yet"
 
-  deploy-dev:
-    if: ${{ env.ACT }}
+  # Dummy job used solely for defining the `deploy-steps` anchor in order to
+  # avoid duplication of deployment steps for different environments.
+  deploy:
+    if: ${{ false }}
     runs-on: ubuntu-20.04
-    needs: [unit-tests]
-    steps:
+    steps: &deploy-steps
       - name: Checkout source
         uses: actions/checkout@v2
 
@@ -78,10 +83,21 @@ jobs:
           terraform init -reconfigure
           terraform apply -input=false -auto-approve
 
-  deploy-uat:
-    if: ${{ !env.ACT }}
-    runs-on: ubuntu-20.04
+  # Intended only for locally testing development deployment job via `act`,
+  # using the command `act -j deploy-dev workflow_dispatch`
+  deploy-dev:
+    if: github.event_name == 'workflow_dispatch' && github.event.ref != 'refs/heads/main'
     needs: [unit-tests]
+    runs-on: ubuntu-20.04
+    # When this job is invoked via `act`, the enviroment is populated from the
+    # .env file, so no additional enviroment variables are set here.
+    #env:
+    steps: *deploy-steps
+
+  deploy-uat:
+    if: github.event_name == 'push' && github.event.ref == 'refs/heads/main'
+    needs: [unit-tests]
+    runs-on: ubuntu-20.04
     environment:
       name: uat
     env:
@@ -101,60 +117,4 @@ jobs:
           "jsrikish",
           "chuckwondo"
         ]
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v2
-
-      - name: Touch .env file
-        run: touch .env
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-west-2
-
-      - name: Install AWS CLI
-        run: |
-          curl --silent "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip -q awscliv2.zip
-          sudo ./aws/install
-
-      - name: Install tfenv
-        run: |
-          git clone https://github.com/tfutils/tfenv.git ${HOME}/.tfenv
-          ln -s ${HOME}/.tfenv/bin/* /usr/local/bin
-
-      - name: Install Terraform
-        run: tfenv install
-
-      - name: Setup Terraform backend resources
-        run: bin/env.sh bin/setup-tf-backend-resources.sh
-
-      - name: Deploy Terraform module rds-cluster
-        run: |
-          source bin/env.sh
-          bin/generate-rds-cluster-tf-configs.sh
-          cd rds-cluster-tf
-          terraform fmt -check -diff
-          terraform init -reconfigure
-          terraform apply -input=false -auto-approve
-
-      - name: Deploy Terraform module data-persistence
-        run: |
-          source bin/env.sh
-          bin/generate-data-persistence-tf-configs.sh
-          cd data-persistence-tf
-          terraform fmt -check -diff
-          terraform init -reconfigure
-          terraform apply -input=false -auto-approve
-
-      - name: Deploy Terraform module cumulus
-        run: |
-          source bin/env.sh
-          bin/generate-cumulus-tf-configs.sh
-          cd cumulus-tf
-          terraform fmt -check -diff
-          terraform init -reconfigure
-          terraform apply -input=false -auto-approve
+    steps: *deploy-steps
