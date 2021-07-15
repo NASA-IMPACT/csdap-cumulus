@@ -6,8 +6,6 @@ data "aws_iam_role" "api_gateway_role" {
 }
 
 data "aws_s3_bucket" "dashboard_bucket" {
-  depends_on = [aws_s3_bucket.var_buckets]
-
   bucket = var.buckets.dashboard.name
 }
 

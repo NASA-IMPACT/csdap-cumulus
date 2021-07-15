@@ -4,34 +4,36 @@ locals {
   cma_zip_path = "${path.module}/${local.cma_zip_name}"
 }
 
-resource "null_resource" "fetch_CMA_release" {
+resource "null_resource" "fetch_cma_release" {
   triggers = {
-    updated_buckets = data.aws_s3_bucket.system_bucket.id
+    system_bucket_id = data.aws_s3_bucket.system_bucket.id
   }
   provisioner "local-exec" {
     interpreter = ["bash", "-c"]
-    command     = "curl -L -o ${local.cma_zip_path} ${local.cma_zip_url}"
+    command     = "curl -sSL -o ${local.cma_zip_path} ${local.cma_zip_url}"
   }
 }
 
-resource "null_resource" "clean_CMA_release" {
-  depends_on = [null_resource.fetch_CMA_release, aws_lambda_layer_version.cma_layer]
+resource "null_resource" "clean_cma_release" {
+  triggers = {
+    exists = fileexists(aws_s3_bucket_object.cma_release.source)
+  }
   provisioner "local-exec" {
     interpreter = ["bash", "-c"]
-    command     = "rm -f ${local.cma_zip_path}"
+    command     = "rm -f ${aws_s3_bucket_object.cma_release.source}"
   }
 }
 
 resource "aws_s3_bucket_object" "cma_release" {
-  depends_on = [aws_s3_bucket.var_buckets, null_resource.fetch_CMA_release]
-  bucket     = var.system_bucket
+  depends_on = [null_resource.fetch_cma_release]
+  bucket     = data.aws_s3_bucket.system_bucket.id
   key        = local.cma_zip_name
   source     = local.cma_zip_path
 }
 
 resource "aws_lambda_layer_version" "cma_layer" {
-  s3_bucket   = var.system_bucket
+  s3_bucket   = data.aws_s3_bucket.system_bucket.id
   s3_key      = aws_s3_bucket_object.cma_release.key
-  layer_name  = "${var.prefix}-CMA-layer"
+  layer_name  = "${var.prefix}-cma-layer"
   description = "Lambda layer for Cumulus Message Adapter ${var.cumulus_message_adapter_version}"
 }
