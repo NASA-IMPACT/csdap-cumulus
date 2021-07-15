@@ -124,7 +124,7 @@ jobs:
       - name: Install tfenv
         run: |
           git clone https://github.com/tfutils/tfenv.git ${HOME}/.tfenv
-          ln -s ${HOME}/.tfenv/bin/* /usr/local/bin
+          sudo ln -fs ${HOME}/.tfenv/bin/* /usr/local/bin
 
       - name: Install Terraform
         run: tfenv install
