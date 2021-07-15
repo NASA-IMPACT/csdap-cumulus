@@ -41,7 +41,6 @@ jobs:
           aws-region: us-west-2
 
       - name: Install AWS CLI
-        if: ${{ env.ACT == 'true' }}
         run: |
           curl --silent "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip -q awscliv2.zip
@@ -121,12 +120,6 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-west-2
-
-      - name: Install AWS CLI
-        run: |
-          curl --silent "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip -q awscliv2.zip
-          sudo ./aws/install
 
       - name: Install tfenv
         run: |
