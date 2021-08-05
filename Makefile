@@ -9,6 +9,7 @@ IMAGE = csdap-cumulus
 WORKDIR = /work
 DOCKER_BUILD = docker build -t $(IMAGE) .
 DOCKER_RUN = docker run \
+  --rm \
 	--volume ${PWD}:$(WORKDIR) \
 	--volume ${HOME}/.aws:/root/.aws \
 	--volume ${HOME}/.ssh:/root/.ssh

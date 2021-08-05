@@ -55,7 +55,7 @@ locals {
 }
 
 module "rds_cluster" {
-  source = "https://github.com/nasa/cumulus/releases/download/v9.1.0/terraform-aws-cumulus-rds.zip"
+  source = "https://github.com/nasa/cumulus/releases/download/v9.3.0/terraform-aws-cumulus-rds.zip"
 
   cluster_identifier       = "${var.prefix}-rds-serverless"
   db_admin_password        = random_password.db_password.result
