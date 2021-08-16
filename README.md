@@ -145,8 +145,8 @@ TBD
 [Earthdata Login]:
    https://uat.urs.earthdata.nasa.gov/
 [How to Destroy Everything]:
-   https://nasa.github.io/cumulus/docs/v9.0.0/deployment/terraform-best-practices#how-to-destroy-everything
+   https://nasa.github.io/cumulus/docs/deployment/terraform-best-practices#how-to-destroy-everything
 [Register an Earthdata Login Application]:
    https://wiki.earthdata.nasa.gov/display/EL/How+To+Register+An+Application
 [Update Your Earthdata Application]:
-   https://nasa.github.io/cumulus/docs/v9.0.0/deployment/deployment-readme#update-earthdata-application
+   https://nasa.github.io/cumulus/docs/deployment/deployment-readme#update-earthdata-application

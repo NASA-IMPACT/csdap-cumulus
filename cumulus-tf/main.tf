@@ -48,7 +48,7 @@ data "aws_s3_bucket" "system_bucket" {
 }
 
 module "cumulus" {
-  source = "https://github.com/nasa/cumulus/releases/download/v9.1.0/terraform-aws-cumulus.zip//tf-modules/cumulus"
+  source = "https://github.com/nasa/cumulus/releases/download/v9.3.0/terraform-aws-cumulus.zip//tf-modules/cumulus"
 
   depends_on = [data.aws_s3_bucket.system_bucket]
 
