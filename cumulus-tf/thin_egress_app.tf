@@ -1,4 +1,4 @@
-locals {
+/* locals {
   protected_bucket_names = [for k, v in var.buckets : v.name if v.type == "protected"]
   public_bucket_names    = [for k, v in var.buckets : v.name if v.type == "public"]
 
@@ -96,3 +96,4 @@ resource "aws_cloudwatch_log_subscription_filter" "egress_lambda_log_subscriptio
   filter_pattern  = ""
   log_group_name  = aws_cloudwatch_log_group.egress_lambda_log_group[0].name
 }
+ */
