@@ -153,4 +153,16 @@ private_archive_api_gateway = ${PRIVATE_ARCHIVE_API_GATEWAY:-true}
 # additional_log_groups_to_elk = {
 #  "MyLogs" = "/aws/lambda/my-logs"
 # }
+
+## Cumulus Distribution variables.
+
+# deploy_cumulus_distribution = true
+
+## If using Cumulus Distribution, Toggle this after deployed to put the correct port in. (and hosts and config)
+# cumulus_distribution_url = "${CUMULUS_DISTRIBUTION_URL}"
+
+## CSDAP configuration for cumulus distribution
+# csdap_client_id = "${CSDAP_CLIENT_ID}"
+# csdap_client_password = "${CSDAP_CLIENT_PASSWORD}"
+# csdap_host_url = "${CSDAP_HOST_URL}"
 TF
