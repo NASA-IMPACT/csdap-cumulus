@@ -132,6 +132,21 @@ variable "cumulus_distribution_url" {
   default = null
 }
 
+variable "csdap_client_id" {
+  type    = string
+  default = null
+}
+
+variable "csdap_client_password" {
+  type    = string
+  default = null
+}
+
+variable "csdap_host_url" {
+  type    = string
+  default = null
+}
+
 variable "ems_datasource" {
   type        = string
   description = "the data source of EMS reports"
