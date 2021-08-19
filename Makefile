@@ -83,9 +83,6 @@ output: $(OUTPUT_TARGETS)
 
 ## plan: Show plans for all Terraform modules
 plan: $(PLAN_TARGETS)
-cumulus-tf/plan: data-persistence-tf/plan
-data-persistence-tf/plan: rds-cluster-tf/plan
-rds-cluster-tf/plan:
 
 ## MODULE_DIR/clean: Clean up build/deployment artifacts for the Terraform module in the directory MODULE_DIR
 $(CLEAN_TARGETS):
