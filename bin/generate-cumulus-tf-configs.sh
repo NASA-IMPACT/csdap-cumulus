@@ -38,6 +38,7 @@ region = "${AWS_REGION}"
 
 cumulus_message_adapter_version = "1.3.0"
 permissions_boundary_name       = "NGAPShRoleBoundary"
+permissions_boundary_name       = "TODO"
 
 prefix = "${PREFIX}"
 

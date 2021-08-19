@@ -72,6 +72,9 @@ variable "s3_replicator_config" {
 variable "permissions_boundary_name" {
   type = string
 }
+variable "permissions_boundary_arn" {
+  type = string
+}
 
 variable "prefix" {
   type = string
