@@ -20,7 +20,7 @@ output "s3_credentials_redirect_uri" {
 
 # Cumulus Distribution outputs
 output "cumulus_distribution_api_uri" {
-   value = module.cumulus_distribution.api_uri
+  value = module.cumulus_distribution.api_uri
 }
 
 output "cumulus_distribution_api_redirect_uri" {
