@@ -127,7 +127,7 @@ variable "buckets" {
   default = {}
 }
 
-variable "distribution_url" {
+variable "cumulus_distribution_url" {
   type    = string
   default = null
 }
