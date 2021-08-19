@@ -1,6 +1,8 @@
 locals {
   distribution_api_gateway_stage = "dev"
   bucket_map_file_name = fileexists("${path.module}/cumulus_distribution/bucket_map.yaml") ? "${path.module}/cumulus_distribution/bucket_map.yaml" : "${path.module}/cumulus_distribution/bucket_map.yaml.tmpl"
+  protected_bucket_names = [for k, v in var.buckets : v.name if v.type == "protected"]
+  public_bucket_names    = [for k, v in var.buckets : v.name if v.type == "public"]
 }
 
 resource "aws_s3_bucket_object" "bucket_map_yaml_distribution" {
