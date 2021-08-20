@@ -7,15 +7,15 @@ terraform {
     }
     external = {
       source  = "hashicorp/external"
-      version = "~> 2.1.0"
+      version = ">= 2.1.0"
     }
     null = {
       source  = "hashicorp/null"
-      version = "~> 2.1"
+      version = ">= 2.1"
     }
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.1.0"
+      version = ">= 3.1.0"
     }
   }
 }
