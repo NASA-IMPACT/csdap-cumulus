@@ -105,6 +105,6 @@ $(OUTPUT_TARGETS):
 	$(DOCKER_RUN) --workdir $(WORKDIR)/$(patsubst %/output,%,$@) $(TERRAFORM) output
 
 ## MODULE_DIR/plan: Show plan for the Terraform module in the directory MODULE_DIR
-%/plan:
+%/plan: %/*.tf %/*.tfvars
 	$(DOCKER_RUN) --workdir $(WORKDIR)/$(patsubst %/plan,%,$@) $(TERRAFORM) init -reconfigure
 	$(DOCKER_RUN) --workdir $(WORKDIR)/$(patsubst %/plan,%,$@) $(TERRAFORM) plan -input=false
