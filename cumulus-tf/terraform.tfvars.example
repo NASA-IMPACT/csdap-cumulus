@@ -62,10 +62,6 @@ api_users = [
   # "username1", "username2"
 ]
 
-# Name of secret in AWS secrets manager containing SSH keys for signing JWTs
-# See https://github.com/asfadmin/thin-egress-app#jwt-cookie-secret
-thin_egress_jwt_secret_name = "cumulus-${PREFIX}-thin-egress-app-jwt-keys"
-
 data_persistence_remote_state_config = {
   bucket = "csdap-cumulus-${PREFIX}-tf-state"
   key    = "data-persistence/terraform.tfstate"

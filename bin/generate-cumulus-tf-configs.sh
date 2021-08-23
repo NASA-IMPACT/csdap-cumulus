@@ -85,10 +85,6 @@ urs_client_password = "${URS_CLIENT_PASSWORD}"
 
 api_users = ${API_USERS:-[]}
 
-# Name of secret in AWS secrets manager containing SSH keys for signing JWTs
-# See https://github.com/asfadmin/thin-egress-app#jwt-cookie-secret
-thin_egress_jwt_secret_name = "cumulus-${STACK_SLUG}-thin-egress-app-jwt-keys"
-
 data_persistence_remote_state_config = {
   bucket = "${TERRAFORM_BACKEND_BUCKET}"
   key    = "${TERRAFORM_BACKEND_KEY_PREFIX}data-persistence/terraform.tfstate"
@@ -129,7 +125,7 @@ private_archive_api_gateway = ${PRIVATE_ARCHIVE_API_GATEWAY:-true}
 # saml_launchpad_metadata_url     = "url of the identity provider public metadata xml file"
 
 ## Optional
-# key_name      = "MY-KEY"
+key_name = "${KEY_NAME:-}"
 
 ## Optional
 # metrics_es_host = "xxxxxxxxxx.cloudfront.net"
@@ -155,6 +151,7 @@ private_archive_api_gateway = ${PRIVATE_ARCHIVE_API_GATEWAY:-true}
 # }
 
 ## Cumulus Distribution variables.
+# cumulus_distribution_url = <CloudFront URL, if available>
 
 ## CSDAP configuration for cumulus distribution
 csdap_client_id       = "${CSDAP_CLIENT_ID}"
