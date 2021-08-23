@@ -99,6 +99,9 @@ jobs:
       CMR_ENVIRONMENT: UAT
       CMR_USERNAME: ${{ secrets.CMR_USERNAME }}
       CMR_PASSWORD: ${{ secrets.CMR_PASSWORD }}
+      CSDAP_CLIENT_ID: ${{ secrets.CSDAP_CLIENT_ID }}
+      CSDAP_CLIENT_PASSWORD: ${{ secrets.CSDAP_CLIENT_PASSWORD }}
+      CSDAP_HOST_URL: https://auth.csdap.uat.earthdatacloud.nasa.gov/
       URS_CLIENT_ID: ${{ secrets.URS_CLIENT_ID }}
       URS_CLIENT_PASSWORD: ${{ secrets.URS_CLIENT_PASSWORD }}
       API_USERS: |
