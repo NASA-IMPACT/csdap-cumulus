@@ -3,6 +3,7 @@ CLEAN_TARGETS = $(addsuffix /clean,$(MODULE_DIRS))
 DEPLOY_TARGETS = $(addsuffix /deploy,$(MODULE_DIRS))
 FORMAT_TARGETS = $(addsuffix /format,$(MODULE_DIRS))
 OUTPUT_TARGETS = $(addsuffix /output,$(MODULE_DIRS))
+PLAN_TARGETS = $(addsuffix /plan,$(MODULE_DIRS))
 
 ENV = bin/env.sh
 IMAGE = csdap-cumulus
@@ -16,13 +17,16 @@ DOCKER_RUN = docker run \
 TERRAFORM = $(IMAGE) terraform
 
 .PHONY: bash \
-	clean $(CLEAN_TARGETS) \
+	clean \
 	deploy \
 	destroy \
 	docker \
-	format $(FORMAT_TARGETS) \
+	format \
 	help \
-	output $(OUTPUT_TARGETS)
+	output \
+	$(CLEAN_TARGETS) \
+	$(FORMAT_TARGETS) \
+	$(OUTPUT_TARGETS)
 .DEFAULT_GOAL := help
 
 help: Makefile
@@ -35,19 +39,6 @@ help: Makefile
 	@echo
 	@sed -n 's/^##//p' $< | column -t -s ':' | sed -e 's/^/ /'
 	@echo
-
-## bash: Run bash terminal in Docker container
-bash:
-	$(DOCKER_RUN) -it $(IMAGE) bash
-
-## clean: Clean up build/deployment artifacts for all Terraform modules
-clean: $(CLEAN_TARGETS)
-
-## deploy: Deploy all Terraform modules
-deploy: $(DEPLOY_TARGETS)
-cumulus-tf/deploy: data-persistence-tf/deploy
-data-persistence-tf/deploy: rds-cluster-tf/deploy
-rds-cluster-tf/deploy:
 
 .env: .env.example
 	@echo
@@ -63,6 +54,19 @@ rds-cluster-tf/deploy:
 %/terraform.tf: .env bin/env.sh bin/generate-%-configs.sh
 	$(ENV) $(patsubst %/terraform.tf,bin/generate-%-configs.sh,$@)
 
+## bash: Run bash terminal in Docker container
+bash:
+	$(DOCKER_RUN) -it $(IMAGE) bash
+
+## clean: Clean up build/deployment artifacts for all Terraform modules
+clean: $(CLEAN_TARGETS)
+
+## deploy: Deploy all Terraform modules
+deploy: $(DEPLOY_TARGETS)
+cumulus-tf/deploy: data-persistence-tf/deploy
+data-persistence-tf/deploy: rds-cluster-tf/deploy
+rds-cluster-tf/deploy:
+
 ## destroy: DANGER! Destroy entire Cumulus deployment and data! (confirmation required)
 destroy:
 	$(ENV) bin/destroy.sh
@@ -76,6 +80,9 @@ format: $(FORMAT_TARGETS)
 
 ## output: Show all outputs for all Terraform modules
 output: $(OUTPUT_TARGETS)
+
+## plan: Show plans for all Terraform modules
+plan: $(PLAN_TARGETS)
 
 ## MODULE_DIR/clean: Clean up build/deployment artifacts for the Terraform module in the directory MODULE_DIR
 $(CLEAN_TARGETS):
@@ -96,3 +103,8 @@ $(FORMAT_TARGETS):
 ## MODULE_DIR/output: Show the outputs for the Terraform module in the directory MODULE_DIR
 $(OUTPUT_TARGETS):
 	$(DOCKER_RUN) --workdir $(WORKDIR)/$(patsubst %/output,%,$@) $(TERRAFORM) output
+
+## MODULE_DIR/plan: Show plan for the Terraform module in the directory MODULE_DIR
+%/plan: %/*.tf %/*.tfvars
+	$(DOCKER_RUN) --workdir $(WORKDIR)/$(patsubst %/plan,%,$@) $(TERRAFORM) init -reconfigure
+	$(DOCKER_RUN) --workdir $(WORKDIR)/$(patsubst %/plan,%,$@) $(TERRAFORM) plan -input=false

@@ -101,11 +101,6 @@ variable "system_bucket" {
   type = string
 }
 
-variable "thin_egress_jwt_secret_name" {
-  type        = string
-  description = "Name of AWS secret where keys for the Thin Egress App JWT encode/decode are stored"
-}
-
 variable "urs_client_id" {
   type = string
 }
@@ -127,7 +122,22 @@ variable "buckets" {
   default = {}
 }
 
-variable "distribution_url" {
+variable "cumulus_distribution_url" {
+  type    = string
+  default = null
+}
+
+variable "csdap_client_id" {
+  type    = string
+  default = null
+}
+
+variable "csdap_client_password" {
+  type    = string
+  default = null
+}
+
+variable "csdap_host_url" {
   type    = string
   default = null
 }

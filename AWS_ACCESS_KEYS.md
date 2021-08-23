@@ -18,6 +18,7 @@ the following instructions.
 
 To generate a **long-term access key**, do the following:
 
+1. If not on the NASA network, connect to the NASA VPN (if not already connected).
 1. Login to the [NGAP cloudtamer.io portal](https://cloud.earthdata.nasa.gov).
 1. If the appropriate project is not visible, click **Projects** in the left
    navigation bar to see a list of all of your projects.
@@ -55,8 +56,8 @@ You may now close the dialog box in the portal and logout of the portal.
 If you are (sadly) unable to generate a long-term access key as described above,
 you must generate a **short-term access key** as follows:
 
-1. Login to the [NGAP cloudtamer.io portal](https://cloud.earthdata.nasa.gov)
-   (if not already logged in).
+1. If not on the NASA network, connect to the NASA VPN (if not already connected).
+1. Login to the [NGAP cloudtamer.io portal](https://cloud.earthdata.nasa.gov).
 1. If the appropriate project is not visible, click **Projects** in the left
    navigation menu to see a list of all of your projects.
 1. Locate the desired project and click the project name to see the details.
