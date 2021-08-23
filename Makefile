@@ -63,7 +63,7 @@ clean: $(CLEAN_TARGETS)
 
 ## deploy: Deploy all Terraform modules
 deploy: $(DEPLOY_TARGETS)
-cumulus-tf/deploy: data-persistence-tf/deploy
+cumulus-tf/deploy: data-persistence-tf/deploy cumulus-tf/cumulus_distribution/bucket_map.yaml.tmpl
 data-persistence-tf/deploy: rds-cluster-tf/deploy
 rds-cluster-tf/deploy:
 
@@ -89,7 +89,7 @@ $(CLEAN_TARGETS):
 	rm -f "$(patsubst %/clean,%,$@)/deploy"
 
 ## MODULE_DIR/deploy: Deploy the Terraform module (and dependencies) in the directory MODULE_DIR
-%/deploy: %/*.tf %/*.tfvars
+%/deploy: %/*.tf %/*.tfvars %/*.json
 	$(ENV) bin/setup-tf-backend-resources.sh
 	$(DOCKER_RUN) --workdir $(WORKDIR)/$(patsubst %/deploy,%,$@) $(TERRAFORM) fmt -check -diff
 	$(DOCKER_RUN) --workdir $(WORKDIR)/$(patsubst %/deploy,%,$@) $(TERRAFORM) init -reconfigure
