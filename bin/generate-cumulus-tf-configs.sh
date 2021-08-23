@@ -125,7 +125,7 @@ private_archive_api_gateway = ${PRIVATE_ARCHIVE_API_GATEWAY:-true}
 # saml_launchpad_metadata_url     = "url of the identity provider public metadata xml file"
 
 ## Optional
-key_name = "${KEY_NAME:-}"
+${KEY_NAME:+key_name = \"${KEY_NAME}\"}
 
 ## Optional
 # metrics_es_host = "xxxxxxxxxx.cloudfront.net"
