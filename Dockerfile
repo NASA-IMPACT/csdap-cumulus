@@ -8,10 +8,10 @@ WORKDIR /tmp
 COPY bin/install/terraform.sh bin/install/terraform.sh
 RUN bin/install/terraform.sh
 
-RUN echo "deb https://apt.boltops.com stable main" > /etc/apt/sources.list.d/boltops.list
-RUN curl -s https://apt.boltops.com/boltops-key.public | apt-key add -
-#RUN apt-get update
-#RUN apt-get install terraspace -y
+# Note that running this requires >2GB memory
+RUN apt-get update
+RUN apt-get install ruby-full ruby-dev build-essential zlibc zlib1g zlib1g-dev -y
+RUN gem install terraspace
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install awscli -y
