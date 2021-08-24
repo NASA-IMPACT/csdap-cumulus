@@ -50,6 +50,7 @@ do
     secret_full_path="csdap-cumulus/$ENV/$secret_name"
     echo "*** $secret_name ***"
     echo "This is the created secret full path: $secret_full_path"
+    echo "Description: $secret_description"
     echo "Please input the value for $secret_name:"
     echo "(or enter Q to skip this secret.)"
     echo ""
