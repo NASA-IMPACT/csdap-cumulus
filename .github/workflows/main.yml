@@ -102,6 +102,7 @@ jobs:
       CSDAP_CLIENT_ID: ${{ secrets.CSDAP_CLIENT_ID }}
       CSDAP_CLIENT_PASSWORD: ${{ secrets.CSDAP_CLIENT_PASSWORD }}
       CSDAP_HOST_URL: https://auth.csdap.uat.earthdatacloud.nasa.gov/
+      CUMULUS_DISTRIBUTION_URL: https://bh82e1cbi4.execute-api.us-west-2.amazonaws.com/dev/
       URS_CLIENT_ID: ${{ secrets.URS_CLIENT_ID }}
       URS_CLIENT_PASSWORD: ${{ secrets.URS_CLIENT_PASSWORD }}
       API_USERS: |

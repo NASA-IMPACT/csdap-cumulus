@@ -151,7 +151,7 @@ ${KEY_NAME:+key_name = \"${KEY_NAME}\"}
 # }
 
 ## Cumulus Distribution variables.
-# cumulus_distribution_url = <CloudFront URL, if available>
+cumulus_distribution_url = "${CUMULUS_DISTRIBUTION_URL}"
 
 ## CSDAP configuration for cumulus distribution
 csdap_client_id       = "${CSDAP_CLIENT_ID}"
