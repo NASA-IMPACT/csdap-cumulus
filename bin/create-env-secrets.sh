@@ -65,7 +65,7 @@ do
     fi
     create_command="aws secretsmanager create-secret --name '${secret_full_path}' 
     --description '${secret_description}' --secret-string '$secret_value'"
-    echo $create_command
+    
     eval $create_command
     echo ""
 
