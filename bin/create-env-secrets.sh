@@ -54,14 +54,29 @@ do
     echo "(or enter Q to skip this secret.)"
     echo ""
 
-    read secret_value
+    secrets_match=false
+    while [[ $secrets_match != true ]]; do
+        read -s secret_value
 
     if [[ "$secret_value" == "Q" || "$secret_value" == "q" || -z "$secret_value" ]]
     then
         echo "Skipping $secret_full_path ..."
         echo ""
+            secrets_match=true
         continue
     fi
+        echo "Please input the secret value again."
+        read -s secret_value_rep
+
+        if [[ $secret_value == $secret_value_rep ]]
+        then
+            secrets_match=true
+        else
+            echo "Secrets do not match! Please try again."
+        fi
+
+    done
+
     create_command="aws secretsmanager create-secret --name '${secret_full_path}' 
     --description '${secret_description}' --secret-string '$secret_value'"
     
