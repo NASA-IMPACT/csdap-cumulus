@@ -58,13 +58,13 @@ do
     while [[ $secrets_match != true ]]; do
         read -s secret_value
 
-    if [[ "$secret_value" == "Q" || "$secret_value" == "q" || -z "$secret_value" ]]
-    then
-        echo "Skipping $secret_full_path ..."
-        echo ""
+        if [[ "$secret_value" == "Q" || "$secret_value" == "q" || -z "$secret_value" ]]
+        then
+            echo "Skipping $secret_full_path ..."
+            echo ""
             secrets_match=true
-        continue
-    fi
+            continue 2
+        fi
         echo "Please input the secret value again."
         read -s secret_value_rep
 
@@ -77,10 +77,22 @@ do
 
     done
 
+    describe_command="aws secretsmanager describe-secret --secret-id ${secret_full_path}"
     create_command="aws secretsmanager create-secret --name '${secret_full_path}' 
     --description '${secret_description}' --secret-string '$secret_value'"
-    
-    eval $create_command
+    put_command="aws secretsmanager put-secret-value --secret-id ${secret_full_path} 
+    --secret-string '$secret_value'"
+
+    $describe_command &>/dev/null
+    if [ $? == 0 ]
+    then
+        echo "Secret already exists - updating the value"
+        echo $out
+        eval $put_command
+    else
+        echo "Creating secret"
+        eval $create_command
+    fi
     echo ""
 
 done
