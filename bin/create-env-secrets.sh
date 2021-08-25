@@ -36,7 +36,6 @@ echo "You have selected the $ENV environment!"
 secrets_description=(
     "csdap-client-id::The CSDAP client id."
     "csdap-client-password::The CSDAP client password."
-    "csdap-host-url::The CSDAP host url."
 )    
 
 echo ""

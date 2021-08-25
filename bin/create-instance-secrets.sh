@@ -21,7 +21,6 @@ secrets_description=(
     "cmr-password::Earthdata Login (EDL) credentials, password."
     "urs-client-id::Earthdata application client ID."
     "urs-client-password::Earthdata application password for authentication"
-    "api-users::Comma-separated list of double-quoted Earthdata Login usernames of authorized users."
 )    
 
 echo ""
