@@ -47,7 +47,7 @@ for secret in "${secrets_description[@]}"
 do
     secret_name="${secret%%::*}"
     secret_description="${secret##*::}"
-    secret_full_path="csdap-cumulus/$ENV/$secret_name"
+    secret_full_path="cumulus/$ENV/$secret_name"
     echo "*** $secret_name ***"
     echo "This is the created secret full path: $secret_full_path"
     echo "Description: $secret_description"
