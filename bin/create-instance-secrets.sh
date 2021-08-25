@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 echo "====="
 echo "Welcome to the instance secrets setter!"

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 echo "====="
 echo "Welcome to the environment secrets setter!"
