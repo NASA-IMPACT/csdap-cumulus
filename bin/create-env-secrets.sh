@@ -57,7 +57,7 @@ do
 
     read secret_value
 
-    if [ "$secret_value" == "Q" ]
+    if [[ "$secret_value" == "Q" || "$secret_value" == "q" || -z "$secret_value" ]]
     then
         echo "Skipping $secret_full_path ..."
         echo ""
