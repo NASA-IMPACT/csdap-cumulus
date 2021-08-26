@@ -21,8 +21,8 @@ do
             ENV="sit"
             break
             ;;
-        "PROD")
-            ENV="prod"
+        "OPS")
+            ENV="ops"
             break
             ;;
         "Quit")
