@@ -26,6 +26,12 @@ this repository:
   used within the Docker container to properly configure the AWS CLI and
   Terraform.
 
+- **Create your instance secrets**
+
+  In case you intend to standup your own development instance,
+  make sure to run `bin/create-instance-secrets.sh` so that the
+  required secrets are created in AWS.
+  
 ## Deploying Cumulus
 
 This section assumes that you have completed all prerequisite steps as detailed
