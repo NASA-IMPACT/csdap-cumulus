@@ -1,9 +1,9 @@
 {
   "Comment": "Discovers new Granules from a given provider",
   "TimeoutSeconds": 18000,
-  "StartAt": "RequireEnabledRule",
+  "StartAt": "RuleEnabled?",
   "States": {
-    "RequireEnabledRule": {
+    "RuleEnabled?": {
       "Comment": "Require that the rule that triggered the workflow is 'ENABLED', otherwise skip the workflow",
       "Type": "Choice",
       "Choices": [
@@ -21,7 +21,7 @@
           "Next": "Try"
         }
       ],
-      "Default": "Skipped"
+      "Default": "SkipWorkflow"
     },
     "Try": {
       "Type": "Parallel",
@@ -34,7 +34,9 @@
                 "cma": {
                   "event.$": "$",
                   "ReplaceConfig": {
-                    "FullMessage": true
+                    "MaxSize": 4096,
+                    "Path": "$.payload",
+                    "TargetPath": "$.payload"
                   },
                   "task_config": {
                     "provider": "{$.meta.provider}",
@@ -60,7 +62,27 @@
                   "BackoffRate": 2
                 }
               ],
-              "Next": "QueueGranules"
+              "Next": "DryRun?"
+            },
+            "DryRun?": {
+              "Comment": "If this is a dry run, then skip queuing granules",
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "And": [
+                    {
+                      "Variable": "$.meta.dryRun",
+                      "IsPresent": true
+                    },
+                    {
+                      "Variable": "$.meta.dryRun",
+                      "BooleanEquals": true
+                    }
+                  ],
+                  "Next": "SkipQueue"
+                }
+              ],
+              "Default": "QueueGranules"
             },
             "QueueGranules": {
               "Parameters": {
@@ -97,6 +119,10 @@
                 }
               ],
               "End": true
+            },
+            "SkipQueue": {
+              "Type": "Pass",
+              "End": true
             }
           }
         }
@@ -112,7 +138,7 @@
       ],
       "End": true
     },
-    "Skipped": {
+    "SkipWorkflow": {
       "Type": "Pass",
       "End": true
     },
