@@ -10,11 +10,11 @@
         {
           "And": [
             {
-              "Variable": "$.meta.rule.status",
+              "Variable": "$.meta.rule.state",
               "IsPresent": true
             },
             {
-              "Variable": "$.meta.rule.status",
+              "Variable": "$.meta.rule.state",
               "StringEquals": "ENABLED"
             }
           ],
