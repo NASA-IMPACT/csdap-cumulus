@@ -2,7 +2,7 @@ module "discover_granules_workflow" {
   source = "https://github.com/nasa/cumulus/releases/download/v9.3.0/terraform-aws-cumulus.zip//tf-modules/workflow"
 
   prefix          = var.prefix
-  name            = "DiscoverAndPublishGranules"
+  name            = "DiscoverAndQueueGranules"
   workflow_config = module.cumulus.workflow_config
   system_bucket   = data.aws_s3_bucket.system_bucket.id
   tags            = local.tags

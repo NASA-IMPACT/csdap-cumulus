@@ -188,10 +188,7 @@
           "ResultPath": "$.exception"
         }
       ],
-      "Next": "Succeeded"
-    },
-    "Succeeded": {
-      "Type": "Succeed"
+      "End": true
     },
     "Failed": {
       "Type": "Fail",
