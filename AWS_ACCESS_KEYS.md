@@ -79,6 +79,9 @@ you must generate a **short-term access key** as follows:
 
 1. Open your `.env` file in a text editor.
 1. Paste the contents of your clipboard into your `.env` file.
+1. **CRITICAL:** Remove every occurrence of the keyword `export` (_and_ the
+   following space character) from every line, otherwise some commands that use
+   your `.env` file will fail.
 1. If your `.env` file contains expired values for these same environment
    variables, remove the lines with the expired values.
 1. Save your `.env` file.

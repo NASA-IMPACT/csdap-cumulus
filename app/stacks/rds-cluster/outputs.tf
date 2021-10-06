@@ -6,10 +6,6 @@ output "admin_db_login_secret_version" {
   value = module.rds_cluster.admin_db_login_secret_version
 }
 
-output "permissions_boundary_arn" {
-  value = local.permissions_boundary_arn
-}
-
 output "rds_endpoint" {
   value = module.rds_cluster.rds_endpoint
 }

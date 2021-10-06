@@ -1,38 +1,15 @@
-data "aws_caller_identity" "current" {}
-data "aws_region" "current" {}
-
-# TODO: Pull the data.awc_vpc.ngap_vpc and data.aws_subnet_ids.ngap_subnets out
-# of this file and out of the main.tf files for the cumulus and data-persistence
-# modules and into a separate vpc module, and have all other modules reference
-# the new vpc module, rather than duplicating these everywhere.
-
-data "aws_vpc" "ngap_vpc" {
-  tags = {
-    Name = "Application VPC"
-  }
-}
-
-data "aws_subnet_ids" "ngap_subnets" {
-  vpc_id = data.aws_vpc.ngap_vpc.id
-
-  filter {
-    name   = "tag:Name"
-    values = ["Private application *"]
-  }
-}
-
 resource "random_password" "db_password" {
   length  = 50
   upper   = true
   special = false
 }
 
-locals {
-  permissions_boundary_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/${var.permissions_boundary_name}"
+module "vpc" {
+  source = "../../modules/vpc"
 }
 
 module "rds_cluster" {
-  source = "https://github.com/nasa/cumulus/releases/download/v9.1.0/terraform-aws-cumulus-rds.zip"
+  source = "https://github.com/nasa/cumulus/releases/download/<%= cumulus_version %>/terraform-aws-cumulus-rds.zip"
 
   cluster_identifier       = "${var.prefix}-rds-serverless"
   db_admin_password        = random_password.db_password.result
@@ -45,7 +22,7 @@ module "rds_cluster" {
   rds_user_password        = random_password.db_password.result
   region                   = data.aws_region.current.name
   snapshot_identifier      = var.snapshot_identifier
-  subnets                  = data.aws_subnet_ids.ngap_subnets.ids
+  subnets                  = module.vpc.subnets.ids
   tags                     = merge(var.tags, { Deployment = var.prefix })
-  vpc_id                   = data.aws_vpc.ngap_vpc.id
+  vpc_id                   = module.vpc.vpc_id
 }

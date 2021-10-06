@@ -1,5 +1,0 @@
-{
-  "id": "planet-test",
-  "protocol": "s3",
-  "host": "csdap-cumulus-test-data-bucket"
-}

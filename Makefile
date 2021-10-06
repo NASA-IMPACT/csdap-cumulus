@@ -1,110 +1,103 @@
-MODULE_DIRS = $(wildcard *-tf)
-CLEAN_TARGETS = $(addsuffix /clean,$(MODULE_DIRS))
-DEPLOY_TARGETS = $(addsuffix /deploy,$(MODULE_DIRS))
-FORMAT_TARGETS = $(addsuffix /format,$(MODULE_DIRS))
-OUTPUT_TARGETS = $(addsuffix /output,$(MODULE_DIRS))
-PLAN_TARGETS = $(addsuffix /plan,$(MODULE_DIRS))
-
-ENV = bin/env.sh
+MODULE_DIRS = $(patsubst app/stacks/%,%,$(wildcard app/stacks/*))
 IMAGE = csdap-cumulus
 WORKDIR = /work
 DOCKER_BUILD = docker build -t $(IMAGE) .
 DOCKER_RUN = docker run \
+  --interactive \
   --rm \
+	--env-file .env \
 	--volume ${PWD}:$(WORKDIR) \
 	--volume ${HOME}/.aws:/root/.aws \
 	--volume ${HOME}/.ssh:/root/.ssh
-TERRAFORM = $(IMAGE) terraform
+TERRASPACE = $(DOCKER_RUN) $(IMAGE) terraspace
 
-.PHONY: bash \
-	clean \
-	deploy \
-	destroy \
-	docker \
-	format \
-	help \
-	output \
-	$(CLEAN_TARGETS) \
-	$(FORMAT_TARGETS) \
-	$(OUTPUT_TARGETS)
 .DEFAULT_GOAL := help
+.PHONY: \
+  all-up-yes \
+	bash \
+	build \
+	clean-all \
+	clean-cache \
+	clean-logs \
+	docker \
+	help \
+	logs \
+	logs-follow \
+	output
 
 help: Makefile
 	@echo
 	@echo "Usage: make [options] target ..."
 	@echo
-	@echo "Run 'make -h' to list available options."
+	@echo "Options:"
 	@echo
-	@echo "Available targets:"
+	@echo "  Run 'make -h' to list options."
+	@echo
+	@echo "Targets:"
 	@echo
 	@sed -n 's/^##//p' $< | column -t -s ':' | sed -e 's/^/ /'
 	@echo
-
-.env: .env.example
+	@echo "Where STACK is one of: $(MODULE_DIRS)"
 	@echo
-	@echo "The .env.example file has changed since you last updated your .env file."
-	@echo "Update your .env file accordingly.  If there is no need to change your"
-	@echo ".env file, then run 'touch .env' to update its timestamp."
-	@echo
-	@# Force a failure
-	@grep "nothing" nosuchfile 2>/dev/null
 
-# Regenerate terraform.tf and terraform.tfvars when .env has been updated or
-# when the script that generates them changes.
-%/terraform.tf: .env bin/env.sh bin/generate-%-configs.sh
-	$(ENV) $(patsubst %/terraform.tf,bin/generate-%-configs.sh,$@)
+## all-up-yes: Deploys all modules (in dependency order) with automatic approval
+all-up-yes:
+	$(TERRASPACE) all up --yes
 
-## bash: Run bash terminal in Docker container
+## all-SUBCOMMAND: Runs Terraspace SUBCOMMAND across all stacks (make all-help for list of SUBCOMMANDs)
+all-%:
+	$(TERRASPACE) all $(patsubst all-%,%,$@)
+
+## bash: Runs bash terminal in Docker container
 bash:
-	$(DOCKER_RUN) -it $(IMAGE) bash
+	$(DOCKER_RUN) --tty $(IMAGE)
 
-## clean: Clean up build/deployment artifacts for all Terraform modules
-clean: $(CLEAN_TARGETS)
+## build: Runs Terraspace to build all stacks
+build:
+	$(TERRASPACE) build
 
-## deploy: Deploy all Terraform modules
-deploy: $(DEPLOY_TARGETS)
-cumulus-tf/deploy: data-persistence-tf/deploy cumulus-tf/*.json cumulus-tf/cumulus_distribution/bucket_map.yaml.tmpl
-data-persistence-tf/deploy: rds-cluster-tf/deploy
-rds-cluster-tf/deploy:
+## build-STACK: Runs Terraspace to build specified STACK
+build-%:
+	$(TERRASPACE) build $(patsubst build-%,%,$@)
 
-## destroy: DANGER! Destroy entire Cumulus deployment and data! (confirmation required)
-destroy:
-	$(ENV) bin/destroy.sh
+## clean-all: Removes all Terraspace cache and log files
+clean-all:
+	$(TERRASPACE) clean all
 
-## docker: Build Docker image for Cumulus deployment environment
-docker: Dockerfile
+## clean-cache: Removes all Terraspace cache files
+clean-cache:
+	$(TERRASPACE) clean cache
+
+## clean-logs: Removes all Terraspace log files
+clean-logs:
+	$(TERRASPACE) clean logs
+
+## docker: Builds Docker image for running Terraspace/Terraform
+docker: Dockerfile .dockerignore .terraform-version Gemfile Gemfile.lock
 	$(DOCKER_BUILD)
 
-## format: Format all *.tf and *.tfvars in all Terraform module directories
-format: $(FORMAT_TARGETS)
+## logs: Shows last 10 lines of all Terraspace logs
+logs:
+	$(TERRASPACE) logs
 
-## output: Show all outputs for all Terraform modules
-output: $(OUTPUT_TARGETS)
+## logs-follow: Tails all Terraspace logs
+logs-follow:
+	$(TERRASPACE) logs -f
 
-## plan: Show plans for all Terraform modules
-plan: $(PLAN_TARGETS)
+## plan-STACK: Shows Terraform plan for specified STACK
+plan-%:
+	$(TERRASPACE) plan $(patsubst plan-%,%,$@)
 
-## MODULE_DIR/clean: Clean up build/deployment artifacts for the Terraform module in the directory MODULE_DIR
-$(CLEAN_TARGETS):
-	rm -f "$(patsubst %/clean,%,$@)/deploy"
+## unlock-STACK_ID: Unlocks the Terraform state for the specified STACK using the specified lock ID
+unlock-%:
+	stack_id=$(patsubst unlock-%,%,$@); \
+	stack=$${stack_id%%_*} id=$${stack_id##*_}; \
+	$(TERRASPACE) force_unlock $${stack} $${id}
 
-## MODULE_DIR/deploy: Deploy the Terraform module (and dependencies) in the directory MODULE_DIR
-%/deploy: %/*.tf %/*.tfvars
-	$(ENV) bin/setup-tf-backend-resources.sh
-	$(DOCKER_RUN) --workdir $(WORKDIR)/$(patsubst %/deploy,%,$@) $(TERRAFORM) fmt -check -diff
-	$(DOCKER_RUN) --workdir $(WORKDIR)/$(patsubst %/deploy,%,$@) $(TERRAFORM) init -reconfigure
-	$(DOCKER_RUN) --workdir $(WORKDIR)/$(patsubst %/deploy,%,$@) $(TERRAFORM) apply -input=false -auto-approve
-	touch $@
+## up-STACK-yes: Deploys specified STACK with automatic approval
+up-%-yes:
+	$(TERRASPACE) up $(patsubst up-%-yes,%,$@) --yes
 
-## MODULE_DIR/format: Format the *.tf and *.tfvars files in the directory MODULE_DIR
-$(FORMAT_TARGETS):
-	$(DOCKER_RUN) --workdir $(WORKDIR)/$(patsubst %/format,%,$@) $(TERRAFORM) fmt -check -diff
-
-## MODULE_DIR/output: Show the outputs for the Terraform module in the directory MODULE_DIR
-$(OUTPUT_TARGETS):
-	$(DOCKER_RUN) --workdir $(WORKDIR)/$(patsubst %/output,%,$@) $(TERRAFORM) output
-
-## MODULE_DIR/plan: Show plan for the Terraform module in the directory MODULE_DIR
-%/plan: %/*.tf %/*.tfvars
-	$(DOCKER_RUN) --workdir $(WORKDIR)/$(patsubst %/plan,%,$@) $(TERRAFORM) init -reconfigure
-	$(DOCKER_RUN) --workdir $(WORKDIR)/$(patsubst %/plan,%,$@) $(TERRAFORM) plan -input=false
+## up-STACK: Deploys specified STACK, prompting for approval
+up-%:
+	$(TERRASPACE) up $(patsubst up-%,%,$@)

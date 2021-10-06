@@ -1,8 +1,4 @@
-.env
-*.zip
-deploy
-terraform.tf
-terraform.tfvars
+/log
 
 # Created by https://www.toptal.com/developers/gitignore/api/terraform
 # Edit at https://www.toptal.com/developers/gitignore?templates=terraform
@@ -351,7 +347,7 @@ $RECYCLE.BIN/
 /tmp/
 
 # Used by dotenv library to load environment variables.
-# .env
+.env
 
 # Ignore Byebug command history file.
 .byebug_history

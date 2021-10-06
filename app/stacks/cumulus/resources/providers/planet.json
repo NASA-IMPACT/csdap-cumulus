@@ -1,0 +1,5 @@
+{
+  "id": "planet",
+  "protocol": "s3",
+  "host": "ss-ingest-prod-ingesteddata-uswest2"
+}

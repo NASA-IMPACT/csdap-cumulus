@@ -1,0 +1,20 @@
+{
+  "name": "PSScene3Band",
+  "state": "ENABLED",
+  "provider": "planet",
+  "collection": {
+    "name": "PSScene3Band",
+    "version": "1"
+  },
+  "workflow": "DiscoverAndQueueGranules",
+  "rule": {
+    "type": "onetime"
+  },
+  "meta": {
+    "provider_path": "storage-ss-ingest-prod-ingesteddata-uswest2/planet/PSScene3Band",
+    "dryRun": true,
+    "rule": {
+      "state": "ENABLED"
+    }
+  }
+}
