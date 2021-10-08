@@ -93,7 +93,7 @@ Error: error creating Lambda Function (1): InvalidParameterValueException: The p
 If this occurs, simply run the previous command again, as this typically arises
 from a race condition where one resource depends upon another resource that is
 not yet fully ready.  Typically, by the time you rerun the command, the required
-resource is readay.  See [Deploying Cumulus Troubleshooting] for more
+resource is ready.  See [Deploying Cumulus Troubleshooting] for more
 information.
 
 After your initial, successful, full deployment, you should rarely need to
