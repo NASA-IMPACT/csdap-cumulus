@@ -41,13 +41,6 @@ jobs:
       - name: Update packages list
         run: sudo apt-get update -y
 
-      - name: Install AWS CLI v2
-        run: |
-          curl --silent "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
-          unzip -q /tmp/awscliv2.zip -d /tmp
-          sudo /tmp/aws/install --bin-dir /usr/bin
-          rm -rf /tmp/awscliv2.zip /tmp/aws/
-
       - name: Install tfenv
         run: |
           git clone https://github.com/tfutils/tfenv.git ${HOME}/.tfenv
@@ -91,13 +84,6 @@ jobs:
 
       - name: Update package list
         run: sudo apt-get update -y
-
-      - name: Install AWS CLI v2
-        run: |
-          curl --silent "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
-          unzip -q /tmp/awscliv2.zip -d /tmp
-          sudo /tmp/aws/install --bin-dir /usr/bin
-          rm -rf /tmp/awscliv2.zip /tmp/aws/
 
       - name: Install tfenv
         run: |
