@@ -106,4 +106,4 @@ jobs:
         run: bundle install
 
       - name: Deploy Cumulus
-        run: terraspace all up --yes
+        run: bundle exec terraspace all up --yes
