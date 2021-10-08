@@ -1,5 +1,0 @@
-aws_region                = "${AWS_REGION}"
-deletion_protection       = true
-permissions_boundary_name = "NGAPShRoleBoundary"
-prefix                    = "cumulus-${PREFIX}"
-provision_user_database   = true

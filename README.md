@@ -18,39 +18,65 @@ this repository:
 - **Populate Environment Variables**
 
   Copy the file named `.env.example` (at the root of this project) to a file
-  named `.env` (also placing it at the root of this project), if it does not
-  already exist.
+  named `.env` (also placing it at the root of this project).
 
   Using a text editor, set values within your `.env` file according to the
   instructions provided within the file.  These environment variables will be
   used within the Docker container to properly configure the AWS CLI and
   Terraform.
 
-## Deploying Cumulus
+## Infrastructure Management
 
 This section assumes that you have completed all prerequisite steps as detailed
 above.
 
-To deploy Cumulus, all the necessary tools and dependencies are bundled within a
-Docker image.  To build the image, run the following:
+Cumulus uses [Terraform] to manage AWS infrastructure.  However, because using
+Terraform directly is somewhat cumbersome, we leverage [Terraspace] to make use
+of Terraform a bit easier.  In addition, we use Docker to simplify local
+development and deployment.
+
+### Docker for Development
+
+To avoid having to install Terraform, Terraspace, and other tools locally, we
+use a Docker container to package all of our tooling requirements.  Therefore,
+before you can deploy Cumulus, you must first build the Docker image, as
+follows:
 
 ```plain
 make docker
 ```
 
-Once the image is built (which you shouldn't have to do again unless the
-`Dockerfile` is changed), deploy Cumulus with the following command:
+Once the image is built, you should not have to build it again unless one of the
+following files change:
+
+- `.dockerignore`
+- `.terraform-version`
+- `Dockerfile`
+- `Gemfile`
+- `Gemfile.lock`
+
+### Deploying Cumulus
+
+Once the Docker image is built, deploy all of the Terraform modules with the
+following command, which will deploy the modules in the correct order of their
+dependencies:
 
 ```plain
-make deploy
+make all-up
 ```
 
-This will deploy all out-of-date modules in the correct order dictated by their
-dependencies specified in the `Makefile`.
+The first time you run this command, you will be prompted to supply values for a
+number of secrets, which will be stored as AWS SSM Parameters of type
+SecureString.  If you are unsure what values to supply for the prompts, consult
+a team member who has already deployed Cumulus from this repository.
 
-Upon initial deployment, all modules will be deployed, which should take roughly
-2 hours in total.  Note that close to the end of the process, deployment might
-fail with several error messages of the following form:
+Subsequent deployments will use the secret values supplied during your initial
+deployment, so if you need to change any of the parameters, you must do so
+manually via the AWS CLI or AWS Management Console.
+
+Initial deployment will take roughly 2 hours in total, but close to the end of
+the process, the deployment might fail with several error messages of the
+following form:
 
 ```plain
 Error: error creating Lambda Function (1): InvalidParameterValueException: The provided execution role does not have permissions to call CreateNetworkInterface on EC2
@@ -64,8 +90,22 @@ Error: error creating Lambda Function (1): InvalidParameterValueException: The p
 }
 ```
 
-If this occurs, simply run the previous command again.  See
-[Deploying Cumulus Troubleshooting] for more information.
+If this occurs, simply run the previous command again, as this typically arises
+from a race condition where one resource depends upon another resource that is
+not yet fully ready.  Typically, by the time you rerun the command, the required
+resource is ready.  See [Deploying Cumulus Troubleshooting] for more
+information.
+
+After your initial, successful, full deployment, you should rarely need to
+redeploy _all_ of the modules that Cumulus comprises.  Therefore, you may
+perform subsequent deployments with the following command:
+
+```plain
+make up-cumulus
+```
+
+Since this will avoid deploying the other modules, deployment time will be
+shorter.
 
 ### Destroying a Deployment
 
@@ -75,7 +115,7 @@ used only when removing a development deployment, particularly when a team
 member leaves the team:
 
 ```plan
-make destroy
+# TBD
 ```
 
 To prevent accidental annihilation, **the script will prompt you for explicit
@@ -148,5 +188,9 @@ TBD
    https://nasa.github.io/cumulus/docs/deployment/terraform-best-practices#how-to-destroy-everything
 [Register an Earthdata Login Application]:
    https://wiki.earthdata.nasa.gov/display/EL/How+To+Register+An+Application
+[Terraform]:
+   https://www.terraform.io/
+[Terraspace]:
+   https://terraspace.cloud/
 [Update Your Earthdata Application]:
    https://nasa.github.io/cumulus/docs/deployment/deployment-readme#update-earthdata-application
