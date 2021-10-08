@@ -23,7 +23,7 @@ jobs:
   # Intended only for locally testing development deployment job via `act`,
   # using the following command:
   #
-  #     act --secrets-file .env -j deploy-dev workflow_dispatch
+  #     act --secret-file .env -j deploy-dev workflow_dispatch
   #
   deploy-dev:
     if: github.event_name == 'workflow_dispatch' && github.event.ref != 'refs/heads/main'
@@ -39,7 +39,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Update packages list
-        run: apt-get update
+        run: sudo apt-get update -y
 
       - name: Install AWS CLI v2
         run: |
@@ -57,11 +57,11 @@ jobs:
         run: tfenv install
 
       - name: Install jq
-        run: apt-get install -y jq
+        run: sudo apt-get install -y jq
 
       - name: Install Ruby and Bundler
         run: |
-          apt-get install -y ruby-full
+          sudo apt-get install -y ruby-full
           gem install bundler
 
       - name: Install Terraspace
@@ -90,7 +90,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Update package list
-        run: apt-get update
+        run: sudo apt-get update -y
 
       - name: Install AWS CLI v2
         run: |
@@ -108,11 +108,11 @@ jobs:
         run: tfenv install
 
       - name: Install jq
-        run: apt-get install -y jq
+        run: sudo apt-get install -y jq
 
       - name: Install Ruby and Bundler
         run: |
-          apt-get install -y ruby-full
+          sudo apt-get install -y ruby-full
           gem install bundler
 
       - name: Install Terraspace
