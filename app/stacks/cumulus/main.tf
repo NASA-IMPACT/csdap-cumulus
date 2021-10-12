@@ -160,7 +160,6 @@ module "cumulus" {
 
   rds_security_group         = local.rds_security_group
   rds_user_access_secret_arn = local.rds_user_access_secret_arn
-  rds_connection_heartbeat   = true
 
   urs_url             = var.urs_url
   urs_client_id       = data.aws_ssm_parameter.urs_client_id.value
