@@ -10,9 +10,9 @@ RUN apt-get remove -y awscli \
 
 RUN apt-get update && apt-get install -y \
   bsdmainutils \
+  g++ \
   gcc \
   graphviz \
-  jq \
   make \
   && curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb" -o "session-manager-plugin.deb" \
   && dpkg -i session-manager-plugin.deb \

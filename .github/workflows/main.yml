@@ -49,8 +49,8 @@ jobs:
       - name: Install Terraform
         run: tfenv install
 
-      - name: Install jq
-        run: sudo apt-get install -y jq
+      - name: Install g++
+        run: sudo apt-get install -y g++
 
       - name: Install Ruby and Bundler
         run: |
@@ -94,8 +94,8 @@ jobs:
       - name: Install Terraform
         run: tfenv install
 
-      - name: Install jq
-        run: sudo apt-get install -y jq
+      - name: Install g++
+        run: sudo apt-get install -y g++
 
       - name: Install Ruby and Bundler
         run: |
