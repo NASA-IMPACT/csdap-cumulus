@@ -9,7 +9,7 @@ DOCKER_RUN = docker run \
 	--volume ${PWD}:$(WORKDIR) \
 	--volume ${HOME}/.aws:/root/.aws \
 	--volume ${HOME}/.ssh:/root/.ssh
-TERRASPACE = $(DOCKER_RUN) $(IMAGE) terraspace
+TERRASPACE = $(DOCKER_RUN) $(IMAGE) bundle exec terraspace
 
 .DEFAULT_GOAL := help
 .PHONY: \
