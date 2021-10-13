@@ -5,7 +5,6 @@ api_users = [
   "chuckwondo"
 ]
 cmr_environment          = "UAT"
-csdap_host_url           = "https://auth.csdap.uat.earthdatacloud.nasa.gov/"
 cumulus_distribution_url = "https://d7yzp0aemakw8.cloudfront.net/"
 key_name                 = "csda_uat_cumulus"
 

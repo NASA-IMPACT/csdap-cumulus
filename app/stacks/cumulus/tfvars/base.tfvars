@@ -14,7 +14,6 @@
 #<% depends_on("rds-cluster") %>
 
 cumulus_message_adapter_version = "1.3.0"
-csdap_host_url                  = "https://auth.csdap.uat.earthdatacloud.nasa.gov/"
 
 # Unique value used ONLY for distinguishing CMR requests made from this
 # deployment from all other CMR requests, in case help is required from the CMR

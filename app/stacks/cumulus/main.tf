@@ -93,7 +93,7 @@ module "cumulus_distribution" {
   lambda_subnet_ids         = module.vpc.subnets.ids
   oauth_client_id           = data.aws_ssm_parameter.csdap_client_id.value
   oauth_client_password     = data.aws_ssm_parameter.csdap_client_password.value
-  oauth_host_url            = var.csdap_host_url
+  oauth_host_url            = data.aws_ssm_parameter.csdap_host_url.value
   oauth_provider            = "cognito"
   permissions_boundary_arn  = local.permissions_boundary_arn
   prefix                    = var.prefix
