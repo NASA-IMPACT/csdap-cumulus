@@ -33,7 +33,7 @@ variable "api_users" {
 
 variable "archive_api_port" {
   type    = number
-  default = null
+  default = 8000
 }
 
 variable "archive_api_url" {
@@ -45,11 +45,6 @@ variable "archive_api_url" {
 variable "cmr_oauth_provider" {
   type    = string
   default = "earthdata"
-}
-
-variable "csdap_host_url" {
-  type    = string
-  default = null
 }
 
 variable "cumulus_distribution_url" {

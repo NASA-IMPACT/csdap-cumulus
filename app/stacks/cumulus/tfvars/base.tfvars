@@ -13,10 +13,6 @@
 #<% depends_on("data-persistence") %>
 #<% depends_on("rds-cluster") %>
 
-# Make archive API run as a private API gateway and accessible on port 8000
-archive_api_port            = 8000
-private_archive_api_gateway = true
-
 system_bucket = "<%= expansion('csdap-cumulus-:ENV-internal-:ACCOUNT') %>"
 
 buckets = {
