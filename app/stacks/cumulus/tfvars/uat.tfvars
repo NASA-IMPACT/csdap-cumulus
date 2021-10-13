@@ -4,7 +4,6 @@ api_users = [
   "jsrikish",
   "chuckwondo"
 ]
-cmr_environment          = "UAT"
 cumulus_distribution_url = "https://d7yzp0aemakw8.cloudfront.net/"
 key_name                 = "csda_uat_cumulus"
 
@@ -19,7 +18,7 @@ key_name                 = "csda_uat_cumulus"
 # CloudFront for distribution).
 #-------------------------------------------------------------------------------
 
-system_bucket = "<%= expansion('csdap-uat-internal') %>"
+system_bucket = "csdap-uat-internal"
 
 buckets = {
   internal = {

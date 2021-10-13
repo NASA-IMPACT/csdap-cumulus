@@ -11,10 +11,6 @@ variable "cmr_client_id" {
   type = string
 }
 
-variable "cmr_environment" {
-  type = string
-}
-
 variable "cmr_provider" {
   type = string
 }

@@ -18,9 +18,8 @@ cumulus_message_adapter_version = "1.3.0"
 # Unique value used ONLY for distinguishing CMR requests made from this
 # deployment from all other CMR requests, in case help is required from the CMR
 # support team in debugging CMR issues.
-cmr_client_id   = "<%= expansion('csdap-cumulus-:ENV-:ACCOUNT') %>"
-cmr_environment = "UAT"
-cmr_provider    = "CSDA"
+cmr_client_id = "<%= expansion('csdap-cumulus-:ENV-:ACCOUNT') %>"
+cmr_provider  = "CSDA"
 
 # Make archive API run as a private API gateway and accessible on port 8000
 archive_api_port            = 8000

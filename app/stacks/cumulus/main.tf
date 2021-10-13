@@ -87,7 +87,7 @@ module "cumulus_distribution" {
   bucketname_prefix         = ""
   buckets                   = var.buckets
   cmr_acl_based_credentials = true
-  cmr_environment           = var.cmr_environment
+  cmr_environment           = data.aws_ssm_parameter.cmr_environment.value
   cmr_provider              = var.cmr_provider
   deploy_to_ngap            = true
   lambda_subnet_ids         = module.vpc.subnets.ids
@@ -170,7 +170,7 @@ module "cumulus" {
   metrics_es_username = var.metrics_es_username
 
   cmr_client_id      = var.cmr_client_id
-  cmr_environment    = var.cmr_environment
+  cmr_environment    = data.aws_ssm_parameter.cmr_environment.value
   cmr_oauth_provider = var.cmr_oauth_provider
   cmr_provider       = var.cmr_provider
   # Earthdata Login (EDL) credentials.  For DEVELOPMENT deployments, these should
