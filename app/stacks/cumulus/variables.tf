@@ -7,14 +7,6 @@ variable "buckets" {
   default = {}
 }
 
-variable "cmr_client_id" {
-  type = string
-}
-
-variable "cmr_provider" {
-  type = string
-}
-
 variable "cumulus_message_adapter_version" {
   type = string
 }
