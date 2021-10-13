@@ -70,7 +70,7 @@ module "cma" {
 
   prefix      = var.prefix
   bucket      = var.system_bucket
-  cma_version = var.cumulus_message_adapter_version
+  cma_version = "1.3.0"
 }
 
 module "cumulus_distribution" {

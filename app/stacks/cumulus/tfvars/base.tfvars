@@ -13,8 +13,6 @@
 #<% depends_on("data-persistence") %>
 #<% depends_on("rds-cluster") %>
 
-cumulus_message_adapter_version = "1.3.0"
-
 # Make archive API run as a private API gateway and accessible on port 8000
 archive_api_port            = 8000
 private_archive_api_gateway = true

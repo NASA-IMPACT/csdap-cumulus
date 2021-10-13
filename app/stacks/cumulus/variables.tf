@@ -7,10 +7,6 @@ variable "buckets" {
   default = {}
 }
 
-variable "cumulus_message_adapter_version" {
-  type = string
-}
-
 variable "system_bucket" {
   type = string
 }
