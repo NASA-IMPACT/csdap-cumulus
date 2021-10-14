@@ -10,13 +10,16 @@ GEM
     addressable (2.8.0)
       public_suffix (>= 2.0.2, < 5.0)
     aws-eventstream (1.2.0)
-    aws-partitions (1.513.0)
+    aws-partitions (1.516.0)
     aws-sdk-core (3.121.1)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
       aws-sigv4 (~> 1.1)
       jmespath (~> 1.0)
     aws-sdk-dynamodb (1.63.0)
+      aws-sdk-core (~> 3, >= 3.120.0)
+      aws-sigv4 (~> 1.1)
+    aws-sdk-iam (1.61.0)
       aws-sdk-core (~> 3, >= 3.120.0)
       aws-sigv4 (~> 1.1)
     aws-sdk-kms (1.49.0)
@@ -295,9 +298,10 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  aws-sdk-iam
   rspec-terraspace
-  terraspace (~> 0.6.13)
+  terraspace
   terraspace_plugin_aws
 
 BUNDLED WITH
-   2.1.4
+   2.2.26
