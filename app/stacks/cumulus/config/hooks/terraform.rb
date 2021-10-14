@@ -33,8 +33,15 @@ class EnsureSsmParametersExist
         )
       end
 
+      expander = TerraspacePluginAws::Interfaces::Expander.new(runner.mod)
+
       puts
-      puts "The following parameters are required:"
+      puts "-----------------------------------------------------------------"
+      puts "Environment (TS_ENV): #{Terraspace.env}"
+      puts "AWS Account ID      : #{expander.account}"
+      puts "-----------------------------------------------------------------"
+      puts
+      puts "The following parameters must be supplied:"
       puts
 
       invalid_parameters.each do |name|

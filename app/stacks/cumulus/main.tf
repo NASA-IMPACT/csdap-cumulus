@@ -5,6 +5,8 @@ locals {
     public_buckets    = [for k, v in var.buckets : v.name if v.type == "public"]
   })
 
+  cmr_provider = "CSDA"
+
   elasticsearch_alarms            = jsondecode("<%= json_output('data-persistence.elasticsearch_alarms') %>")
   elasticsearch_domain_arn        = jsondecode("<%= json_output('data-persistence.elasticsearch_domain_arn') %>")
   elasticsearch_hostname          = jsondecode("<%= json_output('data-persistence.elasticsearch_hostname') %>")
@@ -38,13 +40,6 @@ data "aws_ssm_parameter" "ecs_image_id" {
   name = "image_id_ecs_amz2"
 }
 
-# Cognito client ID/password
-
-# Earthdata Login (EDL) credentials.  For DEVELOPMENT deployments, these should
-# be your own credentials for https://uat.urs.earthdata.nasa.gov/.  Otherwise,
-# these should be credentials for an EDL "service" account.
-
-
 #-------------------------------------------------------------------------------
 # RESOURCES
 #-------------------------------------------------------------------------------
@@ -75,7 +70,7 @@ module "cma" {
 
   prefix      = var.prefix
   bucket      = var.system_bucket
-  cma_version = var.cumulus_message_adapter_version
+  cma_version = "1.3.0"
 }
 
 module "cumulus_distribution" {
@@ -87,13 +82,13 @@ module "cumulus_distribution" {
   bucketname_prefix         = ""
   buckets                   = var.buckets
   cmr_acl_based_credentials = true
-  cmr_environment           = var.cmr_environment
-  cmr_provider              = var.cmr_provider
+  cmr_environment           = data.aws_ssm_parameter.cmr_environment.value
+  cmr_provider              = local.cmr_provider
   deploy_to_ngap            = true
   lambda_subnet_ids         = module.vpc.subnets.ids
   oauth_client_id           = data.aws_ssm_parameter.csdap_client_id.value
   oauth_client_password     = data.aws_ssm_parameter.csdap_client_password.value
-  oauth_host_url            = var.csdap_host_url
+  oauth_host_url            = data.aws_ssm_parameter.csdap_host_url.value
   oauth_provider            = "cognito"
   permissions_boundary_arn  = local.permissions_boundary_arn
   prefix                    = var.prefix
@@ -169,10 +164,10 @@ module "cumulus" {
   metrics_es_password = var.metrics_es_password
   metrics_es_username = var.metrics_es_username
 
-  cmr_client_id      = var.cmr_client_id
-  cmr_environment    = var.cmr_environment
+  cmr_client_id      = "<%= expansion('csdap-cumulus-:ENV-:ACCOUNT') %>"
+  cmr_environment    = data.aws_ssm_parameter.cmr_environment.value
   cmr_oauth_provider = var.cmr_oauth_provider
-  cmr_provider       = var.cmr_provider
+  cmr_provider       = local.cmr_provider
   # Earthdata Login (EDL) credentials.  For DEVELOPMENT deployments, these should
   # be your own credentials for https://uat.urs.earthdata.nasa.gov/.  Otherwise,
   # these should be credentials for an EDL "service" account at the EDL URL

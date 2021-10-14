@@ -14,6 +14,11 @@
 # and is used here as an SSM parameter description.
 #
 
+data("aws_ssm_parameter", "csdap_host_url",
+  "//": "CSDAP Cognito Host URL",
+  name: "/shared/cumulus/csdap-host-url"
+)
+
 data("aws_ssm_parameter", "csdap_client_id",
   "//": "CSDAP Cognito Client ID",
   name: "/shared/cumulus/csdap-client-id"
@@ -22,6 +27,11 @@ data("aws_ssm_parameter", "csdap_client_id",
 data("aws_ssm_parameter", "csdap_client_password",
   "//": "CSDAP Cognito Client Password",
   name: "/shared/cumulus/csdap-client-password"
+)
+
+data("aws_ssm_parameter", "cmr_environment",
+  "//": "CMR Environment (SIT, UAT, or OPS)",
+  name: "/shared/cumulus/cmr-environment"
 )
 
 data("aws_ssm_parameter", "cmr_username",
