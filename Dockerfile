@@ -8,18 +8,24 @@ RUN apt-get remove -y awscli \
   && /tmp/aws/install --bin-dir /usr/bin \
   && rm -rf /tmp/awscliv2.zip /tmp/aws/
 
+# Install AWS Session Manager Plugin
+RUN curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb" -o "/tmp/session-manager-plugin.deb" \
+  && dpkg -i /tmp/session-manager-plugin.deb \
+  && rm -f /tmp/session-manager-plugin.deb
+
+# Install various Ruby and Terraspace dependencies
 RUN apt-get update && apt-get install -y \
   bsdmainutils \
   g++ \
   gcc \
   graphviz \
-  make \
-  && curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb" -o "session-manager-plugin.deb" \
-  && dpkg -i session-manager-plugin.deb \
-  && rm -f session-manager-plugin.deb
+  make
 
 WORKDIR /work
-
 COPY .terraform-version Gemfile Gemfile.lock ./
-RUN bundle install
+
+# Use tfenv to install Terraform (using version specified in .terraform-version)
 RUN tfenv install
+
+# Install all of the Terraspace Ruby dependencies listed in Gemfile.lock
+RUN bundle install && bundle clean --force
