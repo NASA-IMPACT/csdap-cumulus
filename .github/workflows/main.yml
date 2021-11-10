@@ -20,10 +20,14 @@ jobs:
         run: |
           echo "Nothing to unit test yet"
 
+  #
   # Intended only for locally testing development deployment job via `act`,
   # using the following command:
   #
-  #     act --secret-file .env -j deploy-dev workflow_dispatch
+  #     act --secret-file .env-act -j deploy-dev workflow_dispatch
+  #
+  # where the file .env-act must have the following environment variables set:
+  # AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_REGION.
   #
   deploy-dev:
     if: github.event_name == 'workflow_dispatch' && github.event.ref != 'refs/heads/main'
@@ -36,10 +40,20 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Update packages list
         run: sudo apt-get update -y
+
+      - name: Install AWS CLI v2
+        run: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
+          unzip -q /tmp/awscliv2.zip -d /tmp
+          /tmp/aws/install --bin-dir /usr/bin
+          rm -rf /tmp/awscliv2.zip /tmp/aws/
+          aws --version
 
       - name: Install tfenv
         run: |
@@ -61,7 +75,15 @@ jobs:
         run: bundle install
 
       - name: Deploy Cumulus
-        run: bundle exec terraspace all plan
+        env:
+          # Required because bin/ensure-buckets-exist.sh uses AWS CLI
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          unset AWS_PROFILE
+          bundle exec terraspace logs -f &
+          bundle exec terraspace all plan
 
   deploy-uat:
     if: github.event_name == 'push' && github.event.ref == 'refs/heads/main'
@@ -106,4 +128,6 @@ jobs:
         run: bundle install
 
       - name: Deploy Cumulus
-        run: bundle exec terraspace all up --yes
+        run: |
+          bundle exec terraspace logs -f &
+          bundle exec terraspace all up --yes
