@@ -2,15 +2,16 @@
 #
 # Ensures that all of the specified buckets exist, creating all missing buckets.
 # Exits with 0 (success) when all buckets exist, or when all missing buckets are
-# successfully created.  If creation fails with a "BucketAlreadyExists"
+# successfully created.  If any creation fails with a "BucketAlreadyExists"
 # error, the failure is ignored and creation is considered successful.
 #
-# Requires appropriate AWS environment variables to be set (e.g., AWS_PROFILE),
-# including AWS_REGION, and constrains the bucket location to the region.
+# Requires appropriate AWS environment variables to be set (AWS_ACCESS_KEY_ID,
+# AWS_SECRET_ACCESS_KEY, and AWS_REGION), and constrains the bucket locations to
+# the specified region.
 #
 # Usage:
 #
-#     ensure-buckets-exist.sh BUCKET ...
+#     ensure-buckets-exist.sh [BUCKET [BUCKET [...]]]
 #
 
 set -Eeu
@@ -20,15 +21,15 @@ declare -a _existing_buckets
 declare -A _bucket_map
 
 _required_buckets=("${@}")
-_existing_buckets=("$(aws s3api list-buckets --query Buckets[].Name --output text)")
+mapfile -t _existing_buckets < <(aws s3api list-buckets --query Buckets[].Name --output text | tr '\t' '\n')
 
-for _bucket in ${_existing_buckets[*]}; do
+for _bucket in "${_existing_buckets[@]}"; do
   _bucket_map["${_bucket}"]=${_bucket}
 done
 
-for _bucket in ${_required_buckets[*]}; do
+for _bucket in "${_required_buckets[@]}"; do
   if [[ -n "${_bucket_map[${_bucket}]:-}" ]]; then
-    echo "Bucket exists: ${_bucket}"
+    echo "Found bucket '${_bucket}'"
   else
     echo "Creating bucket '${_bucket}'..."
 
