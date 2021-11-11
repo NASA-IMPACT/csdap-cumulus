@@ -136,6 +136,7 @@
           "ResultPath": "$.exception"
         }
       ],
+      "OutputPath": "$[0]",
       "End": true
     },
     "SkipWorkflow": {
