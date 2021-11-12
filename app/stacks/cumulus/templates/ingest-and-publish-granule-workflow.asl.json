@@ -188,6 +188,7 @@
           "ResultPath": "$.exception"
         }
       ],
+      "OutputPath": "$[0]",
       "End": true
     },
     "Failed": {
