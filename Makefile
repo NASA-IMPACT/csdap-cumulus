@@ -2,14 +2,14 @@ DOCKER_BUILD = docker build -t $(IMAGE) .
 DOCKER_RUN = docker run \
   --interactive \
   --rm \
-	--env-file $(DOTENV) \
+  --env-file $(DOTENV) \
   --volume /var/run/docker.sock:/var/run/docker.sock \
-	--volume csdap-cumulus.node_modules:$(WORKDIR)/node_modules \
-	--volume csdap-cumulus.node_modules.lambda:$(WORKDIR)/build/main/node_modules \
-	--volume $(PWD):$(WORKDIR) \
-	--volume $(HOME)/.aws:/root/.aws \
-	--volume $(HOME)/.ssh:/root/.ssh \
-	--workdir $(WORKDIR)
+  --volume csdap-cumulus.node_modules:$(WORKDIR)/node_modules \
+  --volume csdap-cumulus.node_modules.lambda:$(WORKDIR)/build/main/node_modules \
+  --volume $(PWD):$(WORKDIR) \
+  --volume $(HOME)/.aws:/root/.aws \
+  --volume $(HOME)/.ssh:/root/.ssh \
+  --workdir $(WORKDIR)
 DOTENV = .env
 IMAGE = csdap-cumulus
 STACKS = $(patsubst app/stacks/%,%,$(wildcard app/stacks/*))
