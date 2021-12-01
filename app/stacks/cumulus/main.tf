@@ -40,6 +40,16 @@ data "aws_ssm_parameter" "ecs_image_id" {
   name = "image_id_ecs_amz2"
 }
 
+data "external" "lambda_archive_exploded" {
+  program = ["/bin/bash", "-ic", "yarn -s install >/dev/null && yarn -s tf:lambda-archive-exploded"]
+}
+
+data "archive_file" "lambda" {
+  type        = "zip"
+  source_dir  = data.external.lambda_archive_exploded.result.dir
+  output_path = "${data.external.lambda_archive_exploded.result.dir}/lambda.zip"
+}
+
 #-------------------------------------------------------------------------------
 # RESOURCES
 #-------------------------------------------------------------------------------
@@ -54,7 +64,75 @@ resource "aws_s3_bucket_object" "bucket_map_yaml_distribution" {
   key     = "${var.prefix}/cumulus_distribution/bucket_map.yaml"
   content = local.bucket_map_yaml
   etag    = md5(local.bucket_map_yaml)
-  tags    = var.tags
+  tags    = local.tags
+}
+
+resource "aws_security_group" "egress_only" {
+  name   = "${var.prefix}-egress-only"
+  vpc_id = module.vpc.vpc_id
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  tags = local.tags
+}
+
+resource "aws_lambda_function" "format_provider_path" {
+  function_name = "${var.prefix}-FormatProviderPath"
+  filename      = data.archive_file.lambda.output_path
+  role          = module.cumulus.lambda_processing_role_arn
+  handler       = "index.formatProviderPathCMAHandler"
+  runtime       = "nodejs14.x"
+  timeout       = 300
+
+  source_code_hash = data.archive_file.lambda.output_base64sha256
+  layers           = [module.cma.lambda_layer_version_arn]
+
+  tags = local.tags
+
+  dynamic "vpc_config" {
+    for_each = length(module.vpc.subnets.ids) == 0 ? [] : [1]
+    content {
+      subnet_ids         = module.vpc.subnets.ids
+      security_group_ids = [aws_security_group.egress_only.id]
+    }
+  }
+
+  environment {
+    variables = {
+      CUMULUS_MESSAGE_ADAPTER_DIR = "/opt/"
+    }
+  }
+}
+
+resource "aws_lambda_function" "advance_start_date" {
+  function_name = "${var.prefix}-AdvanceStartDate"
+  filename      = data.archive_file.lambda.output_path
+  role          = module.cumulus.lambda_processing_role_arn
+  handler       = "index.advanceStartDateCMAHandler"
+  runtime       = "nodejs14.x"
+  timeout       = 300
+
+  source_code_hash = data.archive_file.lambda.output_base64sha256
+  layers           = [module.cma.lambda_layer_version_arn]
+
+  tags = local.tags
+
+  dynamic "vpc_config" {
+    for_each = length(module.vpc.subnets.ids) == 0 ? [] : [1]
+    content {
+      subnet_ids         = module.vpc.subnets.ids
+      security_group_ids = [aws_security_group.egress_only.id]
+    }
+  }
+
+  environment {
+    variables = {
+      CUMULUS_MESSAGE_ADAPTER_DIR = "/opt/"
+    }
+  }
 }
 
 #-------------------------------------------------------------------------------
@@ -108,8 +186,10 @@ module "discover_granules_workflow" {
 
   state_machine_definition = templatefile("${path.module}/templates/discover-granules-workflow.asl.json", {
     ingest_granule_workflow_name : module.ingest_and_publish_granule_workflow.name,
+    format_provider_path_task_arn : aws_lambda_function.format_provider_path.arn,
     discover_granules_task_arn : module.cumulus.discover_granules_task.task_arn,
     queue_granules_task_arn : module.cumulus.queue_granules_task.task_arn,
+    advance_start_date_task_arn : aws_lambda_function.advance_start_date.arn,
     start_sf_queue_url : module.cumulus.start_sf_queue_url
   })
 }

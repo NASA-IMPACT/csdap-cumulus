@@ -1,3 +1,8 @@
 *
+!/.yarn
+!.nvmrc
 !.terraform-version
+!.yarnrc
 !Gemfile*
+!package.json
+!yarn.lock

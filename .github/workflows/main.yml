@@ -49,7 +49,7 @@ jobs:
 
       - name: Install AWS CLI v2
         run: |
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
+          curl --no-progress-meter "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
           unzip -q /tmp/awscliv2.zip -d /tmp
           /tmp/aws/install --bin-dir /usr/bin
           rm -rf /tmp/awscliv2.zip /tmp/aws/
@@ -73,6 +73,16 @@ jobs:
 
       - name: Install Terraspace
         run: bundle install
+
+      - name: Install nvm, node/npm, yarn, and dependencies
+        env:
+          NVM_DIR: /usr/local/nvm
+        run: |
+          mkdir -p "${NVM_DIR}"
+          curl --no-progress-meter -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+          source "${NVM_DIR}/nvm.sh" --install
+          npm install -g yarn
+          yarn install
 
       - name: Deploy Cumulus
         env:
@@ -126,6 +136,11 @@ jobs:
 
       - name: Install Terraspace
         run: bundle install
+
+      - name: Install node (version in .nvmrc) and dependencies
+        run: |
+          nvm install
+          yarn install
 
       - name: Deploy Cumulus
         run: |
