@@ -1,6 +1,6 @@
 {
   "Comment": "Discovers new Granules from a given provider",
-  "TimeoutSeconds": 18000,
+  "TimeoutSeconds": 5184000,
   "StartAt": "RuleEnabled?",
   "States": {
     "RuleEnabled?": {
@@ -128,7 +128,6 @@
                     "stackName": "{$.meta.stack}",
                     "granuleIngestWorkflow": "${ingest_granule_workflow_name}",
                     "childWorkflowMeta": {
-                      "validateOnly": "{$.meta.validateOnly}"
                     }
                   }
                 }
