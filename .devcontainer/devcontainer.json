@@ -10,22 +10,22 @@
   "settings": {},
   // Add the IDs of extensions you want installed when the container is created.
   "extensions": [
-	"amazonwebservices.aws-toolkit-vscode",
-	"davidanson.vscode-markdownlint",
-	"dbaeumer.vscode-eslint",
-	"editorconfig.editorconfig",
-	"esbenp.prettier-vscode",
-	"exiasr.hadolint",
-	"foxundermoon.shell-format",
-	"fredwangwang.vscode-hcl-format",
-	"github.vscode-pull-request-github",
-	"hashicorp.terraform",
-	"ms-azuretools.vscode-docker",
-	"rvest.vs-code-prettier-eslint",
-	"tabnine.tabnine-vscode",
-	"timonwong.shellcheck",
-	"wholroyd.hcl"
-],
+    "amazonwebservices.aws-toolkit-vscode",
+    "davidanson.vscode-markdownlint",
+    "dbaeumer.vscode-eslint",
+    "editorconfig.editorconfig",
+    "esbenp.prettier-vscode",
+    "exiasr.hadolint",
+    "foxundermoon.shell-format",
+    "fredwangwang.vscode-hcl-format",
+    "github.vscode-pull-request-github",
+    "hashicorp.terraform",
+    "ms-azuretools.vscode-docker",
+    "rvest.vs-code-prettier-eslint",
+    "tabnine.tabnine-vscode",
+    "timonwong.shellcheck",
+    "wholroyd.hcl"
+  ],
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   // "forwardPorts": [],
   // Uncomment the next line to run commands after the container is created - for example installing curl.
