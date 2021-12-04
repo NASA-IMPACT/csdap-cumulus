@@ -11,8 +11,11 @@
     "type": "onetime"
   },
   "meta": {
-    "provider_path": "storage-ss-ingest-prod-ingesteddata-uswest2/planet/PSScene3Band",
-    "dryRun": false,
+    "providerPathFormat": "[storage-ss-ingest-prod-ingesteddata-uswest2/storage/planet/PSScene3Band-]YYYY",
+    "startDate": "2016-01",
+    "step": "P1Y",
+    "discoverOnly": false,
+    "validateOnly": true,
     "rule": {
       "state": "ENABLED"
     }

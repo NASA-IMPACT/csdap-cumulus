@@ -107,16 +107,17 @@ follows:
 }
 ```
 
-### Performing a Discovery Dry Run
+### Performing Discovery without Ingestion
 
 To aid in debugging of a rule's configuration, or to verify the expected list of
 granules from "discovery" only, the `DiscoverAndQueueGranules` workflow also
-supports a `"meta.dryRun"` flag (boolean value) to enable or disable a
-"dry run".  When a rule's `"meta.dryRun"` flag is set to `true`, the workflow
-exits after the "discovery" step, thus avoiding queueing the discovered
-granules (and thus avoiding ingestion and publication to the CMR).  When the
-flag is missing or explicitly set to `false`, execution proceeds normally
-through the remaining steps of the workflow.
+supports a `"meta.discoverOnly"` flag (boolean value) to disable or enable
+subequent ingestion.  When a rule's `"meta.discoverOnly"` flag is set to `true`,
+the workflow exits after the "discovery" step, thus avoiding queueing the
+discovered granules (and thus avoiding ingestion and publication to the CMR).
+When the flag is missing or explicitly set to `false`, execution proceeds
+normally (i.e., granules are queued for ingestion) through the remaining steps
+of the workflow.
 
 For example:
 
@@ -131,7 +132,7 @@ For example:
   "provider": "my_provider",
   "collection": "my_collection",
   "meta": {
-    "dryRun": true,
+    "discoverOnly": true,
     "rule": {
       "state": "ENABLED",
     }
@@ -145,11 +146,11 @@ remove the effect of the setting.  Rather, a _different value_ must be set, as
 removing the entry from the `"meta"` section does _not_ remove it from the
 database.
 
-For example, once `"dryRun"` is added to the `"meta"` section, it cannot simply
-be removed to _implicitly_ set `"meta.dryRun"` to `false` (the default value)
-because the `"meta.dryRun"` value will _not_ be removed from the database.
+For example, once `"discoverOnly"` is added to the `"meta"` section, it cannot
+simply be removed to _implicitly_ set it to `false` (the default value)
+because the `"meta.discoverOnly"` value will _not_ be removed from the database.
 Instead, you must now _explicitly_ set the value to `false` to _disable_
-"dry run" mode:
+"discover only" mode:
 
 ```json
 {
@@ -162,7 +163,7 @@ Instead, you must now _explicitly_ set the value to `false` to _disable_
   "provider": "my_provider",
   "collection": "my_collection",
   "meta": {
-    "dryRun": false,
+    "discoverOnly": false,
     "rule": {
       "state": "ENABLED",
     }

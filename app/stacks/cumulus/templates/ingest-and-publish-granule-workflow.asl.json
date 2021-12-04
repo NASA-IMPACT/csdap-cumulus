@@ -13,6 +13,7 @@
                 "cma": {
                   "event.$": "$",
                   "ReplaceConfig": {
+                    "MaxSize": 4096,
                     "Path": "$.payload",
                     "TargetPath": "$.payload"
                   },
@@ -64,6 +65,7 @@
                 "cma": {
                   "event.$": "$",
                   "ReplaceConfig": {
+                    "MaxSize": 4096,
                     "Path": "$.payload",
                     "TargetPath": "$.payload"
                   },
@@ -92,7 +94,9 @@
                 "cma": {
                   "event.$": "$",
                   "ReplaceConfig": {
-                    "FullMessage": true
+                    "MaxSize": 4096,
+                    "Path": "$.payload",
+                    "TargetPath": "$.payload"
                   },
                   "task_config": {
                     "bucket": "{$.meta.buckets.protected.name}",
@@ -123,6 +127,11 @@
               "Parameters": {
                 "cma": {
                   "event.$": "$",
+                  "ReplaceConfig": {
+                    "MaxSize": 4096,
+                    "Path": "$.payload",
+                    "TargetPath": "$.payload"
+                  },
                   "task_config": {
                     "buckets": "{$.meta.buckets}",
                     "distribution_endpoint": "{$.meta.distribution_endpoint}"
@@ -131,7 +140,7 @@
               },
               "Type": "Task",
               "Resource": "${update_granules_cmr_metadata_file_links_task_arn}",
-              "Next": "PublishMetadata",
+              "Next": "ValidateOnly?",
               "Retry": [
                 {
                   "ErrorEquals": [
@@ -145,12 +154,38 @@
                 }
               ]
             },
+            "ValidateOnly?": {
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "And": [
+                    {
+                      "Variable": "$.meta.validateOnly",
+                      "IsPresent": true
+                    },
+                    {
+                      "Variable": "$.meta.validateOnly",
+                      "BooleanEquals": true
+                    }
+                  ],
+                  "Next": "ValidateMetadata"
+                }
+              ],
+              "Default": "PublishMetadata"
+            },
+            "ValidateMetadata": {
+              "Comment": "Placeholder for future Lambda function that will validate against the CMR",
+              "Type": "Pass",
+              "Next": "Finish"
+            },
             "PublishMetadata": {
               "Parameters": {
                 "cma": {
                   "event.$": "$",
                   "ReplaceConfig": {
-                    "FullMessage": true
+                    "MaxSize": 4096,
+                    "Path": "$.payload",
+                    "TargetPath": "$.payload"
                   },
                   "task_config": {
                     "bucket": "{$.meta.buckets.protected.name}",
@@ -162,7 +197,6 @@
               },
               "Type": "Task",
               "Resource": "${post_to_cmr_task_arn}",
-              "End": true,
               "Retry": [
                 {
                   "ErrorEquals": [
@@ -174,7 +208,12 @@
                   "MaxAttempts": 6,
                   "BackoffRate": 2
                 }
-              ]
+              ],
+              "Next": "Finish"
+            },
+            "Finish": {
+              "Type": "Pass",
+              "End": true
             }
           }
         }

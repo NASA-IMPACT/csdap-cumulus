@@ -1,6 +1,6 @@
 {
   "Comment": "Discovers new Granules from a given provider",
-  "TimeoutSeconds": 18000,
+  "TimeoutSeconds": 5184000,
   "StartAt": "RuleEnabled?",
   "States": {
     "RuleEnabled?": {
@@ -27,8 +27,37 @@
       "Type": "Parallel",
       "Branches": [
         {
-          "StartAt": "DiscoverGranules",
+          "StartAt": "FormatProviderPath",
           "States": {
+            "FormatProviderPath": {
+              "Parameters": {
+                "cma": {
+                  "event.$": "$",
+                  "ReplaceConfig": {
+                    "MaxSize": 4096,
+                    "Path": "$.payload",
+                    "TargetPath": "$.payload"
+                  },
+                  "task_config": {
+                    "providerPathFormat": "{$.meta.providerPathFormat}",
+                    "startDate": "{$.meta.startDate}",
+                    "endDate": "{$.meta.endDate}",
+                    "step": "{$.meta.step}",
+                    "cumulus_message": {
+                      "outputs": [
+                        {
+                          "source": "{$}",
+                          "destination": "{$.meta.providerPath}"
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              "Type": "Task",
+              "Resource": "${format_provider_path_task_arn}",
+              "Next": "DiscoverGranules"
+            },
             "DiscoverGranules": {
               "Parameters": {
                 "cma": {
@@ -40,7 +69,7 @@
                   },
                   "task_config": {
                     "provider": "{$.meta.provider}",
-                    "provider_path": "{$.meta.provider_path}",
+                    "provider_path": "{$.meta.providerPath}",
                     "collection": "{$.meta.collection}",
                     "buckets": "{$.meta.buckets}",
                     "stack": "{$.meta.stack}",
@@ -62,24 +91,23 @@
                   "BackoffRate": 2
                 }
               ],
-              "Next": "DryRun?"
+              "Next": "DiscoverOnly?"
             },
-            "DryRun?": {
-              "Comment": "If this is a dry run, then skip queuing granules",
+            "DiscoverOnly?": {
               "Type": "Choice",
               "Choices": [
                 {
                   "And": [
                     {
-                      "Variable": "$.meta.dryRun",
+                      "Variable": "$.meta.discoverOnly",
                       "IsPresent": true
                     },
                     {
-                      "Variable": "$.meta.dryRun",
+                      "Variable": "$.meta.discoverOnly",
                       "BooleanEquals": true
                     }
                   ],
-                  "Next": "SkipQueue"
+                  "Next": "AdvanceStartDate"
                 }
               ],
               "Default": "QueueGranules"
@@ -89,7 +117,9 @@
                 "cma": {
                   "event.$": "$",
                   "ReplaceConfig": {
-                    "FullMessage": true
+                    "MaxSize": 4096,
+                    "Path": "$.payload",
+                    "TargetPath": "$.payload"
                   },
                   "task_config": {
                     "queueUrl": "${start_sf_queue_url}",
@@ -98,8 +128,6 @@
                     "stackName": "{$.meta.stack}",
                     "granuleIngestWorkflow": "${ingest_granule_workflow_name}",
                     "childWorkflowMeta": {
-                      "staticValue": "aStaticValue",
-                      "interpolatedValueStackName": "{$.meta.stack}"
                     }
                   }
                 }
@@ -118,9 +146,70 @@
                   "BackoffRate": 2
                 }
               ],
-              "End": true
+              "Next": "AdvanceStartDate"
             },
-            "SkipQueue": {
+            "AdvanceStartDate": {
+              "Parameters": {
+                "cma": {
+                  "event.$": "$",
+                  "ReplaceConfig": {
+                    "MaxSize": 4096,
+                    "Path": "$.payload",
+                    "TargetPath": "$.payload"
+                  },
+                  "task_config": {
+                    "providerPathFormat": "{$.meta.providerPathFormat}",
+                    "startDate": "{$.meta.startDate}",
+                    "endDate": "{$.meta.endDate}",
+                    "step": "{$.meta.step}",
+                    "cumulus_message": {
+                      "outputs": [
+                        {
+                          "source": "{$}",
+                          "destination": "{$.meta.startDate}"
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              "Type": "Task",
+              "Resource": "${advance_start_date_task_arn}",
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException"
+                  ],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 6,
+                  "BackoffRate": 2
+                }
+              ],
+              "Next": "DiscoverMoreGranules?"
+            },
+            "DiscoverMoreGranules?": {
+              "Comment": "If the start date is updated, attempt further discovery",
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "And": [
+                    {
+                      "Variable": "$.meta.startDate",
+                      "IsPresent": true
+                    },
+                    {
+                      "Variable": "$.meta.startDate",
+                      "IsString": true
+                    }
+                  ],
+                  "Next": "FormatProviderPath"
+                }
+              ],
+              "Default": "Finish"
+            },
+            "Finish": {
               "Type": "Pass",
               "End": true
             }
