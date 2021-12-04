@@ -6,7 +6,10 @@ SHELL [ "/bin/bash", "-o", "pipefail", "-c" ]
 
 # Remove AWS CLI v1 and install v2
 RUN : \
+  && apt-get update -y \
   && apt-get remove -y awscli \
+  # AWS CLI help system uses groff
+  && apt-get install -y --no-install-recommends groff=1.22.4-4build1 \
   && apt-get autoremove -y \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
@@ -26,7 +29,6 @@ RUN : \
 
 # Install Ruby, Terraspace, and Docker CLI dependencies
 RUN : \
-  && apt-get update --fix-missing \
   && apt-get install -y --no-install-recommends \
   bsdmainutils=11.1.2ubuntu3 \
   g++=4:9.3.0-1ubuntu2 \
@@ -39,11 +41,11 @@ RUN : \
   && rm -rf /var/lib/apt/lists/* \
   && :
 
-# Install Docker CLI
+# Install Docker CLI and hadolint
 RUN : \
   && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg \
   && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null \
-  && apt-get update \
+  && apt-get update -y \
   && apt-get install -y --no-install-recommends docker-ce-cli=5:20.10.11~3-0~ubuntu-focal \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
