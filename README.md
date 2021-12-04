@@ -67,12 +67,15 @@ make all-up
 
 The first time you run this command, you will be prompted to supply values for a
 number of secrets, which will be stored as AWS SSM Parameters of type
-SecureString.  If you are unsure what values to supply for the prompts, consult
-a team member who has already deployed Cumulus from this repository.
+SecureString.
 
-Subsequent deployments will use the secret values supplied during your initial
-deployment, so if you need to change any of the parameters, you must do so
-manually via the AWS CLI or AWS Management Console.
+If you are unsure of what value to supply for a prompt, consult
+a team member who has already deployed Cumulus from this repository.  If you
+cannot immediately obtain an appropriate value for a prompt, you may simply
+supply a dummy value (e.g., TBD).  This will allow you to continue with deployment,
+and add the secret value at a later point, but you'll have to use the AWS CLI or
+AWS Management Console to do so, because during subsequent deployments, you will
+no longer be prompted for the value.
 
 Initial deployment will take roughly 2 hours in total, but close to the end of
 the process, the deployment might fail with several error messages of the
