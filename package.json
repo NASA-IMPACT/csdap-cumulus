@@ -47,20 +47,25 @@
     "node": ">=14"
   },
   "dependencies": {
+    "@cumulus/cmr-client": "9.9.0",
+    "@cumulus/common": "9.9.0",
     "@cumulus/cumulus-message-adapter-js": "^2.0.1",
+    "@cumulus/post-to-cmr": "9.9.0",
     "dayjs": "^1.10.7",
     "fp-ts": "^2.11.5",
     "fp-ts-std": "^0.11.0",
     "io-ts": "^2.2.16",
     "io-ts-types": "^0.5.16",
     "monocle-ts": "^2.3.11",
-    "newtype-ts": "^0.3.4"
+    "newtype-ts": "^0.3.4",
+    "nock": "^13.2.1"
   },
   "devDependencies": {
     "@ava/typescript": "^2.0.0",
     "@cumulus/types": "^9.9.0",
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
     "@types/aws-lambda": "^8.10.85",
+    "@types/lodash": "^4.14.177",
     "@types/node": "^16.11.1",
     "@typescript-eslint/eslint-plugin": "^5.1.0",
     "@typescript-eslint/parser": "^5.1.0",

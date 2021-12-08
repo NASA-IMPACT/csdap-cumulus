@@ -1,6 +1,7 @@
 /* eslint-disable functional/no-return-void */
 import test, { ExecutionContext } from 'ava';
 import * as E from 'fp-ts/Either';
+import * as O from 'fp-ts/Option';
 import { pipe } from 'fp-ts/function';
 import * as PR from 'io-ts/PathReporter';
 
@@ -124,11 +125,7 @@ test(
         endDate: 'never',
       },
     },
-    [
-      ['config', 'endDate'],
-      ['config', 'endDate'],
-      ['config', 'endDate'],
-    ]
+    [['config', 'endDate']]
   )
 );
 
@@ -141,11 +138,7 @@ test(
         step: 'none',
       },
     },
-    [
-      ['config', 'step'],
-      ['config', 'step'],
-      ['config', 'step'],
-    ]
+    [['config', 'step']]
   )
 );
 
@@ -165,8 +158,8 @@ test(
       config: {
         providerPathFormat: '[planet/PSScene3Band-]YYYYMM',
         startDate: new Date('2018-08'),
-        endDate: undefined,
-        step: undefined,
+        endDate: O.none,
+        step: O.none,
       },
     }
   )
@@ -186,8 +179,8 @@ test(
         extraProperty: 'whatever',
         providerPathFormat: '[planet/PSScene3Band-]YYYYMM',
         startDate: new Date('2018-08'),
-        endDate: undefined,
-        step: undefined,
+        endDate: O.none,
+        step: O.none,
       },
     }
   )
@@ -206,8 +199,8 @@ test(
       config: {
         providerPathFormat: '[planet/PSScene3Band-]YYYYMM',
         startDate: new Date('2019-08'),
-        endDate: undefined,
-        step: undefined,
+        endDate: O.none,
+        step: O.none,
       },
     }
   )
@@ -226,8 +219,8 @@ test(
       config: {
         providerPathFormat: '[planet/PSScene3Band-]YYYYMM',
         startDate: new Date('2019-08'),
-        endDate: null,
-        step: undefined,
+        endDate: O.none,
+        step: O.none,
       },
     }
   )
@@ -246,8 +239,8 @@ test(
       config: {
         providerPathFormat: '[planet/PSScene3Band-]YYYYMM',
         startDate: new Date('2018-08'),
-        endDate: new Date('202001'),
-        step: undefined,
+        endDate: O.some(new Date('202001')),
+        step: O.none,
       },
     }
   )
@@ -266,8 +259,8 @@ test(
       config: {
         providerPathFormat: '[planet/PSScene3Band-]YYYYMM',
         startDate: new Date('2020-08'),
-        endDate: undefined,
-        step: undefined,
+        endDate: O.none,
+        step: O.none,
       },
     }
   )
@@ -286,8 +279,8 @@ test(
       config: {
         providerPathFormat: '[planet/PSScene3Band-]YYYYMM',
         startDate: new Date('2019-08'),
-        endDate: undefined,
-        step: null,
+        endDate: O.none,
+        step: O.none,
       },
     }
   )
@@ -306,8 +299,8 @@ test(
       config: {
         providerPathFormat: '[planet/PSScene3Band-]YYYYMM',
         startDate: new Date('2018-08'),
-        endDate: undefined,
-        step: dayjs.duration('P1M'),
+        endDate: O.none,
+        step: O.some(dayjs.duration('P1M')),
       },
     }
   )
@@ -327,8 +320,8 @@ test(
       config: {
         providerPathFormat: '[planet/PSScene3Band-]YYYYMM',
         startDate: new Date('2018-08'),
-        endDate: new Date('202001'),
-        step: dayjs.duration('P1M'),
+        endDate: O.some(new Date('202001')),
+        step: O.some(dayjs.duration('P1M')),
       },
     }
   )

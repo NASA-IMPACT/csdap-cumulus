@@ -1,3 +1,6 @@
+import { Duration } from 'dayjs/plugin/duration';
+import * as O from 'fp-ts/Option';
+import { constant } from 'fp-ts/function';
 import * as t from 'io-ts';
 import * as tt from 'io-ts-types';
 
@@ -11,9 +14,9 @@ export const DiscoverGranulesProps = t.type({
   config: t.type({
     providerPathFormat: $t.DateFormat,
     startDate: tt.DateFromISOString,
-    endDate: t.union([tt.DateFromISOString, t.undefined, t.null]),
+    endDate: tt.optionFromNullable(tt.DateFromISOString),
     // TODO Restrict to positive durations
-    step: t.union([$t.DurationFromISOString, t.undefined, t.null]),
+    step: tt.optionFromNullable($t.DurationFromISOString),
   }),
 });
 
@@ -57,8 +60,9 @@ export const formatProviderPath = (props: DiscoverGranulesProps) => {
  */
 export const advanceStartDate = (props: DiscoverGranulesProps) => {
   const { startDate, step } = props.config;
-  const endDate = props.config.endDate ?? new Date(Date.now());
-  const nextStartDate = step ? dayjs.utc(startDate).add(step).toDate() : endDate;
+  const endDate = O.getOrElse(() => new Date(Date.now()))(props.config.endDate);
+  const addDuration = (d: Duration) => dayjs.utc(startDate).add(d).toDate();
+  const nextStartDate = O.match(constant(endDate), addDuration)(step);
 
   return nextStartDate < endDate ? nextStartDate.toISOString() : null;
 };
