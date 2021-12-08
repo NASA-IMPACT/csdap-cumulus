@@ -29,6 +29,7 @@ RUN : \
 
 # Install Ruby, Terraspace, and Docker CLI dependencies
 RUN : \
+  && apt-get update -y \
   && apt-get install -y --no-install-recommends \
   bsdmainutils=11.1.2ubuntu3 \
   g++=4:9.3.0-1ubuntu2 \
