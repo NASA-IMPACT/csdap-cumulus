@@ -5,7 +5,8 @@ locals {
     public_buckets    = [for k, v in var.buckets : v.name if v.type == "public"]
   })
 
-  cmr_provider = "CSDA"
+  cmr_environment = data.aws_ssm_parameter.cmr_environment.value
+  cmr_provider    = "CSDA"
 
   elasticsearch_alarms            = jsondecode("<%= json_output('data-persistence.elasticsearch_alarms') %>")
   elasticsearch_domain_arn        = jsondecode("<%= json_output('data-persistence.elasticsearch_domain_arn') %>")
@@ -135,6 +136,37 @@ resource "aws_lambda_function" "advance_start_date" {
   }
 }
 
+resource "aws_lambda_function" "cmr_validate" {
+  function_name = "${var.prefix}-CMRValidate"
+  filename      = data.archive_file.lambda.output_path
+  role          = module.cumulus.lambda_processing_role_arn
+  handler       = "index.cmrValidateCMAHandler"
+  runtime       = "nodejs14.x"
+  timeout       = 300
+
+  source_code_hash = data.archive_file.lambda.output_base64sha256
+  layers           = [module.cma.lambda_layer_version_arn]
+
+  tags = local.tags
+
+  dynamic "vpc_config" {
+    for_each = length(module.vpc.subnets.ids) == 0 ? [] : [1]
+    content {
+      subnet_ids         = module.vpc.subnets.ids
+      security_group_ids = [aws_security_group.egress_only.id]
+    }
+  }
+
+  environment {
+    variables = {
+      CMR_ENVIRONMENT             = local.cmr_environment
+      CUMULUS_MESSAGE_ADAPTER_DIR = "/opt/"
+      stackName                   = var.prefix
+      system_bucket               = var.system_bucket
+    }
+  }
+}
+
 #-------------------------------------------------------------------------------
 # MODULES
 #-------------------------------------------------------------------------------
@@ -160,7 +192,7 @@ module "cumulus_distribution" {
   bucketname_prefix         = ""
   buckets                   = var.buckets
   cmr_acl_based_credentials = true
-  cmr_environment           = data.aws_ssm_parameter.cmr_environment.value
+  cmr_environment           = local.cmr_environment
   cmr_provider              = local.cmr_provider
   deploy_to_ngap            = true
   lambda_subnet_ids         = module.vpc.subnets.ids
@@ -210,7 +242,7 @@ module "ingest_and_publish_granule_workflow" {
     files_to_granules_task_arn : module.cumulus.files_to_granules_task.task_arn,
     move_granules_task_arn : module.cumulus.move_granules_task.task_arn,
     update_granules_cmr_metadata_file_links_task_arn : module.cumulus.update_granules_cmr_metadata_file_links_task.task_arn,
-    post_to_cmr_task_arn : module.cumulus.post_to_cmr_task.task_arn
+    validate_or_publish_task_arn : "true" == "<%= (['sit', 'uat', 'prod'].include? ENV['TS_ENV']) %>" ? module.cumulus.post_to_cmr_task.task_arn : aws_lambda_function.cmr_validate.arn
   })
 }
 
@@ -245,7 +277,7 @@ module "cumulus" {
   metrics_es_username = var.metrics_es_username
 
   cmr_client_id      = "<%= expansion('csdap-cumulus-:ENV-:ACCOUNT') %>"
-  cmr_environment    = data.aws_ssm_parameter.cmr_environment.value
+  cmr_environment    = local.cmr_environment
   cmr_oauth_provider = var.cmr_oauth_provider
   cmr_provider       = local.cmr_provider
   # Earthdata Login (EDL) credentials.  For DEVELOPMENT deployments, these should

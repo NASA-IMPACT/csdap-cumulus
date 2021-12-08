@@ -11,11 +11,10 @@
     "type": "onetime"
   },
   "meta": {
-    "providerPathFormat": "[storage-ss-ingest-prod-ingesteddata-uswest2/storage/planet/PSScene3Band-]YYYY",
+    "providerPathFormat": "[storage-ss-ingest-prod-ingesteddata-uswest2/planet/PSScene3Band-]YYYY",
     "startDate": "2016-01",
     "step": "P1Y",
     "discoverOnly": false,
-    "validateOnly": true,
     "rule": {
       "state": "ENABLED"
     }

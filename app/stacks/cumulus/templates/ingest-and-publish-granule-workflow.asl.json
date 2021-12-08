@@ -140,7 +140,7 @@
               },
               "Type": "Task",
               "Resource": "${update_granules_cmr_metadata_file_links_task_arn}",
-              "Next": "ValidateOnly?",
+              "Next": "ValidateOrPublishMetadata",
               "Retry": [
                 {
                   "ErrorEquals": [
@@ -154,31 +154,7 @@
                 }
               ]
             },
-            "ValidateOnly?": {
-              "Type": "Choice",
-              "Choices": [
-                {
-                  "And": [
-                    {
-                      "Variable": "$.meta.validateOnly",
-                      "IsPresent": true
-                    },
-                    {
-                      "Variable": "$.meta.validateOnly",
-                      "BooleanEquals": true
-                    }
-                  ],
-                  "Next": "ValidateMetadata"
-                }
-              ],
-              "Default": "PublishMetadata"
-            },
-            "ValidateMetadata": {
-              "Comment": "Placeholder for future Lambda function that will validate against the CMR",
-              "Type": "Pass",
-              "Next": "Finish"
-            },
-            "PublishMetadata": {
+            "ValidateOrPublishMetadata": {
               "Parameters": {
                 "cma": {
                   "event.$": "$",
@@ -196,7 +172,7 @@
                 }
               },
               "Type": "Task",
-              "Resource": "${post_to_cmr_task_arn}",
+              "Resource": "${validate_or_publish_task_arn}",
               "Retry": [
                 {
                   "ErrorEquals": [
