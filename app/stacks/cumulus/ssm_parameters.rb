@@ -14,6 +14,10 @@
 # and is used here as an SSM parameter description.
 #
 
+# ------------------------------------------------------------------------------
+# SHARED (used by all stacks within same AWS account)
+# ------------------------------------------------------------------------------
+
 data("aws_ssm_parameter", "csdap_host_url",
   "//": "CSDAP Cognito Host URL",
   name: "/shared/cumulus/csdap-host-url"
@@ -33,6 +37,15 @@ data("aws_ssm_parameter", "cmr_environment",
   "//": "CMR Environment (SIT, UAT, or OPS)",
   name: "/shared/cumulus/cmr-environment"
 )
+
+data("aws_ssm_parameter", "launchpad_passphrase",
+  "//": "Launchpad Passphrase",
+  name: "/shared/cumulus/launchpad-passphrase"
+)
+
+# ------------------------------------------------------------------------------
+# STACK-SPECIFIC (not shared across stacks)
+# ------------------------------------------------------------------------------
 
 data("aws_ssm_parameter", "cmr_username",
   "//": "Earthdata Login (EDL) Username",

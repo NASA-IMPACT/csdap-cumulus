@@ -42,11 +42,6 @@ variable "archive_api_url" {
   default     = null
 }
 
-variable "cmr_oauth_provider" {
-  type    = string
-  default = "earthdata"
-}
-
 variable "cumulus_distribution_url" {
   type    = string
   default = null
@@ -120,21 +115,6 @@ variable "ems_username" {
 variable "key_name" {
   type    = string
   default = null
-}
-
-variable "launchpad_api" {
-  type    = string
-  default = "launchpadApi"
-}
-
-variable "launchpad_certificate" {
-  type    = string
-  default = "launchpad.pfx"
-}
-
-variable "launchpad_passphrase" {
-  type    = string
-  default = ""
 }
 
 variable "log_api_gateway_to_cloudwatch" {
