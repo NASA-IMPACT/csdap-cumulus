@@ -28,11 +28,7 @@ for _bucket in "${_existing_buckets[@]}"; do
 done
 
 for _bucket in "${_required_buckets[@]}"; do
-  if [[ -n "${_bucket_map[${_bucket}]:-}" ]]; then
-    echo "Found bucket '${_bucket}'"
-  else
-    echo "Creating bucket '${_bucket}'..."
-
+  if [[ -z "${_bucket_map[${_bucket}]:-}" ]]; then
     if ! _output=$(aws s3api create-bucket --bucket "${_bucket}" \
       --region "${AWS_REGION}" \
       --create-bucket-configuration LocationConstraint="${AWS_REGION}" 2>&1); then
