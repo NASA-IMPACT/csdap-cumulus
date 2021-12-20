@@ -1,13 +1,13 @@
 import { Duration } from 'dayjs/plugin/duration';
 import * as O from 'fp-ts/Option';
-import { constant } from 'fp-ts/function';
+import { constant, pipe } from 'fp-ts/function';
 import * as t from 'io-ts';
 import * as tt from 'io-ts-types';
 
 import * as CMA from './cma';
 import dayjs from './dayjs';
 import * as $t from './io';
-import * as $L from './lambda';
+import * as L from './lambda';
 import { traceAsync } from './logging';
 
 export const DiscoverGranulesProps = t.type({
@@ -60,9 +60,10 @@ export const formatProviderPath = (props: DiscoverGranulesProps) => {
  */
 export const advanceStartDate = (props: DiscoverGranulesProps) => {
   const { startDate, step } = props.config;
-  const endDate = O.getOrElse(() => new Date(Date.now()))(props.config.endDate);
+  const now = () => new Date(Date.now());
+  const endDate = pipe(props.config.endDate, O.getOrElse(now));
   const addDuration = (d: Duration) => dayjs.utc(startDate).add(d).toDate();
-  const nextStartDate = O.match(constant(endDate), addDuration)(step);
+  const nextStartDate = pipe(step, O.match(constant(endDate), addDuration));
 
   return nextStartDate < endDate ? nextStartDate.toISOString() : null;
 };
@@ -71,7 +72,7 @@ export const advanceStartDate = (props: DiscoverGranulesProps) => {
 // HANDLERS
 //------------------------------------------------------------------------------
 
-const mkDiscoverGranulesHandler = $L.mkAsyncHandler(DiscoverGranulesProps);
+const mkDiscoverGranulesHandler = L.mkAsyncHandler(DiscoverGranulesProps);
 
 // For testing
 

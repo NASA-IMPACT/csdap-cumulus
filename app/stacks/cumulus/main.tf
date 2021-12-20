@@ -278,7 +278,7 @@ module "cumulus" {
 
   cmr_client_id      = "<%= expansion('csdap-cumulus-:ENV-:ACCOUNT') %>"
   cmr_environment    = local.cmr_environment
-  cmr_oauth_provider = var.cmr_oauth_provider
+  cmr_oauth_provider = "launchpad"
   cmr_provider       = local.cmr_provider
   # Earthdata Login (EDL) credentials.  For DEVELOPMENT deployments, these should
   # be your own credentials for https://uat.urs.earthdata.nasa.gov/.  Otherwise,
@@ -287,9 +287,9 @@ module "cumulus" {
   cmr_username = data.aws_ssm_parameter.cmr_username.value
   cmr_password = data.aws_ssm_parameter.cmr_password.value
 
-  launchpad_api         = var.launchpad_api
-  launchpad_certificate = var.launchpad_certificate
-  launchpad_passphrase  = var.launchpad_passphrase
+  launchpad_api         = "https://api.launchpad.nasa.gov/icam/api/sm/v1"
+  launchpad_certificate = "launchpad.pfx"
+  launchpad_passphrase  = data.aws_ssm_parameter.launchpad_passphrase.value
 
   oauth_provider   = var.oauth_provider
   oauth_user_group = var.oauth_user_group

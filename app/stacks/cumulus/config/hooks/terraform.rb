@@ -1,19 +1,15 @@
 require "aws-sdk-ssm"
 
-#
-# Ensures that all AWS SSM Parameters are set.
-#
-# Determines the list of required AWS SSM Parameters by parsing the JSON in the
-# file `ssm_parameters.tf.json` (generated during the Terraspace build process
-# from the file `app/stacks/cumulus/ssm_parameters.rb`).  Then attempts to get
-# parameter values from AWS, and for each parameter that does not exist, prompts
-# the user for the value and sets the parameter.
-#
-# If the environment variable `TF_IN_AUTOMATION` is set (to any value), raises
-# an exception rather than prompting the user, if any parameters are missing.
-#
-class EnsureSsmParametersExist
-  def call(runner)
+module Helpers
+  module_function
+
+  #
+  # Determines the list of missing AWS SSM Parameters by parsing the JSON in the
+  # file `ssm_parameters.tf.json` (generated during the Terraspace build process
+  # from the file `app/stacks/cumulus/ssm_parameters.rb`).  A parameter is "missing"
+  # if it either does not exist or it has a value of "TBD".
+  #
+  def get_missing_parameters(runner)
     params_json = File.read(File.join(runner.mod.cache_dir, "ssm_parameters.tf.json"))
     params = JSON.parse(params_json)['data']['aws_ssm_parameter'].values()
     name_to_description = Hash[params.map {|p| [p["name"], p["//"]]}]
@@ -21,15 +17,55 @@ class EnsureSsmParametersExist
 
     client = Aws::SSM::Client.new
     resp = client.get_parameters(names: names, with_decryption: true)
-    invalid_parameters = resp[:invalid_parameters]
 
-    if not invalid_parameters.empty?
+    # Parameter names for parameters that have the value "TBD"
+    tbds = resp[:parameters].select { |p| p["value"] == "TBD" }.map { |p| p["name"] }
+    # Parameter names for parameters that do not exist
+    invalids = resp[:invalid_parameters]
+
+    (invalids + tbds).map { |name|
+      {
+        name: name,
+        description: name_to_description[name],
+      }
+    }
+  end
+
+  def put_parameter(name:, description:, value:)
+    client = Aws::SSM::Client.new
+    client.put_parameter(
+      name: name,
+      description: description,
+      type: "SecureString",
+      value: value.empty? ? "TBD" : value,
+      overwrite: true,
+    )
+  end
+end
+
+class EnsureSsmParametersExist
+  include Helpers
+
+  def call(runner)
+    get_missing_parameters(runner).each do |param|
+      put_parameter(**param, value: "TBD")
+    end
+  end
+end
+
+class InteractivelySetSsmParameters
+  include Helpers
+
+  def call(runner)
+    missing_parameters = get_missing_parameters(runner)
+
+    if not missing_parameters.empty?
       if ENV["TF_IN_AUTOMATION"]
         raise (
           "The following AWS SSM Parameters are missing, but cannot be" +
           " supplied interactively because TF_IN_AUTOMATION is set:" +
-          " #{invalid_parameters}.  Set the specified parameters and rerun" +
-          " the command."
+          " #{missing_parameters.map { |p| p[:name] }}." +
+          " Set the specified parameters and rerun the command."
         )
       end
 
@@ -44,36 +80,35 @@ class EnsureSsmParametersExist
       puts "The following parameters must be supplied:"
       puts
 
-      invalid_parameters.each do |name|
-        description = name_to_description[name]
-        puts "  * #{description} (#{name})"
+      missing_parameters.each do |param|
+        puts "  * #{param[:description]} (#{param[:name]})"
       end
 
       puts
       puts "If you do not know the correct value to supply for any parameter,"
-      puts "you may press Ctrl-C to terminate the current Terraform process"
-      puts "and rerun the command later, once you have obtained the necessary"
-      puts "parameter value(s)."
+      puts "EITHER press Ctrl-C to exit OR press Enter/Return to skip a parameter"
+      puts "and continue.  The next time you deploy, you will be re-prompted for"
+      puts "any previously unspecified parameters."
       puts
 
-      invalid_parameters.each do |name|
-        description = name_to_description[name]
+      missing_parameters.each do |param|
+        name = param[:name]
+        description = param[:description]
         print "#{description} (#{name}): "
         value = $stdin.gets.chomp
-        client.put_parameter(
-          name: name,
-          description: description,
-          type: "SecureString",
-          value: value,
-        )
+
+        if value.empty?
+          puts "Skipping #{description} (#{name})"
+        end
+
+        put_parameter(**param, value: value)
       end
     end
   end
 end
 
-before("plan", "apply",
-  execute: EnsureSsmParametersExist,
-)
+before("plan", execute: EnsureSsmParametersExist)
+before("apply", execute: InteractivelySetSsmParameters)
 
 before("plan", "apply",
   execute: %Q[bin/ensure-buckets-exist.sh $(echo "var.buckets" | terraform console | grep '"name" = ' | sed -E 's/.*= "([^"]*)"/\\1/')]

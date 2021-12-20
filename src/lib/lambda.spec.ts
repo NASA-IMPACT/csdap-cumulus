@@ -1,11 +1,10 @@
 /* eslint-disable functional/no-return-void */
 import test from 'ava';
-import { Context } from 'aws-lambda';
 import * as tt from 'io-ts-types';
 
-import { mkAsyncHandler } from './lambda';
+import * as L from './lambda';
 
-const emptyContext: Context = Object.freeze({
+const emptyContext: L.Context = Object.freeze({
   callbackWaitsForEmptyEventLoop: false,
   functionName: '',
   functionVersion: '',
@@ -24,7 +23,7 @@ const emptyContext: Context = Object.freeze({
 });
 
 test('mkAsyncHandler should make an async handler', async (t) => {
-  const handler = mkAsyncHandler(tt.NumberFromString)((n: number) => n + 1);
+  const handler = L.mkAsyncHandler(tt.NumberFromString)((n: number) => n + 1);
   const actual = await handler('41', emptyContext);
 
   t.is(actual, 42);
