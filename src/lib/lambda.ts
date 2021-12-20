@@ -34,7 +34,7 @@ export const mkAsyncHandler =
   <C extends t.Any>(codec: C) =>
   <I extends t.TypeOf<C>, R>(h: PropsHandler<C, I, R>): AsyncHandler<unknown, R> =>
   async (event: unknown) =>
-    pipe(
+    await pipe(
       codec.decode(event),
       E.match(
         (errors) => Promise.reject(new Error(PR.failure(errors).join('\n'))),

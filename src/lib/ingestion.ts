@@ -47,11 +47,12 @@ export const cmrValidate = async (props: IngestGranuleProps) => {
   // through.  We want to mock *only* the ingest (publish) request.  Further, since we
   // are mocking an empty response body, we should see a log message produced by
   // `postToCMR` that shows an undefined conceptId value.  If so, mocking succeeded.
+
   nock(cmrHost, { allowUnmocked: true })
     .put(/ingest/)
     .reply(200, {});
 
-  return postToCMR(props);
+  return await postToCMR(props);
 };
 
 // For testing
