@@ -7,7 +7,7 @@ import * as tt from 'io-ts-types';
 import * as CMA from './cma';
 import dayjs from './dayjs';
 import * as $t from './io';
-import * as $L from './lambda';
+import * as L from './lambda';
 import { traceAsync } from './logging';
 
 export const DiscoverGranulesProps = t.type({
@@ -71,7 +71,7 @@ export const advanceStartDate = (props: DiscoverGranulesProps) => {
 // HANDLERS
 //------------------------------------------------------------------------------
 
-const mkDiscoverGranulesHandler = $L.mkAsyncHandler(DiscoverGranulesProps);
+const mkDiscoverGranulesHandler = L.mkAsyncHandler(DiscoverGranulesProps);
 
 // For testing
 

@@ -41,3 +41,5 @@ export const mkAsyncHandler =
         (decoded) => Promise.resolve(h(decoded))
       )
     );
+
+export { Context } from 'aws-lambda';

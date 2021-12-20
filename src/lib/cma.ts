@@ -1,12 +1,11 @@
 import * as CMA from '@cumulus/cumulus-message-adapter-js';
 import * as M from '@cumulus/types/message';
-import * as L from 'aws-lambda';
 
-import * as $L from './lambda';
+import * as L from './lambda';
 
 export type CMAEvent = CMA.CMAMessage | M.CumulusMessage | M.CumulusRemoteMessage;
 export type CMAResult = CMA.CumulusMessageWithAssignedPayload | M.CumulusRemoteMessage;
-export type CMAAsyncHandler = $L.AsyncHandler<CMAEvent, CMAResult>;
+export type CMAAsyncHandler = L.AsyncHandler<CMAEvent, CMAResult>;
 
 /**
  * Convenience function for wrapping a "vanilla" async AWS Lambda Function handler
@@ -56,6 +55,8 @@ export type CMAAsyncHandler = $L.AsyncHandler<CMAEvent, CMAResult>;
  *    handler for use with the Cumulus Message Adapter (CMA)
  */
 export const asyncHandler =
-  <E, R>(handler: $L.AsyncHandler<E, R>): CMAAsyncHandler =>
+  <E, R>(handler: L.AsyncHandler<E, R>) =>
   (event: CMAEvent, context: L.Context): Promise<CMAResult> =>
     CMA.runCumulusTask(handler, event, context);
+
+export * from '@cumulus/cumulus-message-adapter-js';
