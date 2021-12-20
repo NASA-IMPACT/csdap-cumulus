@@ -352,10 +352,10 @@
     execa "^4.0.0"
     lookpath "1.0.3"
 
-"@cumulus/cumulus-message-adapter-js@^2.0.1":
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/@cumulus/cumulus-message-adapter-js/-/cumulus-message-adapter-js-2.0.3.tgz#d101cebe648c80dc31165a3c0784d26d341b5af3"
-  integrity sha512-LtYotqf8XhhkMK1GDERTZQJtibwdjEEYH3Y34rMOUjjV5Um5zuFuMEZHmAeZFYeQ+MxGuWa9d0kbGuNUSKuElw==
+"@cumulus/cumulus-message-adapter-js@2.0.4":
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/@cumulus/cumulus-message-adapter-js/-/cumulus-message-adapter-js-2.0.4.tgz#e05b21e7dd5a1d9eff252934d390c67948247221"
+  integrity sha512-v89nPeF/K6AowShdS1YWHtDkSVWvUkytm52bMpb0PSacHeytI/eAuPV16BR/fdBCi6pFko5XHLGjrMrMqZFCOQ==
   dependencies:
     "@cumulus/types" "^9.6.0"
     "@types/aws-lambda" "^8.10.58"
