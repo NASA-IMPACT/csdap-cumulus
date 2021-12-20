@@ -3,5 +3,7 @@ declare module '@cumulus/post-to-cmr' {
     readonly granuleId: string;
   };
 
-  function postToCMR(event: unknown): readonly Granule[];
+  function postToCMR(
+    event: unknown
+  ): Promise<{ readonly granules: readonly Granule[] }>;
 }
