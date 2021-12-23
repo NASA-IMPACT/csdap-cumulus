@@ -280,12 +280,11 @@ module "cumulus" {
   cmr_environment    = local.cmr_environment
   cmr_oauth_provider = "launchpad"
   cmr_provider       = local.cmr_provider
-  # Earthdata Login (EDL) credentials.  For DEVELOPMENT deployments, these should
-  # be your own credentials for https://uat.urs.earthdata.nasa.gov/.  Otherwise,
-  # these should be credentials for an EDL "service" account at the EDL URL
-  # specified by the 'urs_url' variable (see variables.tf for the default URL).
-  cmr_username = data.aws_ssm_parameter.cmr_username.value
-  cmr_password = data.aws_ssm_parameter.cmr_password.value
+  # Cumulus bug: since we are using Launchpad for CMR authentication, not EDL,
+  # cmr_username and cmr_password should NOT be required, but since they are, we
+  # just set them to empty strings.
+  cmr_username = ""
+  cmr_password = ""
 
   launchpad_api         = "https://api.launchpad.nasa.gov/icam/api/sm/v1"
   launchpad_certificate = "launchpad.pfx"
@@ -315,7 +314,7 @@ module "cumulus" {
 
   # Archive API settings
   token_secret                = random_string.token_secret.result
-  archive_api_users           = length(var.api_users) > 0 ? var.api_users : [data.aws_ssm_parameter.cmr_username.value]
+  archive_api_users           = var.api_users
   archive_api_port            = var.archive_api_port
   private_archive_api_gateway = var.private_archive_api_gateway
   api_gateway_stage           = var.api_gateway_stage

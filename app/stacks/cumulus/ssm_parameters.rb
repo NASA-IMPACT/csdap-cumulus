@@ -47,16 +47,6 @@ data("aws_ssm_parameter", "launchpad_passphrase",
 # STACK-SPECIFIC (not shared across stacks)
 # ------------------------------------------------------------------------------
 
-data("aws_ssm_parameter", "cmr_username",
-  "//": "Earthdata Login (EDL) Username",
-  name: expansion("/:ENV/cumulus/cmr-username")
-)
-
-data("aws_ssm_parameter", "cmr_password",
-  "//": "Earthdata Login (EDL) Password",
-  name: expansion("/:ENV/cumulus/cmr-password")
-)
-
 data("aws_ssm_parameter", "urs_client_id",
   "//": "Earthdata Login (EDL) Application Client ID",
   name: expansion("/:ENV/cumulus/urs-client-id")

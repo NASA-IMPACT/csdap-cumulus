@@ -4,6 +4,7 @@ api_users = [
   "jsrikish",
   "chuckwondo"
 ]
+# Trailing slash is required
 cumulus_distribution_url = "https://d7yzp0aemakw8.cloudfront.net/"
 key_name                 = "csda_uat_cumulus"
 
