@@ -56,7 +56,7 @@ export type CMAAsyncHandler = L.AsyncHandler<CMAEvent, CMAResult>;
  */
 export const asyncHandler =
   <E, R>(handler: L.AsyncHandler<E, R>) =>
-  (event: CMAEvent, context: L.Context): Promise<CMAResult> =>
-    CMA.runCumulusTask(handler, event, context);
+  async (event: CMAEvent, context: L.Context): Promise<CMAResult> =>
+    await CMA.runCumulusTask(handler, event, context);
 
 export * from '@cumulus/cumulus-message-adapter-js';

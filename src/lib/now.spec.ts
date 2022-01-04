@@ -21,4 +21,8 @@ test.afterEach.always((t) => {
   Date.now = t.context.now;
 });
 
+// To allow mocking the current time, code under test should obtain the current
+// date/time by using `new Date(Date.now())`.  Although using `new Date()` (i.e.,
+// without an argument) produces the current date/time, it does not allow mocking.
+
 test('noop', (t) => t.pass());

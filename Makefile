@@ -10,7 +10,7 @@ DOCKER_RUN = docker run \
   --volume $(HOME)/.aws:/root/.aws \
   --volume $(HOME)/.ssh:/root/.ssh \
   --workdir $(WORKDIR)
-DOTENV = .env
+DOTENV ?= .env
 IMAGE = csdap-cumulus
 STACKS = $(patsubst app/stacks/%,%,$(wildcard app/stacks/*))
 TERRASPACE = $(DOCKER_RUN) $(IMAGE) bundle exec terraspace
