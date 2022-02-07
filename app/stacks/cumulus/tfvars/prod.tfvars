@@ -1,5 +1,6 @@
 api_users = [
-  "dschuck"
+  "dschuck",
+  "kaulfus08"
 ]
 
 # Trailing slash is required
@@ -27,7 +28,7 @@ buckets = {
     type = "dashboard"
   }
   provider = {
-    name = "ss-ingest-dev-ingesteddatac45dd6b6-1w456hbx7scex"
+    name = "ss-ingest-prod-ingesteddata-uswest2"
     type = "provider"
   }
 }

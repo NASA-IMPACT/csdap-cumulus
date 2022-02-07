@@ -3,6 +3,7 @@ DOCKER_RUN = docker run \
   --interactive \
   --rm \
   --env-file $(DOTENV) \
+  --env DOTENV=$(DOTENV) \
   --volume /var/run/docker.sock:/var/run/docker.sock \
   --volume csdap-cumulus.node_modules:$(WORKDIR)/node_modules \
   --volume csdap-cumulus.node_modules.lambda:$(WORKDIR)/build/main/node_modules \
@@ -48,7 +49,7 @@ all-%:
 	$(TERRASPACE) all $(patsubst all-%,%,$@)
 
 ## bash: Runs bash terminal in Docker container
-bash:
+bash: install
 	$(DOCKER_RUN) --tty $(IMAGE)
 
 ## bash-STACK: Runs bash terminal in Docker container at STACK's Terraspace cache dir
@@ -98,7 +99,7 @@ logs-follow:
 	$(TERRASPACE) logs -f
 
 install:
-	$(DOCKER_RUN) --tty $(IMAGE) -ic "yarn install"
+	$(DOCKER_RUN) --tty $(IMAGE) -ic "YARN_SILENT=1 yarn install"
 
 ## output-STACK: Runs `terraform output` for specified STACK
 output-%:
@@ -111,7 +112,7 @@ plan-%:
 	$(TERRASPACE) plan $*
 
 ## test: Runs tests
-test:
+test: install
 	$(DOCKER_RUN) --tty $(IMAGE) -ic "yarn test"
 
 ## unlock-STACK_ID: Unlocks Terraform state for specified STACK using specified lock ID

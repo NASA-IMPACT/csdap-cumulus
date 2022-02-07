@@ -265,14 +265,14 @@
   dependencies:
     "@cspotcode/source-map-consumer" "0.8.0"
 
-"@cumulus/aws-client@9.9.0":
-  version "9.9.0"
-  resolved "https://registry.yarnpkg.com/@cumulus/aws-client/-/aws-client-9.9.0.tgz#56b0ca134fd51385a27fe19a31002b67380b7b08"
-  integrity sha512-HHIchB2PJanmDw39se2Y5uqGhxTmHs1y4cy8kUWDv6xEURMlH1CN/SzJN0JNKBM5LqmMrWtaN8m34+8sVzUclw==
+"@cumulus/aws-client@10.0.1":
+  version "10.0.1"
+  resolved "https://registry.yarnpkg.com/@cumulus/aws-client/-/aws-client-10.0.1.tgz#57719da26f0e1199fa2fe9c336e14b4dcf33626b"
+  integrity sha512-+3aW8Q2zb8qGMhe19/aT/vFMZK2imkpSgc+QJfT9SLceeAT8tx+O+tJpyqMO1cXRwqDxj69GeYsmXgQyjuqSXQ==
   dependencies:
-    "@cumulus/checksum" "9.9.0"
-    "@cumulus/errors" "9.9.0"
-    "@cumulus/logger" "9.9.0"
+    "@cumulus/checksum" "10.0.1"
+    "@cumulus/errors" "10.0.1"
+    "@cumulus/logger" "10.0.1"
     aws-sdk "^2.814.0"
     jsonpath-plus "^1.1.0"
     lodash "~4.17.20"
@@ -281,38 +281,38 @@
     p-wait-for "^3.1.0"
     pump "^3.0.0"
 
-"@cumulus/checksum@9.9.0":
-  version "9.9.0"
-  resolved "https://registry.yarnpkg.com/@cumulus/checksum/-/checksum-9.9.0.tgz#2773a08211ead3ce142c5f6f00fc69f793a4e5e1"
-  integrity sha512-eSeffek4xDOZSeKGRI+bNwPJhl/yv2tzIlK5wNtZGNQN42Pp3acon9lYLoTTc/X0mX0J0jQa60nknCbLlF9WEg==
+"@cumulus/checksum@10.0.1":
+  version "10.0.1"
+  resolved "https://registry.yarnpkg.com/@cumulus/checksum/-/checksum-10.0.1.tgz#be989d42cd26fb49f0b1267d89c29bed80b014a4"
+  integrity sha512-q9FZTpPkvNhzkdK6Vet6hTTjx5HGqWSWcABOxU9Cfd0grt2ntUBw5y6Cx5piKbUa6T+guh3RCWNOahjvijV/0g==
   dependencies:
     cksum "^1.3.0"
 
-"@cumulus/cmr-client@9.9.0":
-  version "9.9.0"
-  resolved "https://registry.yarnpkg.com/@cumulus/cmr-client/-/cmr-client-9.9.0.tgz#e6344edd3f0771c309902dd5bffb8de4f4b4e0b1"
-  integrity sha512-igTLEBwuE9BDcVwIIKtUBES4OrKYaq0umBr3lyGlEpGnksEM+2Y2xFXIY6CJHewrD+dvNe0ylL9BT8b5s3bmGA==
+"@cumulus/cmr-client@10.0.1":
+  version "10.0.1"
+  resolved "https://registry.yarnpkg.com/@cumulus/cmr-client/-/cmr-client-10.0.1.tgz#425e4a41947d236a3b49e3a250565ff41092af24"
+  integrity sha512-+pHDvbCR4XImWHHmqF5NGzyRQYhm7dnEaaJGuHtd+4QjtqFiEeumAjkMoxvUFrggVE9fKKuOk8M6K12rTr8qMQ==
   dependencies:
-    "@cumulus/aws-client" "9.9.0"
-    "@cumulus/errors" "9.9.0"
-    "@cumulus/logger" "9.9.0"
+    "@cumulus/aws-client" "10.0.1"
+    "@cumulus/errors" "10.0.1"
+    "@cumulus/logger" "10.0.1"
     got "^11.7.0"
     lodash "^4.17.20"
     public-ip "^3.0.0"
     xml2js "^0.4.19"
 
-"@cumulus/cmrjs@9.9.0":
-  version "9.9.0"
-  resolved "https://registry.yarnpkg.com/@cumulus/cmrjs/-/cmrjs-9.9.0.tgz#0abb55aa13e854501d4d860918e3b42f3fe13f46"
-  integrity sha512-sSG5RLove/kS3naDZqxuWYbeVwW3NRbE22+IZXfxfPUR8Y0aNURV4e7zhD28Er4szjtCAYLeyGehH+pSifSOWA==
+"@cumulus/cmrjs@10.0.1":
+  version "10.0.1"
+  resolved "https://registry.yarnpkg.com/@cumulus/cmrjs/-/cmrjs-10.0.1.tgz#128acff24291c2ee356a4e89297a026ecc5448c5"
+  integrity sha512-WcKP8fCeuT45Dve1TtgKbyQdAerccgwVmAGaoHJf1E05ML0RNcT7EZgfRM4JCuZg4+LAKOVPk18AXs1i6ZeWzg==
   dependencies:
-    "@cumulus/aws-client" "9.9.0"
-    "@cumulus/cmr-client" "9.9.0"
-    "@cumulus/common" "9.9.0"
-    "@cumulus/distribution-utils" "9.9.0"
-    "@cumulus/errors" "9.9.0"
-    "@cumulus/launchpad-auth" "9.9.0"
-    "@cumulus/logger" "9.9.0"
+    "@cumulus/aws-client" "10.0.1"
+    "@cumulus/cmr-client" "10.0.1"
+    "@cumulus/common" "10.0.1"
+    "@cumulus/distribution-utils" "10.0.1"
+    "@cumulus/errors" "10.0.1"
+    "@cumulus/launchpad-auth" "10.0.1"
+    "@cumulus/logger" "10.0.1"
     got "^11.8.1"
     js2xmlparser "^4.0.0"
     lodash "^4.17.20"
@@ -320,20 +320,20 @@
     url-join "^1.0.0"
     xml2js "^0.4.19"
 
-"@cumulus/common@9.9.0":
-  version "9.9.0"
-  resolved "https://registry.yarnpkg.com/@cumulus/common/-/common-9.9.0.tgz#51b47de9ea4d20f87d26ad9d32a26990f9a5477b"
-  integrity sha512-hlhapWSP5Sg60mtfZi8xqSozTZermVl50oNaBpWhec3DYHRUTUZmODoPZX587+Ig0EfmydodmrzET/iPTBacnw==
+"@cumulus/common@10.0.1":
+  version "10.0.1"
+  resolved "https://registry.yarnpkg.com/@cumulus/common/-/common-10.0.1.tgz#a912c317ae3e36a5c2c5a3113f995a3f30e04f53"
+  integrity sha512-pSFNq3ozDIpljMfVCF2C5byi7eri6302RM6gCIKo656vYKJLqRGmPkrF5j7bUGB6tS+PFwY8WQNDWToAYtnDHg==
   dependencies:
-    "@cumulus/errors" "9.9.0"
-    "@cumulus/logger" "9.9.0"
+    "@cumulus/errors" "10.0.1"
+    "@cumulus/logger" "10.0.1"
     ajv "^6.12.3"
     aws-sdk "^2.585.0"
     follow-redirects "^1.2.4"
     fs-extra "^5.0.0"
     jsonpath-plus "^3.0.0"
     lodash "^4.17.20"
-    node-forge "^0.10.0"
+    node-forge "^1.0.0"
     p-limit "^2.0.0"
     p-map "^1.2.0"
     p-retry "^4.2.0"
@@ -341,16 +341,6 @@
     randexp "^0.5.3"
     url-join "^4.0.0"
     uuid "^3.2.1"
-
-"@cumulus/cumulus-message-adapter-js@2.0.1":
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/@cumulus/cumulus-message-adapter-js/-/cumulus-message-adapter-js-2.0.1.tgz#23e973240623dccac86eb57696f78b83f29e1702"
-  integrity sha512-yZvwx0wITL5WpJzgOrIKg3XpjEr4KxmuRTbrsoylYIlfOTnZS7WVZbusKj0+qSzo9Hov8c/R0Ue8vngsyeyY1g==
-  dependencies:
-    "@cumulus/types" "^9.6.0"
-    "@types/aws-lambda" "^8.10.58"
-    execa "^4.0.0"
-    lookpath "1.0.3"
 
 "@cumulus/cumulus-message-adapter-js@2.0.4":
   version "2.0.4"
@@ -362,53 +352,58 @@
     execa "^4.0.0"
     lookpath "1.0.3"
 
-"@cumulus/distribution-utils@9.9.0":
-  version "9.9.0"
-  resolved "https://registry.yarnpkg.com/@cumulus/distribution-utils/-/distribution-utils-9.9.0.tgz#cd082222ae04e6fd1036feac0f0da045b07d0a7e"
-  integrity sha512-1wvVrp9wyF5Gg6n+C2lq3z2pI/6UBRNz/x/3Ndy5xSQvi/PmDipa/3RWnLMlMXOE7zjqkioYzN8yhOQYUN87ww==
+"@cumulus/distribution-utils@10.0.1":
+  version "10.0.1"
+  resolved "https://registry.yarnpkg.com/@cumulus/distribution-utils/-/distribution-utils-10.0.1.tgz#fc34a5aca015603cdf3325ee191d60816e041c45"
+  integrity sha512-tRgsD5BB0t2etx5DWX/IJQTHVEC0B7i/QAsXD7EBOG7x+iw+0gapof8+OLjVtrfbQ1IonEkhEelk/L4M6rHpLQ==
   dependencies:
-    "@cumulus/aws-client" "9.9.0"
-    "@cumulus/common" "9.9.0"
-    "@cumulus/errors" "9.9.0"
+    "@cumulus/aws-client" "10.0.1"
+    "@cumulus/common" "10.0.1"
+    "@cumulus/errors" "10.0.1"
     url-join "^1.1.0"
 
-"@cumulus/errors@9.9.0":
-  version "9.9.0"
-  resolved "https://registry.yarnpkg.com/@cumulus/errors/-/errors-9.9.0.tgz#b8c8f60a33b5884094b35496bf63272db74b1db3"
-  integrity sha512-pG0OFpMGT0nV/COGbxswTa0M9K90EOOEp6aOI/NvqVFEDGkngJi8/LQa1TxG21UtVtoCpgma/l/Er1U/6qUFhg==
+"@cumulus/errors@10.0.1":
+  version "10.0.1"
+  resolved "https://registry.yarnpkg.com/@cumulus/errors/-/errors-10.0.1.tgz#f9829d56e883908aea0eb9f68cca4a0443d43bc1"
+  integrity sha512-DCkSlB3caGnb66WBMw2HSM6mhv5EjKKiV94O5kLAPStu4hALi1ZB4MuXDQcjG1Gj+5e4vVJpD5XgyB81cNSreQ==
 
-"@cumulus/launchpad-auth@9.9.0":
-  version "9.9.0"
-  resolved "https://registry.yarnpkg.com/@cumulus/launchpad-auth/-/launchpad-auth-9.9.0.tgz#93c475d8537d6bcc06e256757b3b398748b05bbd"
-  integrity sha512-51JzEZJCATHNB0x/f1kOkcuXgK1uqwBO3rfEcytk8FS7gwq0b+jyAYoooZl6MBhBIYM9ZdCR8Fwoxd6HEGUVqw==
+"@cumulus/launchpad-auth@10.0.1":
+  version "10.0.1"
+  resolved "https://registry.yarnpkg.com/@cumulus/launchpad-auth/-/launchpad-auth-10.0.1.tgz#2eb4e2b1dcea612bc39cfcb9458448e0ac66340f"
+  integrity sha512-/ImX+oLegD+Xs3HRILj2PTIXVWtP0ie8pLnpaJLHk0zKV7+jHzGK/HPmAmsBmdQ/u9RM53TnmyKnOV8h8OnfjA==
   dependencies:
-    "@cumulus/aws-client" "9.9.0"
-    "@cumulus/logger" "9.9.0"
+    "@cumulus/aws-client" "10.0.1"
+    "@cumulus/logger" "10.0.1"
     got "^11.7.0"
     lodash "^4.17.20"
     uuid "^3.2.1"
 
-"@cumulus/logger@9.9.0":
-  version "9.9.0"
-  resolved "https://registry.yarnpkg.com/@cumulus/logger/-/logger-9.9.0.tgz#a21de3467189750745747c41285887df90f39187"
-  integrity sha512-YcHD0iOl+d5Jgx47bUhdKhG6GkljhpPAcfoFMR8Cd6sUH3NHDnuKTjZKSR0w+ZcePm1mF7Vdh+SNcBA243sWuQ==
+"@cumulus/logger@10.0.1":
+  version "10.0.1"
+  resolved "https://registry.yarnpkg.com/@cumulus/logger/-/logger-10.0.1.tgz#63df882a9200cccdfcbb1f63f6d5dc5feaba4a64"
+  integrity sha512-eNAH9qXmikfwmAaWyYutA7mSxyY+sSOzJJVzMxoqlAFMBvhfTvn3oKzc0L6JtiPV9pAcYQsVr4k11XkWCeUbAg==
   dependencies:
     lodash.iserror "^3.1.1"
 
-"@cumulus/post-to-cmr@9.9.0":
-  version "9.9.0"
-  resolved "https://registry.yarnpkg.com/@cumulus/post-to-cmr/-/post-to-cmr-9.9.0.tgz#dc2b0c09c84d7fa84bc188bde682e4dbfff0e700"
-  integrity sha512-tqhvwU0mAPOZooGGsotx9tTI8RDQ/gOR6EPAr80CNDOu7zrXTJVY1f59u1p27Az8kE6iF92IKBdsOq8JyOIfEQ==
+"@cumulus/post-to-cmr@10.0.1":
+  version "10.0.1"
+  resolved "https://registry.yarnpkg.com/@cumulus/post-to-cmr/-/post-to-cmr-10.0.1.tgz#e2344ec43a6708c82b76c46b137bb311434900d1"
+  integrity sha512-lLtxkuRT4lNM5nOhuUftTm+j81tmBHi3pkVHShgdppF+Guv78xi/2YjVfSsEvR4PqluuyHNXcLj6bEpi/2GXOQ==
   dependencies:
-    "@cumulus/aws-client" "9.9.0"
-    "@cumulus/cmrjs" "9.9.0"
-    "@cumulus/common" "9.9.0"
-    "@cumulus/cumulus-message-adapter-js" "2.0.1"
-    "@cumulus/errors" "9.9.0"
-    "@cumulus/launchpad-auth" "9.9.0"
+    "@cumulus/aws-client" "10.0.1"
+    "@cumulus/cmrjs" "10.0.1"
+    "@cumulus/common" "10.0.1"
+    "@cumulus/cumulus-message-adapter-js" "2.0.4"
+    "@cumulus/errors" "10.0.1"
+    "@cumulus/launchpad-auth" "10.0.1"
     lodash "^4.17.20"
 
-"@cumulus/types@^9.6.0", "@cumulus/types@^9.9.0":
+"@cumulus/types@10.0.1":
+  version "10.0.1"
+  resolved "https://registry.yarnpkg.com/@cumulus/types/-/types-10.0.1.tgz#776170d0037cecd6e6b482d4c4ba623b73f11c71"
+  integrity sha512-0O+lkiHizc5Wi+8NTyOSvK4QO8votqgANYPr0wFDQkW6NMlNROZQ0xjNYI2F5AWOZPmIsf9Fomz9p9Ce/wszwQ==
+
+"@cumulus/types@^9.6.0":
   version "9.9.0"
   resolved "https://registry.yarnpkg.com/@cumulus/types/-/types-9.9.0.tgz#9a2c6ea7f4d87286617a5665d6247f02f36d92de"
   integrity sha512-4kOqVfzEz+QCGShRSvdds/EioQiUBC6HEw/WCk4alC7Ld6kJGZ8LbQOZtzrssSbpVI0Bzm7F1AyBtkoaZwo1Dg==
@@ -3831,10 +3826,10 @@ node-fetch@^2.6.1:
   dependencies:
     whatwg-url "^5.0.0"
 
-node-forge@^0.10.0:
-  version "0.10.0"
-  resolved "https://registry.yarnpkg.com/node-forge/-/node-forge-0.10.0.tgz#32dea2afb3e9926f02ee5ce8794902691a676bf3"
-  integrity sha512-PPmu8eEeG9saEUvI97fm4OYxXVB6bFvyNTyiUOBichBpFG8A1Ljw3bY62+5oOjDEMHRnd0Y7HQ+x7uzxOzC6JA==
+node-forge@^1.0.0:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/node-forge/-/node-forge-1.2.1.tgz#82794919071ef2eb5c509293325cec8afd0fd53c"
+  integrity sha512-Fcvtbb+zBcZXbTTVwqGA5W+MKBj56UjVRevvchv5XrcyXbmNdesfZL37nlcWOfpgHhgmxApw3tQbTr4CqNmX4w==
 
 node-preload@^0.2.1:
   version "0.2.1"
