@@ -1,9 +1,18 @@
 #!/usr/bin/env bash
 
 if [[ -z ${1} ]]; then
-  echo "${0}: Cumulus version not specified"
+  echo "ERROR: Cumulus version not specified"
   echo
-  echo "Usage: ${0} VERSION"
+  echo "Usage:"
+  echo
+  echo "    ${0} VERSION"
+  echo
+  echo "For a list of versions, see https://github.com/nasa/cumulus/releases"
+  echo "Note that the list of releases is in reverse chronological order, but"
+  echo "the latest release (at the top of the list) is not necessarily the"
+  echo "newest version.  It may be a patch release, so you may need to scroll"
+  echo "down the list to find the newest version, if that's what you want."
+  echo
   exit 1
 fi
 

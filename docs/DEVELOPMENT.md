@@ -90,7 +90,7 @@ To upgrade to a particular version of Cumulus, do the following:
 1. Check out this repository's `main` branch and pull the latest changes.
 1. Create a new branch (recommended name: `cumulus-upgrade-VERSION`, where
    `VERSION` is the next version in the upgrade path).
-1. Run `./set-cumulus-version VERSION` to update the version numbers of the
+1. Run `bin/set-cumulus-version.sh VERSION` to update the version numbers of the
    Cumulus dependencies specified in various files.  This saves a bit of
    work hunting through the files to manually change version numbers.
 1. Run `make all-init` to initialize the Terraform modules. (**NOTE:** This will
