@@ -3,9 +3,10 @@
   "compilerOptions": {
     "incremental": true,
     "outDir": "build/main",
-    "rootDir": "src",
+    "rootDirs": [ "src", "scripts/src" ],
     "moduleResolution": "node",
     "declaration": true,
+    "declarationMap": true,
     "inlineSourceMap": true,
     "resolveJsonModule": true /* Include modules imported with .json extension. */,
     "strict": true /* Enable all strict type-checking options. */,

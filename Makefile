@@ -7,6 +7,7 @@ DOCKER_RUN = docker run \
   --volume /var/run/docker.sock:/var/run/docker.sock \
   --volume csdap-cumulus.node_modules:$(WORKDIR)/node_modules \
   --volume csdap-cumulus.node_modules.lambda:$(WORKDIR)/build/main/node_modules \
+  --volume csdap-cumulus.node_modules.scripts:$(WORKDIR)/scripts/node_modules \
   --volume $(PWD):$(WORKDIR) \
   --volume $(HOME)/.aws:/root/.aws \
   --volume $(HOME)/.ssh:/root/.ssh \

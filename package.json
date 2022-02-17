@@ -16,7 +16,7 @@
   },
   "scripts": {
     "clean": "rm -rf build 2>/dev/null || :",
-    "cumulus": "cd scripts && yarn cumulus",
+    "cumulus": "yarn --cwd scripts cumulus",
     "build": "tsc -p tsconfig.json",
     "build:scripts": "yarn workspace csdap-cumulus-scripts build",
     "fix": "run-s fix:*",
@@ -42,7 +42,7 @@
     "doc:publish": "gh-pages -m \"[ci skip] Updates\" -d build/docs",
     "version": "standard-version",
     "reset-hard": "git clean -dfx && git reset --hard && yarn",
-    "xpostinstall": "cd scripts && yarn install",
+    "postinstall": "yarn --cwd scripts install",
     "prepare-release": "run-s reset-hard test cov:check doc:html version doc:publish",
     "lambda-archive-exploded": "yarn -s clean && yarn -s test && yarn install --production --modules-folder ${PWD}/${npm_package_config_lambda_archive_dir}/node_modules",
     "tf:lambda-archive-exploded": "yarn lambda-archive-exploded >&2 && echo { '\"'dir'\"': '\"'${PWD}/${npm_package_config_lambda_archive_dir}'\"' }"
