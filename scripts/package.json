@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@cumulus/api-client": "10.0.1",
-    "cmd-ts": "^0.9.0",
+    "cmd-ts": "^0.10.0",
     "lodash": "^4.17.21",
     "p-retry": "^4.2.1"
   }
