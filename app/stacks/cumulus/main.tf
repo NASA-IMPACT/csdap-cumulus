@@ -80,6 +80,35 @@ resource "aws_security_group" "egress_only" {
   tags = local.tags
 }
 
+resource "aws_sqs_queue" "background_job_queue" {
+  name                       = "${var.prefix}-backgroundJobQueue"
+  receive_wait_time_seconds  = 20
+  visibility_timeout_seconds = 1800
+}
+
+resource "aws_cloudwatch_event_rule" "background_job_queue_watcher" {
+  schedule_expression = "rate(1 minute)"
+}
+
+resource "aws_cloudwatch_event_target" "background_job_queue_watcher" {
+  rule = aws_cloudwatch_event_rule.background_job_queue_watcher.name
+  arn  = module.cumulus.sqs2sfThrottle_lambda_function_arn
+  input = jsonencode(
+    {
+      messageLimit = 2000
+      queueUrl     = aws_sqs_queue.background_job_queue.id
+      timeLimit    = 60
+    }
+  )
+}
+
+resource "aws_lambda_permission" "background_job_queue_watcher" {
+  action        = "lambda:InvokeFunction"
+  function_name = module.cumulus.sqs2sfThrottle_lambda_function_arn
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.background_job_queue_watcher.arn
+}
+
 resource "aws_lambda_function" "format_provider_path" {
   function_name = "${var.prefix}-FormatProviderPath"
   filename      = data.archive_file.lambda.output_path
@@ -222,7 +251,7 @@ module "discover_granules_workflow" {
     discover_granules_task_arn : module.cumulus.discover_granules_task.task_arn,
     queue_granules_task_arn : module.cumulus.queue_granules_task.task_arn,
     advance_start_date_task_arn : aws_lambda_function.advance_start_date.arn,
-    start_sf_queue_url : module.cumulus.start_sf_queue_url
+    background_job_queue_url : aws_sqs_queue.background_job_queue.id
   })
 }
 
@@ -327,4 +356,12 @@ module "cumulus" {
   deploy_distribution_s3_credentials_endpoint = false
 
   tags = local.tags
+
+  throttled_queues = [
+    {
+      id              = "backgroundJobQueue",
+      url             = aws_sqs_queue.background_job_queue.id,
+      execution_limit = 2000
+    }
+  ]
 }
