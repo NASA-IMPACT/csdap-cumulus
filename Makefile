@@ -8,6 +8,8 @@ DOCKER_RUN = docker run \
   --volume csdap-cumulus.node_modules:$(WORKDIR)/node_modules \
   --volume csdap-cumulus.node_modules.lambda:$(WORKDIR)/build/main/node_modules \
   --volume csdap-cumulus.node_modules.scripts:$(WORKDIR)/scripts/node_modules \
+  --volume csdap-cumulus.terraform-cache:$(WORKDIR)/.terraform \
+  --volume csdap-cumulus.terraspace-cache:$(WORKDIR)/.terraspace-cache \
   --volume $(PWD):$(WORKDIR) \
   --volume $(HOME)/.aws:/root/.aws \
   --volume $(HOME)/.ssh:/root/.ssh \
