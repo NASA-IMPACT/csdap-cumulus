@@ -1,5 +1,10 @@
 # CSDAP Cumulus
 
+The purpose of CSDAP Cumulus is to ingest granule data (previously obtained from
+vendors, such as Planet and Maxar) into the Earthdata Cloud. In conjunction with
+such ingestion, granule metadata (in UMM-G format) is published to the NASA CMR
+(Content Metadata Repository) for discovery.
+
 ## Prerequisites
 
 The following steps are **required** prerequisites for deploying Cumulus using

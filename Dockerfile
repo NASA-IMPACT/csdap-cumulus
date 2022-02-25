@@ -4,20 +4,13 @@ FROM boltops/terraspace:ubuntu
 # Replace shell with bash so we can source files
 SHELL [ "/bin/bash", "-o", "pipefail", "-c" ]
 
-# Remove AWS CLI v1 and install v2
 RUN : \
   && apt-get update -y \
-  && apt-get remove -y awscli \
   # AWS CLI help system uses groff
   && apt-get install -y --no-install-recommends groff=1.22.4-4build1 \
   && apt-get autoremove -y \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
-  && curl --no-progress-meter "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip" \
-  && unzip -q /tmp/awscliv2.zip -d /tmp \
-  && /tmp/aws/install --bin-dir /usr/bin \
-  && rm -rf /tmp/awscliv2.zip /tmp/aws/ \
-  && aws --version \
   && :
 
 # Install AWS Session Manager Plugin
@@ -75,3 +68,5 @@ RUN tfenv install
 # Install all of the Terraspace Ruby dependencies listed in Gemfile.lock
 COPY Gemfile Gemfile.lock ./
 RUN bundle install && bundle clean --force
+
+RUN echo 'PS1="(${CUMULUS_PREFIX}):\w \$ "' >> ~/.bashrc

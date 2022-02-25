@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+YARN_SILENT=1 yarn cumulus "$@"

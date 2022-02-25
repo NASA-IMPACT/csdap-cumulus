@@ -1,5 +1,92 @@
 # Operating CSDAP Cumulus
 
+- [Cumulus CLI](#cumulus-cli)
+  - [Using the Cumulus CLI](#using-the-cumulus-cli)
+  - [Running Workflows](#running-workflows)
+- [Granule Discovery and Ingestion](#granule-discovery-and-ingestion)
+  - [Creating Cumulus "Onetime" Rules](#creating-cumulus-onetime-rules)
+  - [Skip Granule Discovery for Disabled Rules](#skip-granule-discovery-for-disabled-rules)
+  - [Performing Discovery without Ingestion](#performing-discovery-without-ingestion)
+
+## Cumulus CLI
+
+The Cumulus CLI provides a means for using the [Cumulus API][3] from the
+command-line, rather than via the Cumulus Dashboard, which is particularly
+useful when the Dashboard is not deployed.
+
+However, the CLI does not provide complete coverage of the Cumulus API, nor does
+it provide as much functionality as the Dashboard. Rather, it is focused on
+supporting a small number of common management functions, such as managing
+providers, collections, and rules (see [Cumulus Data Management Types][4]).
+
+Ideally, the Cumulus CLI should be developed as an independent tool, but for
+now, it resides within this repository, and requires `yarn` and `node` to run.
+However, to avoid the need to install `yarn` and `node` locally, you may run the
+CLI from within the Docker container, as described below.
+
+### Using the Cumulus CLI
+
+To run Cumulus CLI commands within the Docker container, first start a `bash`
+session within the container as follows:
+
+```sh
+make docker  # If you haven't already done so
+make bash
+```
+
+Within the container, Cumulus CLI commands have the following general form:
+
+```plain
+./cumulus <subcommand> <options>
+```
+
+To see the available subcommands, run the following:
+
+```plain
+./cumulus --help
+```
+
+To get help for a particular subcommand, run the following:
+
+```plain
+./cumulus <subcommand> --help
+```
+
+### Running Workflows
+
+Cumulus workflows are simply AWS Step Functions, and they are triggered by
+running _rules_ defined in the Cumulus deployment.
+
+Once a rule is defined, you can run the rule to trigger the workflow specified
+in the rule definition using the following command, where `NAME` is the name of
+the rule (also specified in the rule definition):
+
+```sh
+./cumulus rules run --name NAME
+```
+
+**NOTE:** To get started with some test data in a development deployment, first,
+start a `bash` session in the Docker container (if you haven't already done so):
+
+```sh
+make bash
+```
+
+Then, load the test data by running the following command (this may take a few
+minutes to complete):
+
+```sh
+bin/create-test-data.sh
+```
+
+The script uses the Cumulus CLI to add a provider, a collection, a rule, and a
+few granule files to your deployment. Once the script finishes, it will output
+detailed steps to follow for enabling the rule, running the rule, and checking
+the logs.
+
+Note that in development deployments, CMR metadata is only _validated_ against
+the UAT CMR. It is not _published_ to the CMR.
+
 ## Granule Discovery and Ingestion
 
 ### Creating Cumulus "Onetime" Rules
@@ -19,7 +106,7 @@ new rule's `state` is initially set to `"DISABLED"`.
 
 As a workaround to the bug described above, to prevent _immediate_ triggering of
 a "discovery" workflow by the creation of a _disabled_ rule, we have added a
-choice step as the initial step of our `DiscoverAndQueueGranules` Step Function
+Choice step as the initial step of our `DiscoverAndQueueGranules` Step Function
 that immediately ends execution _unless_ the input to the step contains the
 value `"ENABLED"` at the path `"$.meta.rule.state"`.
 
@@ -35,15 +122,15 @@ rule properties outside of the `meta` section that we wish to have access to
 within a workflow.
 
 For example, **the following is necessary for every new `"onetime"` rule**
-(assuming that we do **not** want to trigger execution of the
-`"DiscoverAndQueueGranules"` Step Function at rule-creation time):
+(assuming that we do **not** want to trigger execution of the rule's `workflow`
+at rule-creation time, which we likely do not want to do):
 
 1. Create the rule (via the Cumulus API), with the `state` property set to
-   either `"DISABLED"` or `"ENABLED"` (the value doesn't matter because of the
-   Cumulus bug described above).  For example:
+   either `"DISABLED"` (the value doesn't matter because of the Cumulus bug
+   described above). For example, you might use the Cumulus CLI, like so:
 
-   ```json
-   {
+   ```sh
+   ./cumulus rules add --data '{
      "name": "my_rule",
      "state": "DISABLED",
      "rule": {
@@ -52,34 +139,20 @@ For example, **the following is necessary for every new `"onetime"` rule**
      "workflow": "DiscoverAndQueueGranules",
      "provider": "my_provider",
      "collection": "my_collection"
-   }
+   }'
    ```
 
-   When the rule is added, the `"DiscoverAndQueueGranules"` Step Function will
-   be triggered, but since the rule's `"meta.rule.state"` value is unspecified,
-   the initial Choice step in the Step Function will cause the workflow to exit
-   immediately, with no actions performed.
+   When this rule is added, the Step Function specified via the `"workflow"`
+   property will be triggered, but since this rule does not include a value at
+   the path `"meta.rule.state"`, the initial Choice step in the Step Function
+   will cause the workflow to exit immediately, with no actions performed.
 
 1. Update (replace) the rule (via the Cumulus API), setting the `"state"` value
    to `"ENABLED"`, and also adding the value `"ENABLED"` at the path
-   `"meta.rule.state"`:
+   `"meta.rule.state"`.  To do this via the Cumulus CLI, simply run the following command:
 
-   ```json
-   {
-     "name": "my_rule",
-     "state": "ENABLED",
-     "rule": {
-       "type": "onetime"
-     },
-     "workflow": "DiscoverAndQueueGranules",
-     "provider": "my_provider",
-     "collection": "my_collection",
-     "meta": {
-       "rule": {
-         "state": "ENABLED",
-       }
-     }
-   }
+   ```plain
+   ./cumulus rules enable --name my_rule
    ```
 
    This will **not** trigger the workflow again because updates (replacements)
@@ -93,18 +166,11 @@ for consistency (and to avoid potential confusion), the value of `"state"` and
 changed).
 
 At this point, the Cumulus API must be used to run the rule again (after the
-initial execution triggered at rule-creation time).  This is achieved by
-updating (replacing) the rule, with `"action"` set to `"rerun"` in the payload.
-See the Cumulus API documenation for [updating (replacing) a rule][2].  Note,
-however, that due to _another bug_ in Cumulus, the name of the rule must also be
-specified in the payload.  For example, the payload for the update must look as
-follows:
+initial execution triggered at rule-creation time).  This can be achieved via the
+Cumulus CLI as follows:
 
-```json
-{
-  "name": "my_rule",
-  "action": "rerun"
-}
+```sh
+./cumulus rules run --name my_rule
 ```
 
 ### Performing Discovery without Ingestion
@@ -173,3 +239,5 @@ Instead, you must now _explicitly_ set the value to `false` to _disable_
 
 [1]: https://nasa.github.io/cumulus/docs/v9.3.0/data-cookbooks/setup#rules
 [2]: https://nasa.github.io/cumulus-api/#updatereplace-rule
+[3]: https://nasa.github.io/cumulus-api/
+[4]: https://nasa.github.io/cumulus/docs/configuration/data-management-types

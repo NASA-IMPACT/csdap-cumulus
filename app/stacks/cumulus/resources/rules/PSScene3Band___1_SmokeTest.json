@@ -1,0 +1,23 @@
+{
+  "name": "PSScene3Band___1_SmokeTest",
+  "state": "DISABLED",
+  "provider": "planet",
+  "collection": {
+    "name": "PSScene3Band",
+    "version": "1"
+  },
+  "workflow": "DiscoverAndQueueGranules",
+  "rule": {
+    "type": "onetime"
+  },
+  "meta": {
+    "providerPathFormat": "[storage-ss-ingest-prod-ingesteddata-uswest2/planet/PSScene3Band-]YYYYMMDD_HH",
+    "startDate": "2017-12-01T03:00:00.000Z",
+    "endDate": "2017-12-01T05:00:00.000Z",
+    "step": "PT1H",
+    "discoverOnly": false,
+    "rule": {
+      "state": "DISABLED"
+    }
+  }
+}

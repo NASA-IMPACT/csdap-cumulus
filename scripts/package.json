@@ -1,0 +1,21 @@
+{
+  "name": "csdap-cumulus-scripts",
+  "version": "1.0.0",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "build": "tsc -b",
+    "//cumulus": "yarn build && cd .. && env-cmd --file ${DOTENV:-.env} '--' node scripts/build/cumulus.js",
+    "cumulus": "yarn build && cd .. && node scripts/build/cumulus.js"
+  },
+  "devDependencies": {
+    "env-cmd": "^10.1.0",
+    "typescript": "^4.5.4"
+  },
+  "dependencies": {
+    "@cumulus/api-client": "10.0.1",
+    "cmd-ts": "^0.10.0",
+    "lodash": "^4.17.21",
+    "p-retry": "^4.2.1"
+  }
+}
