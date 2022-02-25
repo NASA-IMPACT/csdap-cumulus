@@ -8,6 +8,10 @@ locals {
   cmr_environment = data.aws_ssm_parameter.cmr_environment.value
   cmr_provider    = "CSDA"
 
+  ecs_task_cpu                = 768
+  ecs_task_image              = "cumuluss/cumulus-ecs-task:1.7.0"
+  ecs_task_memory_reservation = 2048
+
   elasticsearch_alarms            = jsondecode("<%= json_output('data-persistence.elasticsearch_alarms') %>")
   elasticsearch_domain_arn        = jsondecode("<%= json_output('data-persistence.elasticsearch_domain_arn') %>")
   elasticsearch_hostname          = jsondecode("<%= json_output('data-persistence.elasticsearch_hostname') %>")
@@ -95,7 +99,7 @@ resource "aws_cloudwatch_event_target" "background_job_queue_watcher" {
   arn  = module.cumulus.sqs2sfThrottle_lambda_function_arn
   input = jsonencode(
     {
-      messageLimit = 2000
+      messageLimit = 500
       queueUrl     = aws_sqs_queue.background_job_queue.id
       timeLimit    = 60
     }
@@ -196,6 +200,14 @@ resource "aws_lambda_function" "cmr_validate" {
   }
 }
 
+resource "aws_sfn_activity" "discover_granules" {
+  name = "${var.prefix}-DiscoverGranules"
+}
+
+resource "aws_sfn_activity" "queue_granules" {
+  name = "${var.prefix}-QueueGranules"
+}
+
 #-------------------------------------------------------------------------------
 # MODULES
 #-------------------------------------------------------------------------------
@@ -210,6 +222,74 @@ module "cma" {
   prefix      = var.prefix
   bucket      = var.system_bucket
   cma_version = "1.3.0"
+}
+
+module "discover_granules_service" {
+  source = "https://github.com/nasa/cumulus/releases/download/<%= cumulus_version %>/terraform-aws-cumulus-ecs-service.zip"
+
+  prefix = var.prefix
+  name   = "DiscoverGranules"
+
+  cluster_arn   = module.cumulus.ecs_cluster_arn
+  desired_count = 1
+  image         = local.ecs_task_image
+
+  cpu                = local.ecs_task_cpu
+  memory_reservation = local.ecs_task_memory_reservation
+
+  environment = {
+    AWS_DEFAULT_REGION = data.aws_region.current.name
+  }
+  command = [
+    "cumulus-ecs-task",
+    "--activityArn",
+    aws_sfn_activity.discover_granules.id,
+    "--lambdaArn",
+    module.cumulus.discover_granules_task.task_arn
+  ]
+  alarms = {
+    MemoryUtilizationHigh = {
+      comparison_operator = "GreaterThanThreshold"
+      evaluation_periods  = 1
+      metric_name         = "MemoryUtilization"
+      statistic           = "SampleCount"
+      threshold           = 75
+    }
+  }
+}
+
+module "queue_granules_service" {
+  source = "https://github.com/nasa/cumulus/releases/download/<%= cumulus_version %>/terraform-aws-cumulus-ecs-service.zip"
+
+  prefix = var.prefix
+  name   = "QueueGranules"
+
+  cluster_arn   = module.cumulus.ecs_cluster_arn
+  desired_count = 1
+  image         = local.ecs_task_image
+
+  cpu                = local.ecs_task_cpu
+  memory_reservation = local.ecs_task_memory_reservation
+
+  environment = {
+    AWS_DEFAULT_REGION = data.aws_region.current.name
+  }
+  command = [
+    "cumulus-ecs-task",
+    "--activityArn",
+    aws_sfn_activity.queue_granules.id,
+    "--lambdaArn",
+    module.cumulus.queue_granules_task.task_arn
+  ]
+  alarms = {
+    MemoryUtilizationHigh = {
+      comparison_operator = "GreaterThanThreshold"
+      evaluation_periods  = 1
+      metric_name         = "MemoryUtilization"
+      statistic           = "SampleCount"
+      threshold           = 75
+    }
+  }
 }
 
 module "cumulus_distribution" {
@@ -248,8 +328,8 @@ module "discover_granules_workflow" {
   state_machine_definition = templatefile("${path.module}/templates/discover-granules-workflow.asl.json", {
     ingest_granule_workflow_name : module.ingest_and_publish_granule_workflow.name,
     format_provider_path_task_arn : aws_lambda_function.format_provider_path.arn,
-    discover_granules_task_arn : module.cumulus.discover_granules_task.task_arn,
-    queue_granules_task_arn : module.cumulus.queue_granules_task.task_arn,
+    discover_granules_activity_id : aws_sfn_activity.discover_granules.id,
+    queue_granules_activity_id : aws_sfn_activity.queue_granules.id,
     advance_start_date_task_arn : aws_lambda_function.advance_start_date.arn,
     background_job_queue_url : aws_sqs_queue.background_job_queue.id
   })
@@ -287,6 +367,7 @@ module "cumulus" {
   lambda_subnet_ids = module.vpc.subnets.ids
   archive_api_url   = var.archive_api_url
 
+  ecs_cluster_instance_type       = "t3.large"
   ecs_cluster_instance_image_id   = data.aws_ssm_parameter.ecs_image_id.value
   ecs_cluster_instance_subnet_ids = length(var.ecs_cluster_instance_subnet_ids) == 0 ? module.vpc.subnets.ids : var.ecs_cluster_instance_subnet_ids
   ecs_cluster_min_size            = 1
@@ -357,11 +438,27 @@ module "cumulus" {
 
   tags = local.tags
 
+  lambda_timeouts = {
+    discover_granules_task_timeout                       = 600
+    discover_pdrs_task_timeout                           = 600
+    hyrax_metadata_update_tasks_timeout                  = 600
+    lzards_backup_task_timeout                           = 600
+    move_granules_task_timeout                           = 600
+    parse_pdr_task_timeout                               = 600
+    pdr_status_check_task_timeout                        = 600
+    post_to_cmr_task_timeout                             = 600
+    queue_granules_task_timeout                          = 600
+    queue_pdrs_task_timeout                              = 600
+    queue_workflow_task_timeout                          = 600
+    sync_granule_task_timeout                            = 900
+    update_granules_cmr_metadata_file_links_task_timeout = 600
+  }
+
   throttled_queues = [
     {
       id              = "backgroundJobQueue",
       url             = aws_sqs_queue.background_job_queue.id,
-      execution_limit = 2000
+      execution_limit = 250
     }
   ]
 }

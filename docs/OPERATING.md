@@ -6,6 +6,7 @@
 - [Granule Discovery and Ingestion](#granule-discovery-and-ingestion)
   - [Creating Cumulus "Onetime" Rules](#creating-cumulus-onetime-rules)
   - [Skip Granule Discovery for Disabled Rules](#skip-granule-discovery-for-disabled-rules)
+  - [Viewing CloudWatch Logs](#viewing-cloudwatch-logs)
   - [Performing Discovery without Ingestion](#performing-discovery-without-ingestion)
 
 ## Cumulus CLI
@@ -149,7 +150,8 @@ at rule-creation time, which we likely do not want to do):
 
 1. Update (replace) the rule (via the Cumulus API), setting the `"state"` value
    to `"ENABLED"`, and also adding the value `"ENABLED"` at the path
-   `"meta.rule.state"`.  To do this via the Cumulus CLI, simply run the following command:
+   `"meta.rule.state"`. To do this via the Cumulus CLI, simply run the following
+   command:
 
    ```plain
    ./cumulus rules enable --name my_rule
@@ -166,12 +168,96 @@ for consistency (and to avoid potential confusion), the value of `"state"` and
 changed).
 
 At this point, the Cumulus API must be used to run the rule again (after the
-initial execution triggered at rule-creation time).  This can be achieved via the
+initial execution triggered at rule-creation time). This can be achieved via the
 Cumulus CLI as follows:
 
 ```sh
 ./cumulus rules run --name my_rule
 ```
+
+### Viewing CloudWatch Logs
+
+To monitor the operation of the workflows triggered by running Cumulus rules,
+you can tail the relevant CloudWatch logs using the AWS CLI from within the
+Docker container. Most commonly, we'll want to view the following logs:
+
+- `${CUMULUS_PREFIX}-DiscoverGranulesEcsLogs`
+- `${CUMULUS_PREFIX}-QueueGranulesEcsLogs`
+- `/aws/lambda/${CUMULUS_PREFIX}-CMRValidate` (development stacks)
+- `/aws/lambda/${CUMULUS_PREFIX}-PostToCmr` (non-development stacks)
+
+Again, to open a terminal in the Docker container, run the following:
+
+```sh
+make docker
+```
+
+The AWS CLI command to tail and follow log is as follows (where `LOG_NAME` is
+one of the log names listed above, or some other relevant log name):
+
+```sh
+aws logs tail --follow LOG_NAME
+```
+
+Since the ECS logs can contain a lot of extraneous "heartbeat" messages, it can
+sometimes be difficult to wade through the messages to find the relevant ones.
+For the `${CUMULUS_PREFIX}-DiscoverGranulesEcsLogs` log, we typically want to
+know only how many granules were discovered. Therefore, the following command
+selects the relevant log message details:
+
+```sh
+aws logs tail \
+  --format short \
+  --follow \
+  --filter-pattern '{ $.message = "Discovered *" }' \
+  ${CUMULUS_PREFIX}-DiscoverGranulesEcsLogs
+```
+
+As granules are discovered, they are then queued so that they can then be
+ingested. When successful, the queueing step does not log any meaningful
+messages, so the only time you'll want to view the logs for this step is when a
+workflow has failed and you're looking for error messages in the various logs.
+To view the logs for the queueing step, run the following:
+
+```sh
+aws logs tail \
+  --format short \
+  --follow \
+  ${CUMULUS_PREFIX}-QueueGranulesEcsLogs
+```
+
+After discovery and queueing, we may want to observe CMR activity to confirm
+that CMR requests are succeeding. In a development stack, we want to observe the
+`/aws/lambda/${CUMULUS_PREFIX}-CMRValidate` logs, where we'll see the results of
+CMR _validation_ requests (no publishing occurs in development).
+
+```sh
+aws logs tail \
+  --format short \
+  --follow \
+  --filter-pattern '{ $.message = "Published UMMG *" }' \
+  /aws/lambda/${CUMULUS_PREFIX}-CMRValidate
+```
+
+**NOTE:** Although the log messages will indicate that publishing occurred, it
+was not the case. Rather, only _validation_ occurred, which can be confirmed by
+seeing that within the same log message, the `conceptId` is `undefined`.
+
+In non-development stacks, we want to observe the
+`/aws/lambda/${CUMULUS_PREFIX}-PostToCmr` logs, where we'll see the results of
+CMR _ingestion_ ("publishing") requests.
+
+```sh
+aws logs tail \
+  --format short \
+  --follow \
+  --filter-pattern '{ $.message = "Published UMMG *" }' \
+  /aws/lambda/${CUMULUS_PREFIX}-PostToCmr
+```
+
+Although these messages will look like the ones from `CMRValidate` (in
+development stacks), the `conceptId` values in these messages will be valid
+concept IDs, _not_ `undefined`.
 
 ### Performing Discovery without Ingestion
 
