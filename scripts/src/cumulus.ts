@@ -823,8 +823,10 @@ type RunnerOutput = {
 const isRunnerOutput = (u: unknown): u is RunnerOutput =>
   !fp.isNil(u) && fp.isObject(u) && fp.has('command', u) && fp.has('value', u);
 
-const leaf = (output: unknown): string =>
-  isRunnerOutput(output) ? leaf(output.value) : JSON.stringify(output, null, 2);
+const leaf = (output: unknown): string => {
+  if (isRunnerOutput(output)) return leaf(output.value);
+  return typeof output === 'string' ? output : JSON.stringify(output, null, 2);
+};
 
 const success = (message: string) => new Exit({ exitCode: 0, message, into: 'stdout' });
 
@@ -832,5 +834,5 @@ const failure = (message: string) => new Exit({ exitCode: 1, message, into: 'std
 
 Cmd.runSafely(app, process.argv)
   .then((result) => (Result.isErr(result) ? result.error : success(leaf(result.value))))
-  .catch(({ message }) => failure(message))
+  .catch(({ message }) => failure(`ERROR: ${message}`))
   .then((exit) => exit.run());
