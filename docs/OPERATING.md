@@ -8,6 +8,9 @@
   - [Skip Granule Discovery for Disabled Rules](#skip-granule-discovery-for-disabled-rules)
   - [Viewing CloudWatch Logs](#viewing-cloudwatch-logs)
   - [Performing Discovery without Ingestion](#performing-discovery-without-ingestion)
+- [Destroying a Deployment](#destroying-a-deployment)
+  - [Destroying Managed Resources](#destroying-managed-resources)
+  - [Destroying Unmanaged Resources](#destroying-unmanaged-resources)
 
 ## Cumulus CLI
 
@@ -322,6 +325,71 @@ Instead, you must now _explicitly_ set the value to `false` to _disable_
   }
 }
 ```
+
+## Destroying a Deployment
+
+**CAUTION:** Before starting any destructive steps, be sure you are working
+against the correct deployment to avoid accidentally destroying resources in the
+wrong deployment.
+
+### Destroying Managed Resources
+
+At a high level, destroying a Cumulus deployment is relatively straightforward,
+but there are some resource dependencies that may present difficulties.
+Therefore, to make it easy simply run the following command, which will prompt
+you for confirmation first, to avoid accidentally destroying a deployment:
+
+```sh
+make nuke
+```
+
+After confirmation (you will have an opportunity to abort), this will destroy
+all resources managed by Terraform in all of the modules (`cumulus`, then
+`data-persistence`, and finally `rds-cluster`), so it will take quite a bit of
+time to complete.
+
+**NOTE:** If you encounter any errors during destruction, refer to the
+[troubleshooting guide](./TROUBLESHOOTING.md).
+
+### Destroying Unmanaged Resources
+
+In addition to the resources managed by Terraform, there are a number of
+additional resource (not managed by Terraform).  If you do not plan to redeploy
+Cumulus after destroying the managed resources, as described in the previous
+section, then you should destroy the unmanaged resources as well.
+
+There are several buckets that should be destroyed.  To see the list of buckets
+related to your deployment, run the following:
+
+```sh
+aws s3 ls | grep ${CUMULUS_PREFIX}
+```
+
+To delete a bucket, run the following, where `<NAME>` is a name from the buckets
+listed from the previous command:
+
+```sh
+aws s3api delete-bucket --bucket <NAME>
+```
+
+There are also several SSM Parameters that must be cleaned up.  To list them,
+run the following:
+
+```sh
+aws ssm describe-parameters \
+  --parameter-filters "Key=Name,Option=Contains,Values=/${TS_ENV}/" \
+  --query Parameters[].Name
+```
+
+For each name in the list, run the following command to delete the parameter,
+where `<NAME>` is a name from the output of the previous command:
+
+```sh
+aws ssm delete-parameter --name <NAME>
+```
+
+Again, if you encounter any errors during any of these steps, refer to the
+[troubleshooting guide](./TROUBLESHOOTING.md).
 
 [1]: https://nasa.github.io/cumulus/docs/v9.3.0/data-cookbooks/setup#rules
 [2]: https://nasa.github.io/cumulus-api/#updatereplace-rule

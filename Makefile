@@ -16,13 +16,15 @@ DOCKER_RUN = docker run \
   --workdir $(WORKDIR)
 DOTENV ?= .env
 IMAGE = csdap-cumulus
-STACKS = $(patsubst app/stacks/%,%,$(wildcard app/stacks/*))
+STACKS = $(patsubst app/stacks/%,\n  - %,$(wildcard app/stacks/*))
 TERRASPACE = $(DOCKER_RUN) $(IMAGE) bundle exec terraspace
 WORKDIR = /work
 
 include $(DOTENV)
 
 .DEFAULT_GOAL := help
+
+$(VERBOSE).SILENT:
 
 help: Makefile
 	@echo
@@ -34,7 +36,7 @@ help: Makefile
 	@echo "Targets:"
 	@sed -n 's/^##//p' $< | column -t -s ':' | sed -e 's/^/ /'
 	@echo
-	@echo "  where STACK is one of: $(STACKS)"
+	@echo "  where STACK is one of the following:\n$(STACKS)"
 	@echo
 
 ## all-up-yes: Deploys all modules (in dependency order) with automatic approval
@@ -93,6 +95,9 @@ docker: Dockerfile .dockerignore .terraform-version Gemfile Gemfile.lock
 init-%:
 	$(TERRASPACE) init $*
 
+install:
+	$(DOCKER_RUN) --tty $(IMAGE) -ic "YARN_SILENT=1 yarn install"
+
 ## logs: Shows last 10 lines of all Terraspace logs
 logs:
 	$(TERRASPACE) logs
@@ -101,8 +106,9 @@ logs:
 logs-follow:
 	$(TERRASPACE) logs -f
 
-install:
-	$(DOCKER_RUN) --tty $(IMAGE) -ic "YARN_SILENT=1 yarn install"
+## nuke: DANGER! Completely annihilates your Cumulus stack (after confirmation)
+nuke:
+	$(DOCKER_RUN) --tty $(IMAGE) -ic "bin/nuke.sh"
 
 ## output-STACK: Runs `terraform output` for specified STACK
 output-%:
@@ -113,6 +119,10 @@ plan-cumulus: install
 ## plan-STACK: Runs `terraform plan` for specified STACK
 plan-%:
 	$(TERRASPACE) plan $*
+
+## terraform-doctor-STACK: Fixes "duplicate resource" errors for specified STACK
+terraform-doctor-%: install
+	$(DOCKER_RUN) --tty $(IMAGE) -ic "bin/terraform-doctor.sh $* | bash -v"
 
 ## test: Runs tests
 test: install
