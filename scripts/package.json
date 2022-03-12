@@ -13,7 +13,7 @@
     "typescript": "^4.5.4"
   },
   "dependencies": {
-    "@cumulus/api-client": "10.0.1",
+    "@cumulus/api-client": "10.1.2",
     "cmd-ts": "^0.10.0",
     "lodash": "^4.17.21",
     "p-retry": "^4.2.1"
