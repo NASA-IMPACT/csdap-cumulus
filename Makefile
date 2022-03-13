@@ -5,9 +5,10 @@ DOCKER_RUN = docker run \
   --env-file $(DOTENV) \
   --env DOTENV=$(DOTENV) \
   --volume /var/run/docker.sock:/var/run/docker.sock \
+  --volume csdap-cumulus.build:$(WORKDIR)/build \
   --volume csdap-cumulus.node_modules:$(WORKDIR)/node_modules \
-  --volume csdap-cumulus.node_modules.lambda:$(WORKDIR)/build/main/node_modules \
-  --volume csdap-cumulus.node_modules.scripts:$(WORKDIR)/scripts/node_modules \
+  --volume csdap-cumulus.scripts.build:$(WORKDIR)/scripts/build \
+  --volume csdap-cumulus.scripts.node_modules:$(WORKDIR)/scripts/node_modules \
   --volume csdap-cumulus.terraform-cache:$(WORKDIR)/.terraform \
   --volume csdap-cumulus.terraspace-cache:$(WORKDIR)/.terraspace-cache \
   --volume $(PWD):$(WORKDIR) \
@@ -96,7 +97,7 @@ init-%:
 	$(TERRASPACE) init $*
 
 install:
-	$(DOCKER_RUN) --tty $(IMAGE) -ic "YARN_SILENT=1 yarn install"
+	$(DOCKER_RUN) --tty $(IMAGE) -ic "YARN_SILENT=1 yarn install --ignore-optional && YARN_SILENT=1 yarn --cwd scripts install"
 
 ## logs: Shows last 10 lines of all Terraspace logs
 logs:

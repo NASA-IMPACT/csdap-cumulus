@@ -186,7 +186,6 @@ Docker container. Most commonly, we'll want to view the following logs:
 
 - `${CUMULUS_PREFIX}-DiscoverGranulesEcsLogs`
 - `${CUMULUS_PREFIX}-QueueGranulesEcsLogs`
-- `/aws/lambda/${CUMULUS_PREFIX}-CMRValidate` (development stacks)
 - `/aws/lambda/${CUMULUS_PREFIX}-PostToCmr` (non-development stacks)
 
 Again, to open a terminal in the Docker container, run the following:
@@ -230,25 +229,7 @@ aws logs tail \
 ```
 
 After discovery and queueing, we may want to observe CMR activity to confirm
-that CMR requests are succeeding. In a development stack, we want to observe the
-`/aws/lambda/${CUMULUS_PREFIX}-CMRValidate` logs, where we'll see the results of
-CMR _validation_ requests (no publishing occurs in development).
-
-```sh
-aws logs tail \
-  --format short \
-  --follow \
-  --filter-pattern '{ $.message = "Published UMMG *" }' \
-  /aws/lambda/${CUMULUS_PREFIX}-CMRValidate
-```
-
-**NOTE:** Although the log messages will indicate that publishing occurred, it
-was not the case. Rather, only _validation_ occurred, which can be confirmed by
-seeing that within the same log message, the `conceptId` is `undefined`.
-
-In non-development stacks, we want to observe the
-`/aws/lambda/${CUMULUS_PREFIX}-PostToCmr` logs, where we'll see the results of
-CMR _ingestion_ ("publishing") requests.
+that CMR requests are succeeding:
 
 ```sh
 aws logs tail \
@@ -257,10 +238,6 @@ aws logs tail \
   --filter-pattern '{ $.message = "Published UMMG *" }' \
   /aws/lambda/${CUMULUS_PREFIX}-PostToCmr
 ```
-
-Although these messages will look like the ones from `CMRValidate` (in
-development stacks), the `conceptId` values in these messages will be valid
-concept IDs, _not_ `undefined`.
 
 ### Performing Discovery without Ingestion
 

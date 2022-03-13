@@ -5,10 +5,14 @@
   "private": true,
   "scripts": {
     "build": "tsc -b",
+    "clean:build": "rm -rf build/*",
+    "clean:dependencies": "rm -rf node_modules/* node_modules/.bin node_modules/.cache node_modules/.yarn-integrity",
+    "clean:all": "yarn clean:build && yarn clean:dependencies",
     "cumulus": "yarn build && cd .. && node scripts/build/cumulus.js",
     "terraform-doctor": "yarn build && cd .. && node scripts/build/terraform-doctor.js"
   },
   "devDependencies": {
+    "@types/dateformat": "^5.0.0",
     "env-cmd": "^10.1.0",
     "typescript": "^4.5.4"
   },

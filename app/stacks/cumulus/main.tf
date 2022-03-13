@@ -1,12 +1,16 @@
 locals {
-  bucket_names = join(" ", values(var.buckets)[*].name)
+  protected_bucket_names = [for k, v in var.buckets : v.name if v.type == "protected"]
+  public_bucket_names    = [for k, v in var.buckets : v.name if v.type == "public"]
+
   bucket_map_yaml = templatefile("${path.module}/templates/bucket_map.yaml.tmpl", {
-    protected_buckets = [for k, v in var.buckets : v.name if v.type == "protected"],
-    public_buckets    = [for k, v in var.buckets : v.name if v.type == "public"]
+    protected_buckets = local.protected_bucket_names,
+    public_buckets    = local.public_bucket_names,
   })
 
   cmr_environment = data.aws_ssm_parameter.cmr_environment.value
   cmr_provider    = "CSDA"
+
+  dynamo_tables = jsondecode("<%= json_output('data-persistence.dynamo_tables') %>")
 
   ecs_task_cpu                = 768
   ecs_task_image              = "cumuluss/cumulus-ecs-task:1.7.0"
@@ -17,24 +21,26 @@ locals {
   elasticsearch_hostname          = jsondecode("<%= json_output('data-persistence.elasticsearch_hostname') %>")
   elasticsearch_security_group_id = jsondecode("<%= json_output('data-persistence.elasticsearch_security_group_id') %>")
 
-  ensure_buckets_exist_script = "${path.module}/bin/ensure-buckets-exist.sh"
+  lambda_timeouts = {
+    discover_granules_task_timeout                       = 600
+    discover_pdrs_task_timeout                           = 600
+    hyrax_metadata_update_tasks_timeout                  = 600
+    lzards_backup_task_timeout                           = 600
+    move_granules_task_timeout                           = 600
+    parse_pdr_task_timeout                               = 600
+    pdr_status_check_task_timeout                        = 600
+    post_to_cmr_task_timeout                             = 600
+    queue_granules_task_timeout                          = 600
+    queue_pdrs_task_timeout                              = 600
+    queue_workflow_task_timeout                          = 600
+    sync_granule_task_timeout                            = 900
+    update_granules_cmr_metadata_file_links_task_timeout = 600
+  }
 
   rds_security_group         = jsondecode("<%= json_output('rds-cluster.security_group_id') %>")
   rds_user_access_secret_arn = jsondecode("<%= json_output('rds-cluster.user_credentials_secret_arn') %>")
 
   tags = merge(var.tags, { Deployment = var.prefix })
-}
-
-resource "null_resource" "ensure_buckets_exist" {
-  triggers = {
-    bucket_names = local.bucket_names
-    script_hash  = filebase64sha256(local.ensure_buckets_exist_script)
-  }
-
-  provisioner "local-exec" {
-    interpreter = ["bash", "-c"]
-    command     = "${local.ensure_buckets_exist_script} ${local.bucket_names}"
-  }
 }
 
 #-------------------------------------------------------------------------------
@@ -46,18 +52,44 @@ data "aws_ssm_parameter" "ecs_image_id" {
 }
 
 data "external" "lambda_archive_exploded" {
-  program = ["/bin/bash", "-ic", "yarn -s install >/dev/null && yarn -s tf:lambda-archive-exploded"]
+  program = [
+    "/bin/bash",
+    "-ic",
+    "yarn -s install >/dev/null && yarn -s tf:lambda:archive-exploded"
+  ]
 }
 
 data "archive_file" "lambda" {
   type        = "zip"
   source_dir  = data.external.lambda_archive_exploded.result.dir
-  output_path = "${data.external.lambda_archive_exploded.result.dir}/lambda.zip"
+  output_path = "${data.external.lambda_archive_exploded.result.dir}/../lambda.zip"
 }
 
 #-------------------------------------------------------------------------------
 # RESOURCES
 #-------------------------------------------------------------------------------
+
+resource "null_resource" "put_bucket_logging" {
+  for_each = toset(concat(local.protected_bucket_names, local.public_bucket_names))
+
+  triggers = {
+    buckets = join(" ", values(var.buckets)[*].name)
+  }
+
+  provisioner "local-exec" {
+    interpreter = ["bash", "-c"]
+    command     = <<-EOT
+      aws s3api put-bucket-logging --bucket ${each.key} --bucket-logging-status '
+        {
+          "LoggingEnabled": {
+            "TargetBucket": "${var.system_bucket}",
+            "TargetPrefix": "${var.prefix}/ems-distribution/s3-server-access-logs/"
+          }
+        }
+      '
+    EOT
+  }
+}
 
 resource "random_string" "token_secret" {
   length  = 32
@@ -111,6 +143,37 @@ resource "aws_lambda_permission" "background_job_queue_watcher" {
   function_name = module.cumulus.sqs2sfThrottle_lambda_function_arn
   principal     = "events.amazonaws.com"
   source_arn    = aws_cloudwatch_event_rule.background_job_queue_watcher.arn
+}
+
+resource "aws_lambda_function" "discover_granules" {
+  function_name = "${var.prefix}-DiscoverGranulesPrefixingIds"
+  filename      = data.archive_file.lambda.output_path
+  role          = module.cumulus.lambda_processing_role_arn
+  handler       = "index.discoverGranulesCMAHandler"
+  runtime       = "nodejs14.x"
+  timeout       = lookup(local.lambda_timeouts, "discover_granules_task_timeout", 300)
+  memory_size   = 512
+
+  source_code_hash = data.archive_file.lambda.output_base64sha256
+  layers           = [module.cma.lambda_layer_version_arn]
+
+  tags = var.tags
+
+  dynamic "vpc_config" {
+    for_each = length(module.vpc.subnets.ids) == 0 ? [] : [1]
+    content {
+      subnet_ids         = module.vpc.subnets.ids
+      security_group_ids = [aws_security_group.egress_only.id]
+    }
+  }
+
+  environment {
+    variables = {
+      stackName                   = var.prefix
+      GranulesTable               = local.dynamo_tables.granules.name
+      CUMULUS_MESSAGE_ADAPTER_DIR = "/opt/"
+    }
+  }
 }
 
 resource "aws_lambda_function" "format_provider_path" {
@@ -169,37 +232,6 @@ resource "aws_lambda_function" "advance_start_date" {
   }
 }
 
-resource "aws_lambda_function" "cmr_validate" {
-  function_name = "${var.prefix}-CMRValidate"
-  filename      = data.archive_file.lambda.output_path
-  role          = module.cumulus.lambda_processing_role_arn
-  handler       = "index.cmrValidateCMAHandler"
-  runtime       = "nodejs14.x"
-  timeout       = 300
-
-  source_code_hash = data.archive_file.lambda.output_base64sha256
-  layers           = [module.cma.lambda_layer_version_arn]
-
-  tags = local.tags
-
-  dynamic "vpc_config" {
-    for_each = length(module.vpc.subnets.ids) == 0 ? [] : [1]
-    content {
-      subnet_ids         = module.vpc.subnets.ids
-      security_group_ids = [aws_security_group.egress_only.id]
-    }
-  }
-
-  environment {
-    variables = {
-      CMR_ENVIRONMENT             = local.cmr_environment
-      CUMULUS_MESSAGE_ADAPTER_DIR = "/opt/"
-      stackName                   = var.prefix
-      system_bucket               = var.system_bucket
-    }
-  }
-}
-
 resource "aws_sfn_activity" "discover_granules" {
   name = "${var.prefix}-DiscoverGranules"
 }
@@ -245,7 +277,7 @@ module "discover_granules_service" {
     "--activityArn",
     aws_sfn_activity.discover_granules.id,
     "--lambdaArn",
-    module.cumulus.discover_granules_task.task_arn
+    aws_lambda_function.discover_granules.arn
   ]
   alarms = {
     MemoryUtilizationHigh = {
@@ -351,7 +383,7 @@ module "ingest_and_publish_granule_workflow" {
     files_to_granules_task_arn : module.cumulus.files_to_granules_task.task_arn,
     move_granules_task_arn : module.cumulus.move_granules_task.task_arn,
     update_granules_cmr_metadata_file_links_task_arn : module.cumulus.update_granules_cmr_metadata_file_links_task.task_arn,
-    validate_or_publish_task_arn : "true" == "<%= (['sit', 'uat', 'prod'].include? ENV['TS_ENV']) %>" ? module.cumulus.post_to_cmr_task.task_arn : aws_lambda_function.cmr_validate.arn
+    post_to_cmr_task_arn : module.cumulus.post_to_cmr_task.task_arn
   })
 }
 
@@ -418,7 +450,7 @@ module "cumulus" {
   elasticsearch_hostname          = local.elasticsearch_hostname
   elasticsearch_security_group_id = local.elasticsearch_security_group_id
 
-  dynamo_tables = jsondecode("<%= json_output('data-persistence.dynamo_tables') %>")
+  dynamo_tables = local.dynamo_tables
 
   es_index_shards = 2
 
@@ -438,21 +470,7 @@ module "cumulus" {
 
   tags = local.tags
 
-  lambda_timeouts = {
-    discover_granules_task_timeout                       = 600
-    discover_pdrs_task_timeout                           = 600
-    hyrax_metadata_update_tasks_timeout                  = 600
-    lzards_backup_task_timeout                           = 600
-    move_granules_task_timeout                           = 600
-    parse_pdr_task_timeout                               = 600
-    pdr_status_check_task_timeout                        = 600
-    post_to_cmr_task_timeout                             = 600
-    queue_granules_task_timeout                          = 600
-    queue_pdrs_task_timeout                              = 600
-    queue_workflow_task_timeout                          = 600
-    sync_granule_task_timeout                            = 900
-    update_granules_cmr_metadata_file_links_task_timeout = 600
-  }
+  lambda_timeouts = local.lambda_timeouts
 
   throttled_queues = [
     {

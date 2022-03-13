@@ -52,7 +52,7 @@ echo "4. Follow the logs for ingestion to confirm CMR validation of the metadata
 echo "   (NOTE: either kill the previous command with Ctrl-C, or open another"
 echo "   terminal window and start another Docker container by running 'make bash'):"
 echo
-echo "     aws logs tail --follow /aws/lambda/${CUMULUS_PREFIX}-CMRValidate"
+echo "     aws logs tail --follow /aws/lambda/${CUMULUS_PREFIX}-PostToCmr"
 echo
 echo "If you see no output from either of the 'aws logs' commands after a few"
 echo "minutes, then you may need to log into the AWS Management Console and check"

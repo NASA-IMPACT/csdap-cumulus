@@ -2,7 +2,8 @@
 import test from 'ava';
 import dayjs from 'dayjs';
 import * as E from 'fp-ts/Either';
-import * as PR from 'io-ts/PathReporter';
+
+import * as PR from './PathReporter';
 
 import * as $t from '.';
 
@@ -11,7 +12,7 @@ test('should fail to decode undefined', (t) => {
 
   t.deepEqual(
     E.mapLeft(PR.failure)(result),
-    E.left(['Invalid value undefined supplied to : DurationFromISOString'])
+    E.left(['Invalid value for type DurationFromISOString: undefined'])
   );
 });
 
@@ -20,7 +21,7 @@ test('should fail decode a number', (t) => {
 
   t.deepEqual(
     E.mapLeft(PR.failure)(result),
-    E.left(['Invalid value 0 supplied to : DurationFromISOString'])
+    E.left(['Invalid value for type DurationFromISOString: 0'])
   );
 });
 
@@ -29,7 +30,7 @@ test('should fail to decode an empty string', (t) => {
 
   t.deepEqual(
     E.mapLeft(PR.failure)(result),
-    E.left(['Invalid value "" supplied to : DurationFromISOString'])
+    E.left(['Invalid value for type DurationFromISOString: ""'])
   );
 });
 
@@ -38,7 +39,7 @@ test('should fail to decode an invalid ISO Duration string', (t) => {
 
   t.deepEqual(
     E.mapLeft(PR.failure)(result),
-    E.left(['Invalid value "P1m" supplied to : DurationFromISOString'])
+    E.left(['Invalid value for type DurationFromISOString: "P1m"'])
   );
 });
 

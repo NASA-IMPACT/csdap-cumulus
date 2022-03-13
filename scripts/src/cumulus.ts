@@ -18,7 +18,10 @@ import {
 import * as Cmd from 'cmd-ts';
 import * as Result from 'cmd-ts/dist/cjs/Result';
 import { Exit } from 'cmd-ts/dist/cjs/effects';
+import dateformat from 'dateformat';
 import fp from 'lodash/fp';
+
+import { asyncUnfold } from './unfold';
 
 type RequestOptions = {
   readonly prefix: string;
@@ -44,14 +47,19 @@ type Client = {
   readonly put: RequestFunction;
 };
 
-const clientErrorStatusCodes = Array.from({ length: 100 }, (_, k) => 400 + k);
-
+const NO_RETRY_STATUS_CODES = [
+  200,
+  201,
+  202,
+  204,
+  ...Array.from({ length: 100 }, (_, k) => 400 + k), // 400-499
+];
 const VAR_PREFIX = 'CUMULUS_PREFIX';
 
 const CumulusPrefix: Cmd.Type<string, string> = {
   ...Cmd.string,
 
-  description: `Cumulus stack prefix (default: env var ${VAR_PREFIX})`,
+  description: `Cumulus stack prefix [default: environment variable ${VAR_PREFIX}]`,
   defaultValue: () => {
     const prefix = process.env[VAR_PREFIX];
 
@@ -59,13 +67,13 @@ const CumulusPrefix: Cmd.Type<string, string> = {
 
     // eslint-disable-next-line functional/no-throw-statement
     throw new Error(
-      `Either supply the --prefix option or set the ${VAR_PREFIX} environment variable.`
+      `either supply the --prefix option or set the ${VAR_PREFIX} environment variable`
     );
   },
 };
 
 const JSONData: Cmd.Type<string, string> = {
-  description: 'Literal JSON value or path to JSON file',
+  description: 'literal JSON value or path to JSON file',
   displayName: 'JSON',
 
   async from(dataOrPath) {
@@ -84,13 +92,83 @@ const JSONData: Cmd.Type<string, string> = {
   },
 };
 
+const QueryStringParameter: Cmd.Type<string, readonly [string, string]> = {
+  description: 'query string parameter',
+  displayName: 'NAME=VALUE',
+
+  async from(param) {
+    const [name, value, ...rest] = param.split('=');
+
+    return value === undefined || rest.length
+      ? Promise.reject(new Error('Option must be of the form NAME=VALUE'))
+      : [name, value];
+  },
+};
+
 const globalArgs = {
   prefix: Cmd.option({
     type: CumulusPrefix,
     long: 'prefix',
-    short: 'p',
   }),
 };
+
+const listArgs = {
+  ...globalArgs,
+  all: Cmd.flag({
+    long: 'all',
+    description: 'list ALL records, regardless of --limit',
+  }),
+  limit: Cmd.option({
+    type: Cmd.number,
+    long: 'limit',
+    description: 'number of records to return',
+    defaultValue: () => 10,
+    defaultValueIsSerializable: true,
+  }),
+  page: Cmd.option({
+    type: Cmd.number,
+    long: 'page',
+    description: 'page number (1-based)',
+    defaultValue: () => 1,
+    defaultValueIsSerializable: true,
+  }),
+  sort_by: Cmd.option({
+    type: Cmd.string,
+    long: 'sort-by',
+    description: 'name of field to sort records by',
+    defaultValue: () => 'timestamp',
+    defaultValueIsSerializable: true,
+  }),
+  order: Cmd.option({
+    type: Cmd.oneOf(['asc', 'desc']),
+    long: 'order',
+    description: 'name of field to sort records by',
+    defaultValue: (): 'asc' | 'desc' => 'asc',
+    defaultValueIsSerializable: true,
+  }),
+  params: Cmd.multioption({
+    type: Cmd.array(QueryStringParameter),
+    long: 'param',
+    short: '?',
+    description: 'query string parameter (may be specified multiple times)',
+  }),
+  fields: Cmd.option({
+    type: Cmd.optional(Cmd.string),
+    long: 'fields',
+    description:
+      'comma-separated list of field names to return in each record' +
+      ' (if not specified, all fields are returned)',
+  }),
+};
+
+function responseErrorMessage(response: unknown) {
+  const reasons = fp.map(
+    fp.prop('reason'),
+    fp.pathOr([], ['meta', 'body', 'error', 'root_cause'], response)
+  );
+
+  return reasons.join(' | ') || JSON.stringify(response);
+}
 
 function mkClient(invoke?: InvokeApiFunction) {
   const mkMethod =
@@ -132,17 +210,41 @@ function asyncOperationsCmd(client: Client) {
   return Cmd.subcommands({
     name: 'async-operations',
     cmds: {
+      get: getAsyncOperationCmd(client),
       list: listAsyncOperationsCmd(client),
     },
+  });
+}
+
+function getAsyncOperationCmd(client: Client) {
+  return Cmd.command({
+    name: 'get',
+    description: 'get information about an async operation',
+    args: {
+      ...globalArgs,
+      id: Cmd.option({
+        type: Cmd.string,
+        long: 'id',
+        description: 'ID of an async operation',
+      }),
+    },
+    handler: ({ prefix, id }) => client.get(`/asyncOperations/${id}`)({ prefix }),
   });
 }
 
 function listAsyncOperationsCmd(client: Client) {
   return Cmd.command({
     name: 'list',
-    description: 'Lists async operations in the Cumulus system',
-    args: { ...globalArgs },
-    handler: fp.pipe(client.get('/asyncOperations'), andThen(fp.prop('results'))),
+    description: 'lists async operations',
+    args: {
+      ...globalArgs,
+      params: listArgs.params,
+    },
+    handler: fp.pipe(
+      ({ params, ...rest }) => ({ ...rest, params: Object.fromEntries(params) }),
+      client.get('/asyncOperations'),
+      andThen(fp.prop('results'))
+    ),
   });
 }
 
@@ -166,7 +268,7 @@ function collectionsCmd(client: Client) {
 function addCollectionCmd(client: Client) {
   return Cmd.command({
     name: 'add',
-    description: 'Adds a collection',
+    description: 'adds a collection',
     args: {
       ...globalArgs,
       data: Cmd.option({
@@ -187,20 +289,20 @@ function addCollection(client: Client) {
 function deleteCollectionCmd(client: Client) {
   return Cmd.command({
     name: 'delete',
-    description: 'Deletes a collection',
+    description: 'deletes a collection',
     args: {
       ...globalArgs,
       name: Cmd.option({
         type: Cmd.string,
         long: 'name',
         short: 'n',
-        description: 'Name of the collection to delete',
+        description: 'name of the collection to delete',
       }),
       version: Cmd.option({
         type: Cmd.string,
         long: 'version',
         short: 'v',
-        description: 'Version of the collection to delete',
+        description: 'version of the collection to delete',
       }),
     },
     handler: ({ prefix, name, version }) =>
@@ -211,14 +313,14 @@ function deleteCollectionCmd(client: Client) {
 function replaceCollectionCmd(client: Client) {
   return Cmd.command({
     name: 'replace',
-    description: 'Replaces a collection',
+    description: 'replaces a collection',
     args: {
       ...globalArgs,
       data: Cmd.option({
         type: JSONData,
         long: 'data',
         short: 'd',
-        description: 'Path to JSON file, or JSON string of collection definition',
+        description: 'path to JSON file, or JSON string of collection definition',
       }),
     },
     handler: replaceCollection(client),
@@ -237,7 +339,7 @@ function replaceCollection(client: Client) {
 function listCollectionsCmd(client: Client) {
   return Cmd.command({
     name: 'list',
-    description: 'Lists collections',
+    description: 'lists collections',
     args: {
       ...globalArgs,
       // TODO: Support listing fields to include
@@ -250,14 +352,14 @@ function listCollectionsCmd(client: Client) {
 function upsertCollectionCmd(client: Client) {
   return Cmd.command({
     name: 'upsert',
-    description: 'Updates (replaces) or inserts (adds) a collection, if not found',
+    description: 'updates (replaces) or inserts (adds) a collection, if not found',
     args: {
       ...globalArgs,
       data: Cmd.option({
         type: JSONData,
         long: 'data',
         short: 'd',
-        description: 'Path to JSON file, or JSON string of collection definition',
+        description: 'path to JSON file, or JSON string of collection definition',
       }),
     },
     handler: upsertCollection(client),
@@ -290,29 +392,28 @@ function elasticsearchCmd(client: Client) {
 function elasticsearchChangeIndexCmd(client: Client) {
   return Cmd.command({
     name: 'current-index',
-    description: 'Changes the current Elasticsearch index',
+    description: 'changes the current Elasticsearch index',
     args: {
       ...globalArgs,
       currentIndex: Cmd.option({
         type: Cmd.string,
         long: 'current-index',
-        description: 'Index to change the alias from',
+        description: 'index to change the alias from',
       }),
       newIndex: Cmd.option({
         type: Cmd.string,
         long: 'new-index',
-        description: 'Index to change the alias to',
+        description: 'index to change the alias to',
       }),
       aliasName: Cmd.option({
         type: Cmd.optional(Cmd.string),
         long: 'alias-name',
-        description:
-          'Alias to use for newIndex.  Will be the default index if not provided.',
+        description: 'alias to use for --new-index (default index if not provided)',
       }),
       deleteSource: Cmd.flag({
         long: 'delete-source',
         defaultValue: () => false,
-        description: 'Delete the index specified for currentIndex',
+        description: 'delete the index specified for --current-index',
       }),
     },
     handler: ({ prefix, ...data }) =>
@@ -326,7 +427,7 @@ function elasticsearchCurrentIndexCmd(client: Client) {
   return Cmd.command({
     name: 'current-index',
     description:
-      'Shows the current aliased index being' +
+      'shows the current aliased index being' +
       ' used by the Cumulus Elasticsearch instance',
     args: { ...globalArgs },
     handler: client.get('/elasticsearch/current-index'),
@@ -337,14 +438,16 @@ function elasticsearchIndexFromDatabaseCmd(client: Client) {
   return Cmd.command({
     name: 'index-from-database',
     description:
-      'Reindexs Elasticsearch from the database.' +
-      '  NOTE: After completion, you must run change-index to use the new index.',
+      're-indexes Elasticsearch from the database' +
+      ' (NOTE: after completion, you must run change-index to use the new index)',
     args: {
       ...globalArgs,
       indexName: Cmd.option({
         type: Cmd.optional(Cmd.string),
         long: 'index',
-        description: 'Name of an empty index. Defaults to `cumulus-YYYY-MM-DD`.',
+        description: 'name of an empty index',
+        defaultValue: () => `cumulus-${dateformat(Date.now(), 'yyyy-mm-dd')}`,
+        defaultValueIsSerializable: true,
       }),
     },
     handler: ({ prefix, ...data }) =>
@@ -357,7 +460,7 @@ function elasticsearchIndexFromDatabaseCmd(client: Client) {
 function elasticsearchIndicesStatusCmd(client: Client) {
   return Cmd.command({
     name: 'indices-status',
-    description: 'Displays information about the Elasticsearch indices',
+    description: 'displays information about the Elasticsearch indices',
     args: { ...globalArgs },
     handler: fp.pipe(
       client.get('/elasticsearch/indices-status'),
@@ -374,7 +477,136 @@ function granulesCmd(client: Client) {
   return Cmd.subcommands({
     name: 'granules',
     cmds: {
+      'bulk-delete': granulesBulkDeleteCmd(client),
       'bulk-reingest': granulesBulkReingestCmd(client),
+      count: granulesCountCmd(client),
+      get: granulesGetCmd(client),
+      list: granulesListCmd(client),
+    },
+  });
+}
+
+function granulesGetCmd(client: Client) {
+  return Cmd.command({
+    name: 'get',
+    description: 'get details about a granule',
+    args: {
+      ...globalArgs,
+      id: Cmd.option({
+        type: Cmd.string,
+        long: 'id',
+        description: 'ID of the granule to fetch',
+      }),
+    },
+    handler: ({ prefix, id }) => client.get(`/granules/${id}`)({ prefix }),
+  });
+}
+
+function granulesCountCmd(client: Client) {
+  return Cmd.command({
+    name: 'list',
+    description: 'lists granules',
+    args: {
+      ...globalArgs,
+      // TODO support listArgs
+    },
+    handler: fp.pipe(client.get('/granules'), andThen(fp.path('meta.count'))),
+  });
+}
+
+function listGranules(client: Client) {
+  return async ({
+    prefix,
+    all = false,
+    limit = 10,
+    page = 1,
+    params = [],
+    ...listParams
+  }: {
+    readonly prefix: string;
+    readonly all?: boolean;
+    readonly limit?: number;
+    readonly page?: number;
+    readonly params?: readonly (readonly [string, string])[];
+    readonly [key: string]: unknown;
+  }) => {
+    async function getPage(page: number) {
+      const response = await client.get('/granules')({
+        prefix,
+        params: {
+          limit: all ? '100' : `${limit}`,
+          page: `${page}`,
+          ...Object.fromEntries(params),
+          ...listParams,
+        },
+      });
+      const results = fp.prop('results', response);
+
+      return Array.isArray(results)
+        ? results.length > 0 && { output: results, input: page + 1 }
+        : Promise.reject(new Error(responseErrorMessage(response)));
+    }
+
+    const granules = [];
+
+    // eslint-disable-next-line functional/no-loop-statement
+    for await (const items of asyncUnfold(getPage)(page)) {
+      // eslint-disable-next-line functional/immutable-data
+      granules.push(...items);
+      if (!all && granules.length >= limit) break;
+    }
+
+    return all || granules.length <= limit ? granules : granules.slice(0, limit);
+  };
+}
+
+function granulesListCmd(client: Client) {
+  return Cmd.command({
+    name: 'list',
+    description: 'lists granules',
+    args: listArgs,
+    handler: listGranules(client),
+  });
+}
+
+function granulesBulkDeleteCmd(client: Client) {
+  return Cmd.command({
+    name: 'bulk-reingest',
+    description: 'deletes the specified granules',
+    args: {
+      ...globalArgs,
+      dryRun: Cmd.flag({
+        long: 'dry-run',
+        description:
+          'perform a dry run, counting all granules that would otherwise be deleted',
+      }),
+      all: listArgs.all,
+      limit: listArgs.limit,
+      params: listArgs.params,
+    },
+    handler: async ({ prefix, dryRun, all, limit, params }) => {
+      async function deleteBatch(start: number, end = start + 2000) {
+        const idsSlice = ids.slice(start, end);
+        const bulkDeleteParams = { prefix, data: { ids: idsSlice } };
+        const bulkDelete = client.post('/granules/bulkDelete');
+
+        return (
+          start < ids.length && {
+            output: await bulkDelete(bulkDeleteParams),
+            input: end,
+          }
+        );
+      }
+
+      const granules = await listGranules(client)({ prefix, all, limit, params });
+      const ids = fp.map(fp.prop('granuleId'), granules);
+
+      if (dryRun) return `[dryrun] Would delete ${granules.length} granules`;
+
+      // eslint-disable-next-line functional/no-loop-statement
+      for await (const response of asyncUnfold(deleteBatch)(0)) console.log(response);
+
+      return `Bulk deleting ${granules.length} granules`;
     },
   });
 }
@@ -382,28 +614,28 @@ function granulesCmd(client: Client) {
 function granulesBulkReingestCmd(client: Client) {
   return Cmd.command({
     name: 'bulk-reingest',
-    description: 'Reingests the specified granules',
+    description: 're-ingests the specified granules',
     args: {
       ...globalArgs,
       ids: Cmd.multioption({
         type: Cmd.array(Cmd.string),
         long: 'id',
         description:
-          'List of IDs to process.' +
-          '  Required if there is no Elasticsearch query provided.',
+          'list of IDs to process' +
+          ' (required if there is no Elasticsearch query provided)',
       }),
       query: Cmd.option({
         type: Cmd.optional(Cmd.string),
         long: 'query',
         short: 'q',
         description:
-          'Query to Elasticsearch to determine which Granules to be reingested.' +
-          '  Required if no IDs are given.',
+          'query to Elasticsearch to determine which Granules to be re-ingested' +
+          ' (required if no IDs are given)',
       }),
       index: Cmd.option({
         type: Cmd.optional(Cmd.string),
         long: 'index',
-        description: 'Elasticsearch index to search with the given query.',
+        description: 'Elasticsearch index to search with the given query',
       }),
     },
     handler: ({ prefix, ...params }) =>
@@ -444,14 +676,14 @@ function providersCmd(client: Client) {
 function addProviderCmd(client: Client) {
   return Cmd.command({
     name: 'add',
-    description: 'Adds a provider',
+    description: 'adds a provider',
     args: {
       ...globalArgs,
       data: Cmd.option({
         type: JSONData,
         long: 'data',
         short: 'd',
-        description: 'Path to JSON file, or JSON string of provider definition',
+        description: 'path to JSON file, or JSON string of provider definition',
       }),
     },
     handler: addProvider(client),
@@ -465,14 +697,14 @@ function addProvider(client: Client) {
 function replaceProviderCmd(client: Client) {
   return Cmd.command({
     name: 'replace',
-    description: 'Replaces a provider',
+    description: 'replaces a provider',
     args: {
       ...globalArgs,
       data: Cmd.option({
         type: JSONData,
         long: 'data',
         short: 'd',
-        description: 'Path to JSON file, or JSON string of provider definition',
+        description: 'path to JSON file, or JSON string of provider definition',
       }),
     },
     handler: replaceProvider(client),
@@ -492,7 +724,7 @@ function replaceProvider(client: Client) {
 function deleteProviderCmd(client: Client) {
   return Cmd.command({
     name: 'delete',
-    description: 'Deletes a provider',
+    description: 'deletes a provider',
     args: {
       ...globalArgs,
       id: Cmd.option({
@@ -508,14 +740,14 @@ function deleteProviderCmd(client: Client) {
 function upsertProviderCmd(client: Client) {
   return Cmd.command({
     name: 'upsert',
-    description: 'Updates (replaces) or inserts (adds) a provider, if not found',
+    description: 'updates (replaces) or inserts (adds) a provider, if not found',
     args: {
       ...globalArgs,
       data: Cmd.option({
         type: JSONData,
         long: 'data',
         short: 'd',
-        description: 'Path to JSON file, or JSON string of provider definition',
+        description: 'path to JSON file, or JSON string of provider definition',
       }),
     },
     handler: upsertProvider(client),
@@ -532,7 +764,7 @@ function upsertProvider(client: Client) {
 function listProvidersCmd(client: Client) {
   return Cmd.command({
     name: 'list',
-    description: 'Lists providers',
+    description: 'lists providers',
     args: {
       ...globalArgs,
       // TODO: Support listing fields to include
@@ -575,14 +807,14 @@ function rulesCmd(client: Client) {
 function addRuleCmd(client: Client) {
   return Cmd.command({
     name: 'add',
-    description: 'Adds a rule',
+    description: 'adds a rule',
     args: {
       ...globalArgs,
       data: Cmd.option({
         type: JSONData,
         long: 'data',
         short: 'd',
-        description: 'Path to JSON file, or JSON string of rule definition',
+        description: 'path to JSON file, or JSON string of rule definition',
       }),
     },
     handler: addRule(client),
@@ -597,14 +829,14 @@ function addRule(client: Client) {
 function deleteRuleCmd(client: Client) {
   return Cmd.command({
     name: 'add',
-    description: 'Deletes the specified rule',
+    description: 'deletes the specified rule',
     args: {
       ...globalArgs,
       name: Cmd.option({
         type: Cmd.string,
         long: 'name',
         short: 'n',
-        description: 'Name of the rule to delete',
+        description: 'name of the rule to delete',
       }),
     },
     handler: ({ prefix, name }) => client.delete(`/rules/${name}`)({ prefix }),
@@ -614,14 +846,14 @@ function deleteRuleCmd(client: Client) {
 function setRuleStateCmd(client: Client, state: string) {
   return Cmd.command({
     name: 'add',
-    description: `Sets a rule's state to '${state}'`,
+    description: `sets a rule's state to '${state}'`,
     args: {
       ...globalArgs,
       name: Cmd.option({
         type: Cmd.string,
         long: 'name',
         short: 'n',
-        description: 'Name of the rule to change',
+        description: 'name of the rule to change',
       }),
     },
     handler: setRuleState(client, state),
@@ -665,14 +897,14 @@ function setRuleState(client: Client, state: string) {
 function replaceRuleCmd(client: Client) {
   return Cmd.command({
     name: 'replace',
-    description: 'Replaces a rule',
+    description: 'replaces a rule',
     args: {
       ...globalArgs,
       data: Cmd.option({
         type: JSONData,
         long: 'data',
         short: 'd',
-        description: 'Path to JSON file, or JSON string of rule definition',
+        description: 'path to JSON file, or JSON string of rule definition',
       }),
     },
     handler: replaceRule(client),
@@ -692,14 +924,14 @@ function replaceRule(client: Client) {
 function upsertRuleCmd(client: Client) {
   return Cmd.command({
     name: 'upsert',
-    description: 'Updates (replaces) or inserts (adds) a rule, if not found',
+    description: 'updates (replaces) or inserts (adds) a rule, if not found',
     args: {
       ...globalArgs,
       data: Cmd.option({
         type: JSONData,
         long: 'data',
         short: 'd',
-        description: 'Path to JSON file, or JSON string of rule definition',
+        description: 'path to JSON file, or JSON string of rule definition',
       }),
     },
     handler: upsertRule(client),
@@ -716,14 +948,14 @@ function upsertRule(client: Client) {
 function runRuleCmd(client: Client) {
   return Cmd.command({
     name: 'add',
-    description: "Runs a 'onetime' rule",
+    description: "runs a 'onetime' rule",
     args: {
       ...globalArgs,
       name: Cmd.option({
         type: Cmd.string,
         long: 'name',
         short: 'n',
-        description: "Name of the 'onetime' rule to run",
+        description: "name of the 'onetime' rule to run",
       }),
     },
     handler: ({ prefix, name }) =>
@@ -734,7 +966,7 @@ function runRuleCmd(client: Client) {
 function listRulesCmd(client: Client) {
   return Cmd.command({
     name: 'list',
-    description: 'Lists previously added rules',
+    description: 'lists rules',
     args: {
       ...globalArgs,
       // TODO: Support listing fields to include
@@ -787,15 +1019,16 @@ function request({
     headers: { 'Content-Type': 'application/json' },
     body: fp.isUndefined(data) || fp.isString(data) ? data : JSON.stringify(data),
   };
-
-  return invoke({
+  const invokeParams = {
     prefix,
     payload,
-    expectedStatusCodes: [200, ...clientErrorStatusCodes],
+    expectedStatusCodes: NO_RETRY_STATUS_CODES,
     pRetryOptions: {
       onFailedAttempt: fp.pipe(fp.prop('message'), console.error),
     },
-  }).then(
+  };
+
+  return invoke(invokeParams).then(
     fp.pipe(
       fp.propOr('{}')('body'),
       fp.wrap(JSON.parse),
