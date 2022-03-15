@@ -5,8 +5,8 @@
   "private": true,
   "scripts": {
     "build": "tsc -b",
-    "//cumulus": "yarn build && cd .. && env-cmd --file ${DOTENV:-.env} '--' node scripts/build/cumulus.js",
-    "cumulus": "yarn build && cd .. && node scripts/build/cumulus.js"
+    "cumulus": "yarn build && cd .. && node scripts/build/cumulus.js",
+    "terraform-doctor": "yarn build && cd .. && node scripts/build/terraform-doctor.js"
   },
   "devDependencies": {
     "env-cmd": "^10.1.0",

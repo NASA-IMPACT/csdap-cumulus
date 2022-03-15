@@ -15,10 +15,11 @@
     "lambda-archive-dir": "build/main"
   },
   "scripts": {
-    "clean": "rm -rf build 2>/dev/null || :",
+    "clean": "rm -rf build/main/node_modules/* build/main/node_modules/.bin/ build/main/lib/ build/main/tsconfig.tsbuildinfo",
     "cumulus": "yarn --cwd scripts cumulus",
+    "terraform-doctor": "yarn --cwd scripts terraform-doctor",
     "build": "tsc -p tsconfig.json",
-    "build:scripts": "yarn workspace csdap-cumulus-scripts build",
+    "build:scripts": "yarn --cwd scripts build",
     "fix": "run-s fix:*",
     "fix:prettier": "prettier \"src/**/*.ts\" --write",
     "fix:lint": "eslint src --ext .ts --fix",
@@ -44,7 +45,7 @@
     "reset-hard": "git clean -dfx && git reset --hard && yarn",
     "postinstall": "yarn --cwd scripts install",
     "prepare-release": "run-s reset-hard test cov:check doc:html version doc:publish",
-    "lambda-archive-exploded": "yarn -s clean && yarn -s test && yarn install --production --modules-folder ${PWD}/${npm_package_config_lambda_archive_dir}/node_modules",
+    "lambda-archive-exploded": "yarn -s clean && yarn -s test && yarn install --production --no-bin-links --modules-folder ${PWD}/${npm_package_config_lambda_archive_dir}/node_modules",
     "tf:lambda-archive-exploded": "yarn lambda-archive-exploded >&2 && echo { '\"'dir'\"': '\"'${PWD}/${npm_package_config_lambda_archive_dir}'\"' }"
   },
   "engines": {

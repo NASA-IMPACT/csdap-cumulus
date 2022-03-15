@@ -1,9 +1,12 @@
 {
   "extends": "@tsconfig/node14/tsconfig.json",
   "compilerOptions": {
-    "incremental": true,
+    "incremental": false,
     "outDir": "build/main",
-    "rootDirs": [ "src", "scripts/src" ],
+    "rootDirs": [
+      "src",
+      "scripts/src"
+    ],
     "moduleResolution": "node",
     "declaration": true,
     "declarationMap": true,
