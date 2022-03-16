@@ -2,47 +2,48 @@
 # yarn lockfile v1
 
 
-"@cumulus/api-client@10.0.1":
-  version "10.0.1"
-  resolved "https://registry.yarnpkg.com/@cumulus/api-client/-/api-client-10.0.1.tgz#91505e4544134f794e154665aecbd689bcc600f4"
-  integrity sha512-Lt37q9hjFSX9YT1mN8tMZKGDkSyfjtdnP4DehpNbAJRrjJzQzOsArrO0nQFxT/YwrM03ivG58rSLYH74aJy7oQ==
+"@cumulus/api-client@10.1.2":
+  version "10.1.2"
+  resolved "https://registry.yarnpkg.com/@cumulus/api-client/-/api-client-10.1.2.tgz#c62764d6a68d2822da6fb716a8d5f405ce130876"
+  integrity sha512-2zH6GqGZEMh7MT1Gz2kh/FdqgbiKzcORl2/ywhTz/v7XuaAbDk+UiUwoMQcbA7tTS8Y/F4LyGrKGL7yH4yBuHg==
   dependencies:
-    "@cumulus/aws-client" "10.0.1"
-    "@cumulus/logger" "10.0.1"
+    "@cumulus/aws-client" "10.1.2"
+    "@cumulus/logger" "10.1.2"
     p-retry "^2.0.0"
 
-"@cumulus/aws-client@10.0.1":
-  version "10.0.1"
-  resolved "https://registry.yarnpkg.com/@cumulus/aws-client/-/aws-client-10.0.1.tgz#57719da26f0e1199fa2fe9c336e14b4dcf33626b"
-  integrity sha512-+3aW8Q2zb8qGMhe19/aT/vFMZK2imkpSgc+QJfT9SLceeAT8tx+O+tJpyqMO1cXRwqDxj69GeYsmXgQyjuqSXQ==
+"@cumulus/aws-client@10.1.2":
+  version "10.1.2"
+  resolved "https://registry.yarnpkg.com/@cumulus/aws-client/-/aws-client-10.1.2.tgz#e85375118f8bcbe699a8b398fd7f7e2074386b25"
+  integrity sha512-dT8sohSdAmUyxOOFMgSe3qkjC0YkhDfNAE2jll98tVv1yStyRuEI3gbvukSbGnsGpJWg1aKPqimvOahrr0Bg5A==
   dependencies:
-    "@cumulus/checksum" "10.0.1"
-    "@cumulus/errors" "10.0.1"
-    "@cumulus/logger" "10.0.1"
+    "@cumulus/checksum" "10.1.2"
+    "@cumulus/errors" "10.1.2"
+    "@cumulus/logger" "10.1.2"
     aws-sdk "^2.814.0"
     jsonpath-plus "^1.1.0"
-    lodash "~4.17.20"
+    lodash "~4.17.21"
     p-map "^1.2.0"
     p-retry "^4.2.0"
-    p-wait-for "^3.1.0"
+    p-timeout "^4.1.0"
+    p-wait-for "^3.2.0"
     pump "^3.0.0"
 
-"@cumulus/checksum@10.0.1":
-  version "10.0.1"
-  resolved "https://registry.yarnpkg.com/@cumulus/checksum/-/checksum-10.0.1.tgz#be989d42cd26fb49f0b1267d89c29bed80b014a4"
-  integrity sha512-q9FZTpPkvNhzkdK6Vet6hTTjx5HGqWSWcABOxU9Cfd0grt2ntUBw5y6Cx5piKbUa6T+guh3RCWNOahjvijV/0g==
+"@cumulus/checksum@10.1.2":
+  version "10.1.2"
+  resolved "https://registry.yarnpkg.com/@cumulus/checksum/-/checksum-10.1.2.tgz#cadeba829eb11fab1fb1addf3c475cfd9414828a"
+  integrity sha512-NtwDcVVLBF6ZFNpPPfRNwonHyCZJk0V4pBTPAIy2sSXtKonrnTNO35TRz/Mcd+Rls/lIXIS2TiO83eFXCEV06Q==
   dependencies:
     cksum "^1.3.0"
 
-"@cumulus/errors@10.0.1":
-  version "10.0.1"
-  resolved "https://registry.yarnpkg.com/@cumulus/errors/-/errors-10.0.1.tgz#f9829d56e883908aea0eb9f68cca4a0443d43bc1"
-  integrity sha512-DCkSlB3caGnb66WBMw2HSM6mhv5EjKKiV94O5kLAPStu4hALi1ZB4MuXDQcjG1Gj+5e4vVJpD5XgyB81cNSreQ==
+"@cumulus/errors@10.1.2":
+  version "10.1.2"
+  resolved "https://registry.yarnpkg.com/@cumulus/errors/-/errors-10.1.2.tgz#1d2b1f8c397a6dc9c39bec6466826c78478265d5"
+  integrity sha512-CWFuJDotKpVegtdsOxtW3NmwvBF0T/LzeJzsBJUCGkzO4Gb6CNSPFmYRI+zzQ3t4TghW46R8hy9PyzlFuHy/ZQ==
 
-"@cumulus/logger@10.0.1":
-  version "10.0.1"
-  resolved "https://registry.yarnpkg.com/@cumulus/logger/-/logger-10.0.1.tgz#63df882a9200cccdfcbb1f63f6d5dc5feaba4a64"
-  integrity sha512-eNAH9qXmikfwmAaWyYutA7mSxyY+sSOzJJVzMxoqlAFMBvhfTvn3oKzc0L6JtiPV9pAcYQsVr4k11XkWCeUbAg==
+"@cumulus/logger@10.1.2":
+  version "10.1.2"
+  resolved "https://registry.yarnpkg.com/@cumulus/logger/-/logger-10.1.2.tgz#e64bd5103f768f4cca69f447837ba3dc8c1bd566"
+  integrity sha512-FZj/HO6LbGlqxuH7Um0y3mTzrsAo5WOSb+0lXol5awbzXfMYmlivB+8ldH4Pcx7pxJ0WEjyhCfhv1vxJQdd/IQ==
   dependencies:
     lodash.iserror "^3.1.1"
 
@@ -213,7 +214,7 @@ lodash.iserror@^3.1.1:
   resolved "https://registry.yarnpkg.com/lodash.iserror/-/lodash.iserror-3.1.1.tgz#297b9a05fab6714bc2444d7cc19d1d7c44b5ecec"
   integrity sha1-KXuaBfq2cUvCRE18wZ0dfES17Ow=
 
-lodash@^4.17.21, lodash@~4.17.20:
+lodash@^4.17.21, lodash@~4.17.21:
   version "4.17.21"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
@@ -262,7 +263,12 @@ p-timeout@^3.0.0:
   dependencies:
     p-finally "^1.0.0"
 
-p-wait-for@^3.1.0:
+p-timeout@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/p-timeout/-/p-timeout-4.1.0.tgz#788253c0452ab0ffecf18a62dff94ff1bd09ca0a"
+  integrity sha512-+/wmHtzJuWii1sXn3HCuH/FTwGhrp4tmJTxSKJbfS+vkipci6osxXM5mY0jUiRzWKMTgUT8l7HFbeSwZAynqHw==
+
+p-wait-for@^3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/p-wait-for/-/p-wait-for-3.2.0.tgz#640429bcabf3b0dd9f492c31539c5718cb6a3f1f"
   integrity sha512-wpgERjNkLrBiFmkMEjuZJEWKKDrNfHCKA1OhyN1wg1FrLkULbviEy6py1AyJUgZ72YWFbZ38FIpnqvVqAlDUwA==
