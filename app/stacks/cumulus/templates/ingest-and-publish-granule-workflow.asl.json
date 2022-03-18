@@ -152,7 +152,7 @@
               },
               "Type": "Task",
               "Resource": "${update_granules_cmr_metadata_file_links_task_arn}",
-              "Next": "ValidateOrPublishMetadata",
+              "Next": "PostToCmr",
               "Retry": [
                 {
                   "ErrorEquals": [
@@ -166,7 +166,7 @@
                 }
               ]
             },
-            "ValidateOrPublishMetadata": {
+            "PostToCmr": {
               "Parameters": {
                 "cma": {
                   "event.$": "$",
@@ -185,7 +185,7 @@
                 }
               },
               "Type": "Task",
-              "Resource": "${validate_or_publish_task_arn}",
+              "Resource": "${post_to_cmr_task_arn}",
               "Retry": [
                 {
                   "ErrorEquals": [

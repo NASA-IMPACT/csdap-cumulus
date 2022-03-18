@@ -3,14 +3,15 @@ import test, { ExecutionContext } from 'ava';
 import * as E from 'fp-ts/Either';
 import * as O from 'fp-ts/Option';
 import { pipe } from 'fp-ts/function';
-import * as PR from 'io-ts/PathReporter';
 
 import dayjs from './dayjs';
 import {
   advanceStartDate,
   DiscoverGranulesProps,
   formatProviderPath,
+  prefixGranuleIds,
 } from './discovery';
+import * as PR from './io/PathReporter';
 import { PropsHandler } from './lambda';
 
 const shouldDecode = (input: unknown, expected: unknown) => {
@@ -35,12 +36,12 @@ const shouldFailToDecode = (input: unknown, paths: readonly (readonly string[])[
       E.match(
         (errors) => {
           const messages = PR.failure(errors);
-          // Match all occurrences of '}/NAME' (excluding '}' with lookbehind)
+          // Match all occurrences of '$.NAME' (excluding '$' with lookbehind)
           const actualPaths = messages.map((message) =>
-            (message.match(/(?<=})[/][^:]+/g) ?? []).join('')
+            (message.match(/(?<=\$)[^\s]*/g) ?? []).join('')
           );
           const expectedPaths = paths.map((path) =>
-            path.map((segment) => `/${segment}`).join('')
+            path.map((segment) => `.${segment}`).join('')
           );
 
           t.deepEqual(actualPaths, expectedPaths, messages.join('\n'));
@@ -72,6 +73,32 @@ const shouldOutput = (
   impl.title = () => `should successfully compute ${f.name}(${JSON.stringify(input)})`;
   return impl;
 };
+
+//------------------------------------------------------------------------------
+
+test('prefixGranuleIds should prefix granule IDs with collection name', (t) => {
+  const collectionName = 'PSScene3Band';
+  const payload = {
+    granules: [
+      {
+        granuleId: 'abc',
+      },
+      {
+        granuleId: '123',
+      },
+    ],
+  };
+  const expectedPayload = {
+    granules: payload.granules.map(({ granuleId }) => ({
+      granuleId: `${collectionName}-${granuleId}`,
+    })),
+  };
+  const actualPayload = prefixGranuleIds(collectionName)(payload);
+
+  t.deepEqual(actualPayload, expectedPayload);
+  t.is(actualPayload.granules, payload.granules);
+  payload.granules.forEach((granule, i) => t.is(actualPayload.granules[i], granule));
+});
 
 //------------------------------------------------------------------------------
 // Expected decoding failures

@@ -15,11 +15,13 @@
     "lambda-archive-dir": "build/main"
   },
   "scripts": {
-    "clean": "rm -rf build/main/node_modules/* build/main/node_modules/.bin/ build/main/lib/ build/main/tsconfig.tsbuildinfo",
-    "cumulus": "yarn --cwd scripts cumulus",
-    "terraform-doctor": "yarn --cwd scripts terraform-doctor",
     "build": "tsc -p tsconfig.json",
     "build:scripts": "yarn --cwd scripts build",
+    "clean:build": "rm -rf build/*",
+    "clean:dependencies": "rm -rf node_modules/* node_modules/.bin node_modules/.cache node_modules/.yarn-integrity",
+    "clean:all": "run-s clean:build clean:dependencies",
+    "cumulus": "yarn --cwd scripts cumulus",
+    "terraform-doctor": "yarn --cwd scripts terraform-doctor",
     "fix": "run-s fix:*",
     "fix:prettier": "prettier \"src/**/*.ts\" --write",
     "fix:lint": "eslint src --ext .ts --fix",
@@ -43,10 +45,10 @@
     "doc:publish": "gh-pages -m \"[ci skip] Updates\" -d build/docs",
     "version": "standard-version",
     "reset-hard": "git clean -dfx && git reset --hard && yarn",
-    "postinstall": "yarn --cwd scripts install",
     "prepare-release": "run-s reset-hard test cov:check doc:html version doc:publish",
-    "lambda-archive-exploded": "yarn -s clean && yarn -s test && yarn install --production --no-bin-links --modules-folder ${PWD}/${npm_package_config_lambda_archive_dir}/node_modules",
-    "tf:lambda-archive-exploded": "yarn lambda-archive-exploded >&2 && echo { '\"'dir'\"': '\"'${PWD}/${npm_package_config_lambda_archive_dir}'\"' }"
+    "lambda:install": "yarn install --production --no-bin-links --modules-folder ${PWD}/${npm_package_config_lambda_archive_dir}/node_modules && rm -rf ${PWD}/${npm_package_config_lambda_archive_dir}/node_modules/aws-sdk && rm -rf ${PWD}/${npm_package_config_lambda_archive_dir}/node_modules/'@types'",
+    "lambda:archive-exploded": "run-s clean:build test lambda:install",
+    "tf:lambda:archive-exploded": "yarn lambda:archive-exploded >&2 && echo { '\"'dir'\"': '\"'${PWD}/${npm_package_config_lambda_archive_dir}'\"' }"
   },
   "engines": {
     "node": ">=14"
@@ -55,6 +57,7 @@
     "@cumulus/cmr-client": "10.1.2",
     "@cumulus/common": "10.1.2",
     "@cumulus/cumulus-message-adapter-js": "2.0.4",
+    "@cumulus/discover-granules": "10.1.2",
     "@cumulus/post-to-cmr": "10.1.2",
     "dayjs": "^1.10.7",
     "fp-ts": "^2.11.5",
@@ -62,8 +65,7 @@
     "io-ts": "^2.2.16",
     "io-ts-types": "^0.5.16",
     "monocle-ts": "^2.3.11",
-    "newtype-ts": "^0.3.4",
-    "nock": "^13.2.1"
+    "newtype-ts": "^0.3.4"
   },
   "devDependencies": {
     "@ava/typescript": "^2.0.0",

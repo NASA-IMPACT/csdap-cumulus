@@ -2,7 +2,8 @@ import * as L from 'aws-lambda';
 import * as E from 'fp-ts/Either';
 import { pipe } from 'fp-ts/function';
 import * as t from 'io-ts';
-import * as PR from 'io-ts/PathReporter';
+
+import * as PR from './io/PathReporter';
 
 export type AsyncHandler<E, R> = (event: E, context: L.Context) => Promise<R>;
 export type PropsHandler<C extends t.Any, P extends t.TypeOf<C>, R> = {

@@ -16,27 +16,36 @@
 
 set -Eeu
 
-declare -a _required_buckets
-declare -a _existing_buckets
-declare -A _bucket_map
+function bucket_exists() {
+  local _bucket=${1}
+  local _response
 
-_required_buckets=("${@}")
-mapfile -t _existing_buckets < <(aws s3api list-buckets --query Buckets[].Name --output text | tr '\t' '\n')
-
-for _bucket in "${_existing_buckets[@]}"; do
-  _bucket_map["${_bucket}"]=${_bucket}
-done
-
-for _bucket in "${_required_buckets[@]}"; do
-  if [[ -z "${_bucket_map[${_bucket}]:-}" ]]; then
-    if ! _output=$(aws s3api create-bucket --bucket "${_bucket}" \
-      --region "${AWS_REGION}" \
-      --create-bucket-configuration LocationConstraint="${AWS_REGION}" 2>&1); then
-
-      if [[ ! ${_output} =~ "BucketAlreadyExists" ]]; then
-        echo "${_output}"
-        exit 254
-      fi
-    fi
+  if _response=$(aws s3api head-bucket --bucket "${_bucket}" 2>&1); then
+    return 0
+  elif [[ ${_response} =~ 404 ]]; then
+    return 1
+  else # Assume any other error indicates existence of bucket
+    return 0
   fi
-done
+}
+
+function create_bucket() {
+  local _bucket=${1}
+  local _region=${2}
+
+  aws s3api create-bucket --bucket "${_bucket}" \
+    --region "${_region}" \
+    --create-bucket-configuration LocationConstraint="${_region}" 2>&1
+}
+
+function main() {
+  declare -a _buckets=("${@}")
+
+  for _bucket in "${_buckets[@]}"; do
+    if ! bucket_exists "${_bucket}"; then
+      create_bucket "${_bucket}" "${AWS_REGION}"
+    fi
+  done
+}
+
+main "$@"

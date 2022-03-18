@@ -1,7 +1,8 @@
 /* eslint-disable functional/no-return-void */
 import test from 'ava';
 import * as E from 'fp-ts/Either';
-import * as PR from 'io-ts/PathReporter';
+
+import * as PR from './PathReporter';
 
 import * as $t from '.';
 
@@ -10,7 +11,7 @@ test('should fail to decode nullish value', (t) => {
 
   t.deepEqual(
     E.mapLeft(PR.failure)(result),
-    E.left(['Invalid value null supplied to : DateFormat'])
+    E.left(['Invalid value for type DateFormat: null'])
   );
 });
 
@@ -19,7 +20,7 @@ test('should fail to decode an empty string', (t) => {
 
   t.deepEqual(
     E.mapLeft(PR.failure)(result),
-    E.left(['Invalid value "" supplied to : DateFormat'])
+    E.left(['Invalid value for type DateFormat: ""'])
   );
 });
 
@@ -28,7 +29,7 @@ test('should fail to decode a non-nullish, non-string value', (t) => {
 
   t.deepEqual(
     E.mapLeft(PR.failure)(result),
-    E.left(['Invalid value 0 supplied to : DateFormat'])
+    E.left(['Invalid value for type DateFormat: 0'])
   );
 });
 
@@ -37,7 +38,7 @@ test('should fail to decode "hello"', (t) => {
 
   t.deepEqual(
     E.mapLeft(PR.failure)(result),
-    E.left(['Invalid value "hello" supplied to : DateFormat'])
+    E.left(['Invalid value for type DateFormat: "hello"'])
   );
 });
 
@@ -46,7 +47,7 @@ test('should fail to decode "yyyy"', (t) => {
 
   t.deepEqual(
     E.mapLeft(PR.failure)(result),
-    E.left(['Invalid value "yyyy" supplied to : DateFormat'])
+    E.left(['Invalid value for type DateFormat: "yyyy"'])
   );
 });
 
