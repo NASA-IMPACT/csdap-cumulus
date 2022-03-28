@@ -159,10 +159,14 @@ variable "private_archive_api_gateway" {
   default = true
 }
 
-variable "s3_replicator_config" {
-  type        = object({ source_bucket = string, source_prefix = string, target_bucket = string, target_prefix = string })
-  default     = null
-  description = "Configuration for the s3-replicator module. Items with prefix of source_prefix in the source_bucket will be replicated to the target_bucket with target_prefix."
+variable "s3_replicator_target_bucket" {
+  type    = string
+  default = null
+}
+
+variable "s3_replicator_target_prefix" {
+  type    = string
+  default = null
 }
 
 variable "saml_assertion_consumer_service" {

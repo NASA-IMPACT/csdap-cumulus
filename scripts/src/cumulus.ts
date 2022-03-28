@@ -59,17 +59,15 @@ const VAR_PREFIX = 'CUMULUS_PREFIX';
 const CumulusPrefix: Cmd.Type<string, string> = {
   ...Cmd.string,
 
-  description: `Cumulus stack prefix [default: environment variable ${VAR_PREFIX}]`,
-  defaultValue: () => {
-    const prefix = process.env[VAR_PREFIX];
-
-    if (prefix) return prefix;
-
-    // eslint-disable-next-line functional/no-throw-statement
-    throw new Error(
-      `either supply the --prefix option or set the ${VAR_PREFIX} environment variable`
-    );
-  },
+  description: `Cumulus stack prefix${
+    process.env[VAR_PREFIX]
+      ? ''
+      : ` (alternative: set environment variable ${VAR_PREFIX})`
+  }`,
+  defaultValue: process.env[VAR_PREFIX]
+    ? () => process.env[VAR_PREFIX] || ''
+    : undefined,
+  defaultValueIsSerializable: Boolean(process.env[VAR_PREFIX]),
 };
 
 const JSONData: Cmd.Type<string, string> = {
@@ -194,6 +192,7 @@ function mkApp(client: Client) {
         'async-operations': asyncOperationsCmd(client),
         collections: collectionsCmd(client),
         elasticsearch: elasticsearchCmd(client),
+        executions: executionsCmd(client),
         granules: granulesCmd(client),
         providers: providersCmd(client),
         rules: rulesCmd(client),
@@ -219,7 +218,7 @@ function asyncOperationsCmd(client: Client) {
 function getAsyncOperationCmd(client: Client) {
   return Cmd.command({
     name: 'get',
-    description: 'get information about an async operation',
+    description: 'Get information about an async operation',
     args: {
       ...globalArgs,
       id: Cmd.option({
@@ -235,7 +234,7 @@ function getAsyncOperationCmd(client: Client) {
 function listAsyncOperationsCmd(client: Client) {
   return Cmd.command({
     name: 'list',
-    description: 'lists async operations',
+    description: 'List async operations',
     args: {
       ...globalArgs,
       params: listArgs.params,
@@ -268,7 +267,7 @@ function collectionsCmd(client: Client) {
 function addCollectionCmd(client: Client) {
   return Cmd.command({
     name: 'add',
-    description: 'adds a collection',
+    description: 'Add a collection',
     args: {
       ...globalArgs,
       data: Cmd.option({
@@ -289,7 +288,7 @@ function addCollection(client: Client) {
 function deleteCollectionCmd(client: Client) {
   return Cmd.command({
     name: 'delete',
-    description: 'deletes a collection',
+    description: 'Delete a collection',
     args: {
       ...globalArgs,
       name: Cmd.option({
@@ -313,7 +312,7 @@ function deleteCollectionCmd(client: Client) {
 function replaceCollectionCmd(client: Client) {
   return Cmd.command({
     name: 'replace',
-    description: 'replaces a collection',
+    description: 'Replace a collection',
     args: {
       ...globalArgs,
       data: Cmd.option({
@@ -339,7 +338,7 @@ function replaceCollection(client: Client) {
 function listCollectionsCmd(client: Client) {
   return Cmd.command({
     name: 'list',
-    description: 'lists collections',
+    description: 'List collections',
     args: {
       ...globalArgs,
       // TODO: Support listing fields to include
@@ -352,7 +351,7 @@ function listCollectionsCmd(client: Client) {
 function upsertCollectionCmd(client: Client) {
   return Cmd.command({
     name: 'upsert',
-    description: 'updates (replaces) or inserts (adds) a collection, if not found',
+    description: 'Update (replace) a collection, or insert (add) it, if not found',
     args: {
       ...globalArgs,
       data: Cmd.option({
@@ -392,7 +391,7 @@ function elasticsearchCmd(client: Client) {
 function elasticsearchChangeIndexCmd(client: Client) {
   return Cmd.command({
     name: 'current-index',
-    description: 'changes the current Elasticsearch index',
+    description: 'Change current Elasticsearch index',
     args: {
       ...globalArgs,
       currentIndex: Cmd.option({
@@ -438,7 +437,7 @@ function elasticsearchIndexFromDatabaseCmd(client: Client) {
   return Cmd.command({
     name: 'index-from-database',
     description:
-      're-indexes Elasticsearch from the database' +
+      'Re-index Elasticsearch from the database' +
       ' (NOTE: after completion, you must run change-index to use the new index)',
     args: {
       ...globalArgs,
@@ -460,12 +459,63 @@ function elasticsearchIndexFromDatabaseCmd(client: Client) {
 function elasticsearchIndicesStatusCmd(client: Client) {
   return Cmd.command({
     name: 'indices-status',
-    description: 'displays information about the Elasticsearch indices',
+    description: 'Display information about Elasticsearch indices',
     args: { ...globalArgs },
     handler: fp.pipe(
       client.get('/elasticsearch/indices-status'),
       andThen(fp.prop('body'))
     ),
+  });
+}
+
+//------------------------------------------------------------------------------
+// COMMAND: executions
+//------------------------------------------------------------------------------
+
+function executionsCmd(client: Client) {
+  return Cmd.subcommands({
+    name: 'executions',
+    cmds: {
+      'find-by-list': findExecutionsByGranulesListCmd(client),
+      // 'find-by-query': findExecutionsByESQuery(client),
+      list: listExecutionsCmd(client),
+    },
+  });
+}
+
+// TODO Support many granules (currently only a single granule is supported)
+function findExecutionsByGranulesListCmd(client: Client) {
+  return Cmd.command({
+    name: 'find-by-list',
+    description: 'Find executions associated with specified list of granules',
+    args: {
+      ...globalArgs,
+      collectionId: Cmd.option({
+        type: Cmd.string,
+        long: 'collection-id',
+        description: "ID of the granule's collection",
+      }),
+      granuleId: Cmd.option({
+        type: Cmd.string,
+        long: 'granule-id',
+        description: 'ID of the granule',
+      }),
+    },
+    handler: ({ prefix }) =>
+      client.get('/executions/search-by-granules')({
+        prefix,
+      }),
+  });
+}
+
+function listExecutionsCmd(client: Client) {
+  return Cmd.command({
+    name: 'list',
+    description: 'List executions',
+    args: {
+      ...globalArgs,
+    },
+    handler: fp.pipe(client.get('/executions'), andThen(fp.prop('results'))),
   });
 }
 
@@ -480,16 +530,51 @@ function granulesCmd(client: Client) {
       'bulk-delete': granulesBulkDeleteCmd(client),
       'bulk-reingest': granulesBulkReingestCmd(client),
       count: granulesCountCmd(client),
+      delete: granulesDeleteCmd(client),
       get: granulesGetCmd(client),
       list: granulesListCmd(client),
+      unpublish: granulesUnpublishCmd(client),
     },
+  });
+}
+
+function granulesUnpublishCmd(client: Client) {
+  return Cmd.command({
+    name: 'unpublish',
+    description: 'Unpublish a granule from the CMR',
+    args: {
+      ...globalArgs,
+      id: Cmd.option({
+        type: Cmd.string,
+        long: 'id',
+        description: 'ID of the granule to unpublish',
+      }),
+    },
+    handler: ({ prefix, id }) =>
+      client.put(`/granules/${id}`)({ prefix, data: { action: 'removeFromCmr' } }),
+  });
+}
+
+function granulesDeleteCmd(client: Client) {
+  return Cmd.command({
+    name: 'delete',
+    description: 'Delete a granule (must first be unpublished)',
+    args: {
+      ...globalArgs,
+      id: Cmd.option({
+        type: Cmd.string,
+        long: 'id',
+        description: 'ID of the granule to delete',
+      }),
+    },
+    handler: ({ prefix, id }) => client.delete(`/granules/${id}`)({ prefix }),
   });
 }
 
 function granulesGetCmd(client: Client) {
   return Cmd.command({
     name: 'get',
-    description: 'get details about a granule',
+    description: 'Get details about a granule',
     args: {
       ...globalArgs,
       id: Cmd.option({
@@ -505,7 +590,7 @@ function granulesGetCmd(client: Client) {
 function granulesCountCmd(client: Client) {
   return Cmd.command({
     name: 'list',
-    description: 'lists granules',
+    description: 'Count granules',
     args: {
       ...globalArgs,
       // TODO support listArgs
@@ -563,7 +648,7 @@ function listGranules(client: Client) {
 function granulesListCmd(client: Client) {
   return Cmd.command({
     name: 'list',
-    description: 'lists granules',
+    description: 'List granules',
     args: listArgs,
     handler: listGranules(client),
   });
@@ -571,8 +656,8 @@ function granulesListCmd(client: Client) {
 
 function granulesBulkDeleteCmd(client: Client) {
   return Cmd.command({
-    name: 'bulk-reingest',
-    description: 'deletes the specified granules',
+    name: 'bulk-delete',
+    description: 'Delete specified granules',
     args: {
       ...globalArgs,
       dryRun: Cmd.flag({
@@ -583,19 +668,41 @@ function granulesBulkDeleteCmd(client: Client) {
       all: listArgs.all,
       limit: listArgs.limit,
       params: listArgs.params,
+      query: Cmd.option({
+        type: Cmd.optional(Cmd.string),
+        long: 'query',
+        short: 'q',
+        description:
+          'query to Elasticsearch to determine which Granules to be deleted' +
+          ' (required if no IDs are given)',
+      }),
+      index: Cmd.option({
+        type: Cmd.optional(Cmd.string),
+        long: 'index',
+        description: 'Elasticsearch index to search with the given query',
+      }),
     },
-    handler: async ({ prefix, dryRun, all, limit, params }) => {
-      async function deleteBatch(start: number, end = start + 2000) {
-        const idsSlice = ids.slice(start, end);
-        const bulkDeleteParams = { prefix, data: { ids: idsSlice } };
-        const bulkDelete = client.post('/granules/bulkDelete');
+    handler: async ({ prefix, dryRun, all, limit, params, query, index }) => {
+      const deleteBatch =
+        (ids: readonly unknown[]) =>
+        async (start: number, end = start + 2000) => {
+          const idsSlice = ids.slice(start, end);
+          const bulkDeleteParams = { prefix, data: { ids: idsSlice } };
+          const bulkDelete = client.post('/granules/bulkDelete');
 
-        return (
-          start < ids.length && {
-            output: await bulkDelete(bulkDeleteParams),
-            input: end,
-          }
-        );
+          return (
+            start < ids.length && {
+              output: await bulkDelete(bulkDeleteParams),
+              input: end,
+            }
+          );
+        };
+
+      if (query) {
+        return client.post('/granules/bulkDelete')({
+          prefix,
+          data: { index, query: { query_string: { query } } },
+        });
       }
 
       const granules = await listGranules(client)({ prefix, all, limit, params });
@@ -604,7 +711,8 @@ function granulesBulkDeleteCmd(client: Client) {
       if (dryRun) return `[dryrun] Would delete ${granules.length} granules`;
 
       // eslint-disable-next-line functional/no-loop-statement
-      for await (const response of asyncUnfold(deleteBatch)(0)) console.log(response);
+      for await (const response of asyncUnfold(deleteBatch(ids))(0))
+        console.log(response);
 
       return `Bulk deleting ${granules.length} granules`;
     },
@@ -614,7 +722,7 @@ function granulesBulkDeleteCmd(client: Client) {
 function granulesBulkReingestCmd(client: Client) {
   return Cmd.command({
     name: 'bulk-reingest',
-    description: 're-ingests the specified granules',
+    description: 'Re-ingest specified granules',
     args: {
       ...globalArgs,
       ids: Cmd.multioption({
@@ -638,15 +746,16 @@ function granulesBulkReingestCmd(client: Client) {
         description: 'Elasticsearch index to search with the given query',
       }),
     },
-    handler: ({ prefix, ...params }) =>
+    handler: ({ prefix, ids, query, index }) =>
       client.post('/granules/bulkReingest')({
         prefix,
         data: {
-          ...params,
-          query: params.query && {
+          ids: ids.length === 0 ? undefined : ids,
+          index,
+          query: query && {
             query: {
               query_string: {
-                query: params.query,
+                query,
               },
             },
             sort: [{ timestamp: { order: 'desc' } }],
@@ -676,7 +785,7 @@ function providersCmd(client: Client) {
 function addProviderCmd(client: Client) {
   return Cmd.command({
     name: 'add',
-    description: 'adds a provider',
+    description: 'Add a provider',
     args: {
       ...globalArgs,
       data: Cmd.option({
@@ -697,7 +806,7 @@ function addProvider(client: Client) {
 function replaceProviderCmd(client: Client) {
   return Cmd.command({
     name: 'replace',
-    description: 'replaces a provider',
+    description: 'Replace a provider',
     args: {
       ...globalArgs,
       data: Cmd.option({
@@ -724,7 +833,7 @@ function replaceProvider(client: Client) {
 function deleteProviderCmd(client: Client) {
   return Cmd.command({
     name: 'delete',
-    description: 'deletes a provider',
+    description: 'Delete a provider',
     args: {
       ...globalArgs,
       id: Cmd.option({
@@ -740,7 +849,7 @@ function deleteProviderCmd(client: Client) {
 function upsertProviderCmd(client: Client) {
   return Cmd.command({
     name: 'upsert',
-    description: 'updates (replaces) or inserts (adds) a provider, if not found',
+    description: 'Update (replace) a provider, or insert (add) it, if not found',
     args: {
       ...globalArgs,
       data: Cmd.option({
@@ -764,7 +873,7 @@ function upsertProvider(client: Client) {
 function listProvidersCmd(client: Client) {
   return Cmd.command({
     name: 'list',
-    description: 'lists providers',
+    description: 'List providers',
     args: {
       ...globalArgs,
       // TODO: Support listing fields to include
@@ -807,7 +916,7 @@ function rulesCmd(client: Client) {
 function addRuleCmd(client: Client) {
   return Cmd.command({
     name: 'add',
-    description: 'adds a rule',
+    description: 'Add a rule',
     args: {
       ...globalArgs,
       data: Cmd.option({
@@ -829,7 +938,7 @@ function addRule(client: Client) {
 function deleteRuleCmd(client: Client) {
   return Cmd.command({
     name: 'add',
-    description: 'deletes the specified rule',
+    description: 'Delete a rule',
     args: {
       ...globalArgs,
       name: Cmd.option({
@@ -846,7 +955,7 @@ function deleteRuleCmd(client: Client) {
 function setRuleStateCmd(client: Client, state: string) {
   return Cmd.command({
     name: 'add',
-    description: `sets a rule's state to '${state}'`,
+    description: `Set a rule's state to '${state}'`,
     args: {
       ...globalArgs,
       name: Cmd.option({
@@ -897,7 +1006,7 @@ function setRuleState(client: Client, state: string) {
 function replaceRuleCmd(client: Client) {
   return Cmd.command({
     name: 'replace',
-    description: 'replaces a rule',
+    description: 'Replace a rule',
     args: {
       ...globalArgs,
       data: Cmd.option({
@@ -924,7 +1033,7 @@ function replaceRule(client: Client) {
 function upsertRuleCmd(client: Client) {
   return Cmd.command({
     name: 'upsert',
-    description: 'updates (replaces) or inserts (adds) a rule, if not found',
+    description: 'Update (replace) a rule, or insert (add) it, if not found',
     args: {
       ...globalArgs,
       data: Cmd.option({
@@ -948,7 +1057,7 @@ function upsertRule(client: Client) {
 function runRuleCmd(client: Client) {
   return Cmd.command({
     name: 'add',
-    description: "runs a 'onetime' rule",
+    description: "Run a 'onetime' rule",
     args: {
       ...globalArgs,
       name: Cmd.option({
@@ -966,7 +1075,7 @@ function runRuleCmd(client: Client) {
 function listRulesCmd(client: Client) {
   return Cmd.command({
     name: 'list',
-    description: 'lists rules',
+    description: 'List rules',
     args: {
       ...globalArgs,
       // TODO: Support listing fields to include
@@ -1028,14 +1137,22 @@ function request({
     },
   };
 
+  // TODO Add --verbose option
+  // console.log(payload);
+
   return invoke(invokeParams).then(
     fp.pipe(
       fp.propOr('{}')('body'),
       fp.wrap(JSON.parse),
       fp.attempt,
+      // TODO Add --verbose option
+      // fp.tap(console.log),
       fp.cond([
         [fp.isError, (error) => Promise.reject(error)],
-        [fp.prop('error'), (body) => Promise.reject(Object.assign(new Error(), body))],
+        [
+          fp.overEvery([fp.prop('error'), fp.prop('message')]),
+          ({ message }) => Promise.reject(new Error(message)),
+        ],
         [fp.stubTrue, fp.identity],
       ])
     )

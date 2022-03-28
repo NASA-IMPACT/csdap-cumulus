@@ -256,6 +256,19 @@ module "cma" {
   cma_version = "1.3.0"
 }
 
+module "s3-replicator" {
+  count                = var.s3_replicator_target_bucket == null ? 0 : 1
+  source               = "https://github.com/nasa/cumulus/releases/download/<%= cumulus_version %>/terraform-aws-cumulus-s3-replicator.zip"
+  permissions_boundary = local.permissions_boundary_arn
+  prefix               = var.prefix
+  source_bucket        = var.system_bucket
+  source_prefix        = "${var.prefix}/ems-distribution/s3-server-access-logs/"
+  subnet_ids           = module.vpc.subnets.ids
+  target_bucket        = var.s3_replicator_target_bucket
+  target_prefix        = var.s3_replicator_target_prefix
+  vpc_id               = module.vpc.vpc_id
+}
+
 module "discover_granules_service" {
   source = "https://github.com/nasa/cumulus/releases/download/<%= cumulus_version %>/terraform-aws-cumulus-ecs-service.zip"
 
@@ -414,9 +427,9 @@ module "cumulus" {
   urs_client_id       = data.aws_ssm_parameter.urs_client_id.value
   urs_client_password = data.aws_ssm_parameter.urs_client_password.value
 
-  metrics_es_host     = var.metrics_es_host
-  metrics_es_password = var.metrics_es_password
-  metrics_es_username = var.metrics_es_username
+  metrics_es_host     = data.aws_ssm_parameter.metrics_es_host.value
+  metrics_es_username = data.aws_ssm_parameter.metrics_es_username.value
+  metrics_es_password = data.aws_ssm_parameter.metrics_es_password.value
 
   cmr_client_id      = "<%= expansion('csdap-cumulus-:ENV-:ACCOUNT') %>"
   cmr_environment    = local.cmr_environment
@@ -461,7 +474,7 @@ module "cumulus" {
   private_archive_api_gateway = var.private_archive_api_gateway
   api_gateway_stage           = var.api_gateway_stage
 
-  log_destination_arn          = var.log_destination_arn
+  log_destination_arn          = data.aws_ssm_parameter.log_destination_arn.value
   additional_log_groups_to_elk = var.additional_log_groups_to_elk
 
   tea_external_api_endpoint                   = var.cumulus_distribution_url
