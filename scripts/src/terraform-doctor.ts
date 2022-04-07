@@ -26,14 +26,14 @@ const fixerFactories = [
   function mkCloudformationStackFixer(
     err: string
   ): ((addr: string) => string) | undefined {
-    const errRE = /Error: .+ CloudFormation Stack .+ \[(?<id>[^\s]+)\] already exists/;
+    const errRE = /Error: .+ CloudFormation Stack .+ \[(?<id>[^\s]+)\] already exists/i;
     const { id } = err.match(errRE)?.groups ?? {};
     const fix = (id: string) => (addr: string) => `terraform import ${addr} ${id}`;
 
     return id ? fix(id) : undefined;
   },
   function mkDynamoDbTableFixer(err: string): ((addr: string) => string) | undefined {
-    const errRE = /Error: .+ DynamoDB Table .+ already exists: (?<name>[^\s]+)/;
+    const errRE = /Error: .+ DynamoDB Table .+ already exists: (?<name>[^\s]+)/i;
     const { name } = err.match(errRE)?.groups ?? {};
     const fix = (name: string) => (addr: string) => `terraform import ${addr} ${name}`;
 
@@ -53,14 +53,14 @@ const fixerFactories = [
   function mkLambdaFunctionFixer(err: string): ((addr: string) => string) | undefined {
     // Error message includes `exist`, not `exists`, but matching either case for forward
     // compatibility, in case spelling error is fixed in future version of Terraform.
-    const errRE = /Error: .+ Function already exists?: (?<name>[^\s]+)/;
+    const errRE = /Error: .+ Function already exists?: (?<name>[^\s]+)/i;
     const { name } = err.match(errRE)?.groups ?? {};
     const fix = (name: string) => (addr: string) => `terraform import ${addr} ${name}`;
 
     return name ? fix(name) : undefined;
   },
   function mkSecurityGroupFixer(err: string): ((addr: string) => string) | undefined {
-    const errRE = /Error: .+ security group '(?<name>[^\s]+)' already exists/;
+    const errRE = /Error: .+ security group '(?<name>[^\s]+)' already exists/i;
     const { name } = err.match(errRE)?.groups ?? {};
     const fix = (name: string) => (addr: string) =>
       `terraform import ${addr} $(aws ec2 describe-security-groups` +
@@ -71,7 +71,7 @@ const fixerFactories = [
     return name ? fix(name) : undefined;
   },
   function mkFallbackFixer(err: string): ((addr: string) => string) | undefined {
-    const errRE = /Error: .+ (?<id>[^\s]+) already exists[.]/;
+    const errRE = /Error: .+ (?<id>[^\s]+) already exists[.]/i;
     const { id } = err.match(errRE)?.groups ?? {};
     const fix = (id: string) => (addr: string) => `terraform import ${addr} ${id}`;
 
@@ -104,7 +104,7 @@ function mkAddress({
       ? ''
       : `.module.${rest[1]}`;
 
-  return `module.${module}${suffix}.${type}.${name}`.replace('-', '_');
+  return `module.${module}${suffix}.${type}.${name}`.replace(/-/g, '_');
 }
 
 async function readLines(): Promise<readonly string[]> {

@@ -3,6 +3,28 @@ require "aws-sdk-ssm"
 module Helpers
   module_function
 
+  def get_parameters(names)
+    # Aws::SSM::Client#get_parameters limits the number of names to 10, so we
+    # need to make multiple calls to #get_parameters to get all of them. Ugh!
+    # See https://docs.aws.amazon.com/systems-manager/latest/APIReference/API_GetParameters.html
+
+    client = Aws::SSM::Client.new
+
+    loop = lambda { |acc, names|
+      return acc if names.length == 0
+
+      head = client.get_parameters(names: names.take(10), with_decryption: true)
+      tail = loop.call(acc, names.drop(10))
+
+      {
+        parameters: head[:parameters] + tail[:parameters],
+        invalid_parameters: head[:invalid_parameters] + tail[:invalid_parameters],
+      }
+    }
+
+    loop.call({ parameters: [], invalid_parameters: [] }, names)
+  end
+
   #
   # Determines the list of missing AWS SSM Parameters by parsing the JSON in the
   # file `ssm_parameters.tf.json` (generated during the Terraspace build process
@@ -14,9 +36,7 @@ module Helpers
     params = JSON.parse(params_json)['data']['aws_ssm_parameter'].values()
     name_to_description = Hash[params.map {|p| [p["name"], p["//"]]}]
     names = name_to_description.keys()
-
-    client = Aws::SSM::Client.new
-    resp = client.get_parameters(names: names, with_decryption: true)
+    resp = get_parameters(names)
 
     # Parameter names for parameters that have the value "TBD"
     tbds = resp[:parameters].select { |p| p["value"] == "TBD" }.map { |p| p["name"] }

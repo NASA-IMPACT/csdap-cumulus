@@ -43,6 +43,26 @@ data("aws_ssm_parameter", "launchpad_passphrase",
   name: "/shared/cumulus/launchpad-passphrase"
 )
 
+data("aws_ssm_parameter", "log_destination_arn",
+  "//": "ESDIS Metrics CloudWatch Logs Destination ARN",
+  name: "/shared/cumulus/log-destination-arn"
+)
+
+data("aws_ssm_parameter", "metrics_es_host",
+  "//": "ESDIS Metrics Elasticsearch Host",
+  name: "/shared/cumulus/metrics-es-host"
+)
+
+data("aws_ssm_parameter", "metrics_es_username",
+  "//": "ESDIS Metrics Elasticsearch Username",
+  name: "/shared/cumulus/metrics-es-username"
+)
+
+data("aws_ssm_parameter", "metrics_es_password",
+  "//": "ESDIS Metrics Elasticsearch Password",
+  name: "/shared/cumulus/metrics-es-password"
+)
+
 # ------------------------------------------------------------------------------
 # STACK-SPECIFIC (not shared across stacks)
 # ------------------------------------------------------------------------------
