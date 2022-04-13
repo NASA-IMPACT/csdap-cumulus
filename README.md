@@ -158,9 +158,7 @@ update your Earthdata application as follows:
    Edit icon to show the details of your application.
 1. Along the top of the page, there are navigation links.  Click
    **Manage > Redirect Uris**.
-1. Switch to your terminal window in your Docker container (if necessary, run
-   `make docker`)
-1. Within your Docker container, run `make output-cumulus` to show the
+1. Switch to your terminal window and run `make output-cumulus` to show the
    Terraform outputs for your Cumulus deployment.
 1. Copy the value of `archive_api_redirect_uri`, go back to your Earthdata Login
    browser session, paste the value into the text box for
