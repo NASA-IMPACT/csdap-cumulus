@@ -115,6 +115,9 @@ make up-cumulus
 Since this will avoid deploying the other modules, deployment time will be
 shorter.
 
+One of the outputs from your deployment will be `cumulus_distribution_api_uri`.
+Copy the value to `.env` for `TF_VAR_cumulus_distribution_url`. Then redeploy.
+
 ### Destroying a Deployment
 
 **DANGER:** This should be used only in the event that you need to completely
@@ -155,14 +158,12 @@ update your Earthdata application as follows:
    Edit icon to show the details of your application.
 1. Along the top of the page, there are navigation links.  Click
    **Manage > Redirect Uris**.
-1. Switch to your terminal window in your Docker container (if necessary, run
-   `make docker`)
-1. Within your Docker container, run `make cumulus-tf/output` to show the
+1. Switch to your terminal window and run `make output-cumulus` to show the
    Terraform outputs for your Cumulus deployment.
 1. Copy the value of `archive_api_redirect_uri`, go back to your Earthdata Login
    browser session, paste the value into the text box for
    **Redirect Uri to add**, and click the **ADD REDIRECT URI** button.
-1. Repeat the previous step for the value of `distribution_redirect_uri`.
+1. Repeat the previous step for the value of `cumulus_distribution_api_redirect_uri`.
 
 Finally, you must set appropriate values for related environment variables in
 your `.env` file, as follows:
@@ -180,7 +181,7 @@ your `.env` file, as follows:
 1. Add your EDL username (in double quotes) to the list of `API_USERS` in your
    `.env` file.
 1. Save your `.env` file.
-1. From your Docker container, run `make cumulus-tf/deploy` to redeploy your
+1. Run `make up-cumulus` to redeploy your
    `cumulus` module so that your Cumulus API can perform authentication against
    your EDL application.
 

@@ -191,7 +191,7 @@ Docker container. Most commonly, we'll want to view the following logs:
 Again, to open a terminal in the Docker container, run the following:
 
 ```sh
-make docker
+make bash
 ```
 
 The AWS CLI command to tail and follow log is as follows (where `LOG_NAME` is
