@@ -183,7 +183,7 @@ your `.env` file, as follows:
 1. Add your EDL username (in double quotes) to the list of `API_USERS` in your
    `.env` file.
 1. Save your `.env` file.
-1. From your Docker container, run `make up-cumulus` to redeploy your
+1. Run `make up-cumulus` to redeploy your
    `cumulus` module so that your Cumulus API can perform authentication against
    your EDL application.
 
