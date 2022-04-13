@@ -115,7 +115,8 @@ make up-cumulus
 Since this will avoid deploying the other modules, deployment time will be
 shorter.
 
-One of the outputs from your deployment should be `cumulus_distribution_api_uri`. Copy the value to `.env` for `TF_VAR_cumulus_distribution_url`. Then redeploy.
+One of the outputs from your deployment will be `cumulus_distribution_api_uri`.
+Copy the value to `.env` for `TF_VAR_cumulus_distribution_url`. Then redeploy.
 
 ### Destroying a Deployment
 
