@@ -27,14 +27,25 @@ if [[ ${_reply} != "${_confirmation_phrase}" ]]; then
   exit 0
 fi
 
-terraspace down cumulus -y
+export TS_BUFFER_TIMEOUT=14400
+set -x
 
-aws dynamodb list-tables --query '*' --output text |
-  tr '\t' '\n' |
-  grep "${CUMULUS_PREFIX}-.*Table" |
-  xargs -L1 aws dynamodb delete-table --table-name
+_dynamo_db_tables=$(
+  aws dynamodb list-tables --query '*' --output text |
+    tr '\t' '\n' |
+    { grep "${CUMULUS_PREFIX}-.*Table" || true; }
+)
 
-terraspace down data-persistence -y
+# If any DynamoDB tables exist, destroy the cumulus module as well as the
+# tables.  This check also allows this script to be re-run without issue in the
+# event that something went wrong.
+if [[ -n "${_dynamo_db_tables}" ]]; then
+  terraspace down cumulus -y
+
+  for _table in ${_dynamo_db_tables}; do
+    aws dynamodb delete-table --table-name "${_table}"
+  done
+fi
 
 _rds_cluster_id=$(
   aws rds describe-db-clusters \
@@ -42,11 +53,18 @@ _rds_cluster_id=$(
     --output text
 )
 
-AWS_PAGER="" aws rds modify-db-cluster \
-  --no-deletion-protection \
-  --db-cluster-identifier "${_rds_cluster_id}"
-AWS_PAGER="" aws rds delete-db-cluster \
-  --skip-final-snapshot \
-  --db-cluster-identifier "${_rds_cluster_id}"
+# If the RDS Cluster exists, destroy the data-persistence module as well as the
+# cluster.  This check also allows this script to be re-run without issue in the
+# event that something went wrong.
+if [[ -n "${_rds_cluster_id}" ]]; then
+  terraspace down data-persistence -y
+
+  AWS_PAGER="" aws rds modify-db-cluster \
+    --no-deletion-protection \
+    --db-cluster-identifier "${_rds_cluster_id}"
+  AWS_PAGER="" aws rds delete-db-cluster \
+    --skip-final-snapshot \
+    --db-cluster-identifier "${_rds_cluster_id}"
+fi
 
 terraspace down rds-cluster -y
