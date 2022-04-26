@@ -12,16 +12,19 @@ echo -n "Looking up AWS Account ID ... "
 _account_id=$(aws sts get-caller-identity --query Account --output text)
 echo "Done"
 
-echo -n "Adding (or replacing) provider '${_provider}' ... "
-_provider_bucket=csdap-${CUMULUS_PREFIX}-provider-${_account_id}
+_bucket_prefix=$(test "${TS_ENV}" == "uat" && echo "csdap-uat-" || echo "csdap-${CUMULUS_PREFIX}-")
+_bucket_suffix=$(test "${TS_ENV}" == "uat" && echo "" || echo "-${_account_id}")
+
+echo -n "Upserting provider '${_provider}' ... "
+_provider_bucket=${_bucket_prefix}provider${_bucket_suffix}
 ./cumulus providers upsert --data '{ "id": "'"${_provider}"'", "protocol": "s3", "host": "'"${_provider_bucket}"'" }' >/dev/null
 echo "Done"
 
-echo -n "Adding (or replacing) collection '${_collection_id}' ... "
+echo -n "Upserting collection '${_collection_id}' ... "
 ./cumulus collections upsert --data "app/stacks/cumulus/resources/collections/${_collection_id}.json" >/dev/null
 echo "Done"
 
-echo -n "Adding (or replacing) rule '${_rule}' ... "
+echo -n "Upserting rule '${_rule}' ... "
 ./cumulus rules upsert --data "app/stacks/cumulus/resources/rules/${_rule}.json" >/dev/null
 echo "Done"
 
