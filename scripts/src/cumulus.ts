@@ -196,6 +196,12 @@ function mkApp(client: Client) {
         granules: granulesCmd(client),
         providers: providersCmd(client),
         rules: rulesCmd(client),
+        version: Cmd.command({
+          name: 'version',
+          description: 'Get the Cumulus API version',
+          args: globalArgs,
+          handler: ({ prefix }) => client.get(`/version`)({ prefix }),
+        }),
       },
     })
   );
@@ -1151,7 +1157,7 @@ function request({
         [fp.isError, (error) => Promise.reject(error)],
         [
           fp.overEvery([fp.prop('error'), fp.prop('message')]),
-          ({ message }) => Promise.reject(new Error(message)),
+          (body) => Promise.reject(Object.assign(new Error(), body)),
         ],
         [fp.stubTrue, fp.identity],
       ])
