@@ -262,7 +262,7 @@ module "s3-replicator" {
   permissions_boundary = local.permissions_boundary_arn
   prefix               = var.prefix
   source_bucket        = var.system_bucket
-  source_prefix        = "${var.prefix}/ems-distribution/s3-server-access-logs/"
+  source_prefix        = "${var.prefix}/ems-distribution/s3-server-access-logs"
   subnet_ids           = module.vpc.subnets.ids
   target_bucket        = var.s3_replicator_target_bucket
   target_prefix        = var.s3_replicator_target_prefix
