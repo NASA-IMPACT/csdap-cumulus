@@ -253,7 +253,7 @@ module "cma" {
 
   prefix      = var.prefix
   bucket      = var.system_bucket
-  cma_version = "1.3.0"
+  cma_version = "2.0.2"
 }
 
 module "s3-replicator" {
