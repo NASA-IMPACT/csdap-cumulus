@@ -3,8 +3,10 @@ locals {
   public_bucket_names    = [for k, v in var.buckets : v.name if v.type == "public"]
 
   bucket_map_yaml = templatefile("${path.module}/templates/bucket_map.yaml.tmpl", {
-    protected_buckets = local.protected_bucket_names,
-    public_buckets    = local.public_bucket_names,
+    # This assumes only 1 protected and 1 public bucket
+    protected_bucket = local.protected_bucket_names[0],
+    public_bucket    = local.public_bucket_names[0],
+    base             = "<%= expansion('csdap-cumulus-:ENV') %>",
   })
 
   cmr_environment = data.aws_ssm_parameter.cmr_environment.value
