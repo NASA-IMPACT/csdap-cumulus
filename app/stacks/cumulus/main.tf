@@ -433,7 +433,7 @@ module "cumulus" {
   metrics_es_username = data.aws_ssm_parameter.metrics_es_username.value
   metrics_es_password = data.aws_ssm_parameter.metrics_es_password.value
 
-  cmr_client_id      = "<%= expansion('csdap-cumulus-:ENV-:ACCOUNT') %>"
+  cmr_client_id      = "<%= expansion('csdap-cumulus-:ENV') %>"
   cmr_environment    = local.cmr_environment
   cmr_oauth_provider = "launchpad"
   cmr_provider       = local.cmr_provider

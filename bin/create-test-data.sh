@@ -8,15 +8,10 @@ _collection_version="1"
 _collection_id="${_collection_name}___${_collection_version}"
 _rule="${_collection_id}_SmokeTest"
 
-echo -n "Looking up AWS Account ID ... "
-_account_id=$(aws sts get-caller-identity --query Account --output text)
-echo "Done"
-
 _bucket_prefix=$(test "${TS_ENV}" == "uat" && echo "csdap-uat-" || echo "csdap-${CUMULUS_PREFIX}-")
-_bucket_suffix=$(test "${TS_ENV}" == "uat" && echo "" || echo "-${_account_id}")
 
 echo -n "Upserting provider '${_provider}' ... "
-_provider_bucket=${_bucket_prefix}provider${_bucket_suffix}
+_provider_bucket=${_bucket_prefix}provider
 ./cumulus providers upsert --data '{ "id": "'"${_provider}"'", "protocol": "s3", "host": "'"${_provider_bucket}"'" }' >/dev/null
 echo "Done"
 
