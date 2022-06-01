@@ -13,31 +13,31 @@
 #<% depends_on("data-persistence") %>
 #<% depends_on("rds-cluster") %>
 
-system_bucket = "<%= expansion('csdap-cumulus-:ENV-internal-:ACCOUNT') %>"
+system_bucket = "<%= expansion('csdap-cumulus-:ENV-internal') %>"
 
 buckets = {
   internal = {
-    name = "<%= expansion('csdap-cumulus-:ENV-internal-:ACCOUNT') %>"
+    name = "<%= expansion('csdap-cumulus-:ENV-internal') %>"
     type = "internal"
   }
   private = {
-    name = "<%= expansion('csdap-cumulus-:ENV-private-:ACCOUNT') %>"
+    name = "<%= expansion('csdap-cumulus-:ENV-private') %>"
     type = "private"
   }
   protected = {
-    name = "<%= expansion('csdap-cumulus-:ENV-protected-:ACCOUNT') %>"
+    name = "<%= expansion('csdap-cumulus-:ENV-protected') %>"
     type = "protected"
   }
   public = {
-    name = "<%= expansion('csdap-cumulus-:ENV-public-:ACCOUNT') %>"
+    name = "<%= expansion('csdap-cumulus-:ENV-public') %>"
     type = "public"
   }
   dashboard = {
-    name = "<%= expansion('csdap-cumulus-:ENV-dashboard-:ACCOUNT') %>"
+    name = "<%= expansion('csdap-cumulus-:ENV-dashboard') %>"
     type = "dashboard"
   }
   provider = {
-    name = "<%= expansion('csdap-cumulus-:ENV-provider-:ACCOUNT') %>"
+    name = "<%= expansion('csdap-cumulus-:ENV-provider') %>"
     type = "provider"
   }
 }
