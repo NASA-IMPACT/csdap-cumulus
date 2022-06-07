@@ -3,5 +3,5 @@ output "vpc_id" {
 }
 
 output "subnets" {
-  value = data.aws_subnet_ids.ngap_subnets
+  value = data.aws_subnets.ngap_subnets
 }

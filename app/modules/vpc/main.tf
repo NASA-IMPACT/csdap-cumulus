@@ -4,11 +4,9 @@ data "aws_vpc" "ngap_vpc" {
   }
 }
 
-data "aws_subnet_ids" "ngap_subnets" {
-  vpc_id = data.aws_vpc.ngap_vpc.id
-
+data "aws_subnets" "ngap_subnets" {
   filter {
     name   = "tag:Name"
-    values = ["Private application *"]
+    values = ["Private application *a subnet", "Private application *b subnet"]
   }
 }
