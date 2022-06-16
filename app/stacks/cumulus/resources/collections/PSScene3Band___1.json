@@ -3,13 +3,13 @@
   "version": "1",
   "duplicateHandling": "replace",
   "granuleId": ".*",
-  "granuleIdExtraction": "^(\\d{8}_\\d{6}_.+)(?:_.B_Analytic.+|(?<!_.B_Analytic)(?:_cmr|_metadata)[.]json)$",
+  "granuleIdExtraction": "^(\\d{8}_\\d{6}_.+)(?:_\\dB_.+|_thumb.*|_cmr[.]json|_metadata[.]json)$",
   "sampleFileName": "20160628_204526_1_0c74_3B_Analytic_DN_metadata.xml",
   "ignoreFilesConfigForDiscovery": true,
   "url_path": "planet/PSScene3Band",
   "files": [
     {
-      "regex": "^(\\d{8}_\\d{6}_.+)(?:_.B_Analytic.+|(?<!_.B_Analytic)(?:_cmr|_metadata)[.]json)$",
+      "regex": "^(\\d{8}_\\d{6}_.+)(?:_\\dB_.+|_thumb.*|_cmr[.]json|_metadata[.]json)$",
       "sampleFileName": "20160628_204526_1_0c74_3B_Analytic_DN_metadata.xml",
       "bucket": "protected"
     }
