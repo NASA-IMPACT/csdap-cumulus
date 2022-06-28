@@ -1,3 +1,4 @@
+require "aws-sdk-lambda"
 require "aws-sdk-ssm"
 
 module Helpers
@@ -60,6 +61,37 @@ module Helpers
       value: value.empty? ? "TBD" : value,
       overwrite: true,
     )
+  end
+end
+
+class SetLambdaMemorySizes
+  def call(runner)
+    puts
+    puts "NOTE: Manually setting built-in Cumulus AWS Lambda Function memory"
+    puts "sizes as necessary, until Cumulus provides the ability to set them"
+    puts "via Terraform configuration.  This should be removed and performed"
+    puts "in the appropriate tf or tfvars file(s) when supported by Cumulus."
+    puts "(See #{__FILE__.delete_prefix(Dir.pwd).delete_prefix('/')})"
+
+    client = Aws::Lambda::Client.new
+
+    memory_sizes = {
+      "PostToCmr": 512,
+    }
+
+    memory_sizes.each do |name, size|
+      function_name = "#{ENV['CUMULUS_PREFIX']}-#{name}"
+
+      puts
+      puts "~ #{function_name} -> #{size} MB"
+
+      client.update_function_configuration(
+        function_name: function_name,
+        memory_size: size,
+      )
+    end
+
+    puts
   end
 end
 
@@ -133,3 +165,5 @@ before("apply", execute: InteractivelySetSsmParameters)
 before("plan", "apply",
   execute: %Q[bin/ensure-buckets-exist.sh $(echo "var.buckets" | terraform console | grep '"name" = ' | sed -E 's/.*= "([^"]*)"/\\1/')]
 )
+
+after("apply", execute: SetLambdaMemorySizes)
