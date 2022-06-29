@@ -174,4 +174,7 @@ before("plan", "apply",
   execute: %Q[bin/ensure-buckets-exist.sh $(echo "var.buckets" | terraform console | grep '"name" = ' | sed -E 's/.*= "([^"]*)"/\\1/')]
 )
 
-after("apply", execute: SetLambdaMemorySizes)
+# Technically speaking, we only need to do this after "apply", but we're also
+# doing it after "plan" so that we can fail-fast, if there is an issue, and the
+# operation is fast and free, so there's no problem doing it twice.
+after("plan", "apply", execute: SetLambdaMemorySizes)

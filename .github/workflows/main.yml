@@ -5,6 +5,7 @@ on:
       - opened
       - reopened
       - synchronize
+      - closed
     branches:
       - main
   workflow_dispatch:
@@ -34,7 +35,7 @@ jobs:
   # AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_REGION.
   #
   deploy-dev:
-    if: github.event_name == 'workflow_dispatch' && github.event.ref != 'refs/heads/main'
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged != true
     needs: [unit-tests]
     runs-on: ubuntu-20.04
     steps:
@@ -100,14 +101,13 @@ jobs:
           bundle exec terraspace all plan
 
   deploy-uat:
-    if: github.event.ref == 'refs/heads/main'
+    if: github.event.ref == 'refs/heads/main' && github.event.pull_request.merged == true
     needs: [unit-tests]
     runs-on: ubuntu-20.04
     environment:
       name: uat
     env:
       TS_ENV: uat
-      CUMULUS_PREFIX: cumulus-uat
     steps:
       - name: Checkout source
         uses: actions/checkout@v2
