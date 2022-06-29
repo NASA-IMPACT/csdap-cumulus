@@ -80,7 +80,15 @@ class SetLambdaMemorySizes
     }
 
     memory_sizes.each do |name, size|
-      function_name = "#{ENV['CUMULUS_PREFIX']}-#{name}"
+      #
+      # This value is duplicated in the following places.  When making a change, you
+      # must make the appropriate change in ALL locations:
+      #
+      # - Dockerfile (CUMULUS_PREFIX)
+      # - app/stacks/cumulus/config/hooks/terraform.rb (function_name)
+      # - config/terraform/tfvars/base.tfvars (prefix)
+      #
+      function_name = "cumulus-#{Terraspace.env}-#{name}"
 
       puts
       puts "~ #{function_name} -> #{size} MB"

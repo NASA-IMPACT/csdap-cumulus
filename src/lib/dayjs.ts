@@ -49,7 +49,10 @@ dayjs.extend(
       unit?: ManipulateType
     ) {
       return isDuration(value)
-        ? Object.entries(value.$d).reduce((d, [unit, n]) => d.add(n, unit), this)
+        ? Object.entries(value.$d).reduce(
+            (d, [unit, n]) => d.add(n, unit as ManipulateType),
+            this
+          )
         : oldAdd.bind(this)(value, unit);
     };
 
@@ -59,7 +62,10 @@ dayjs.extend(
       unit?: ManipulateType
     ) {
       return isDuration(value)
-        ? Object.entries(value.$d).reduce((d, [unit, n]) => d.subtract(n, unit), this)
+        ? Object.entries(value.$d).reduce(
+            (d, [unit, n]) => d.subtract(n, unit as ManipulateType),
+            this
+          )
         : oldSubtract.bind(this)(value, unit);
     };
   }

@@ -120,19 +120,8 @@ Copy the value to `.env` for `TF_VAR_cumulus_distribution_url`. Then redeploy.
 
 ### Destroying a Deployment
 
-**DANGER:** This should be used only in the event that you need to completely
-destroy a deployment, _including all related data_.  Typically, this should be
-used only when removing a development deployment, particularly when a team
-member leaves the team:
-
-```plan
-# TBD
-```
-
-To prevent accidental annihilation, **the script will prompt you for explicit
-confirmation** of your intention.  If you provide explicit confirmation at the
-prompt, it performs what is described in the Cumulus documentation under
-[How to Destroy Everything].
+See [Destroying a Deployment](docs/OPERATING.md#destroying-a-deployment) in
+[Operating CSDAP Cumulus](docs/OPERATING.md)
 
 ## Using the Cumulus Dashboard
 

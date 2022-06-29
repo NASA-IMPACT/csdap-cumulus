@@ -58,7 +58,7 @@ RUN tfenv install
 
 # Install nvm, node (version specified in `.nvmrc`), npm, and yarn
 ENV NVM_DIR=/usr/local/nvm
-COPY .nvmrc ./
+COPY .nvmrc package.json ./
 # hadolint ignore=SC1091
 RUN : \
   && mkdir -p "${NVM_DIR}" \
@@ -67,11 +67,22 @@ RUN : \
   # otherwise it exits with status 3 (even though it appears to work), which
   # causes Docker image build failure.
   && source "${NVM_DIR}/nvm.sh" --install \
-  && npm install -g yarn@1.22.17 \
+  && npm install -g yarn@1.22.19 \
   && :
 
-# Include CUMULUS_PREFIX in bash prompt so it is easy to see which environment
+# Include TS_ENV in bash prompt so it is easy to see which environment
 # we're dealing with, in order to reduce the likelihood of accidentally making
 # changes in the wrong environment.
 # hadolint ignore=SC2016
-RUN echo 'PS1="(${CUMULUS_PREFIX:-WARNING! CUMULUS_PREFIX is undefined!}):\w \$ "' >> ~/.bashrc
+RUN : \
+  && echo 'export PS1="(${TS_ENV:-WARNING! TS_ENV is undefined!}):\w \$ "' >> ~/.bashrc \
+  #
+  # This value is duplicated in the following places.  When making a change, you
+  # must make the appropriate change in ALL locations:
+  #
+  # - Dockerfile (CUMULUS_PREFIX)
+  # - app/stacks/cumulus/config/hooks/terraform.rb (function_name)
+  # - config/terraform/tfvars/base.tfvars (prefix)
+  #
+  && echo 'export CUMULUS_PREFIX="cumulus-${TS_ENV}"' >> ~/.bashrc \
+  && :
