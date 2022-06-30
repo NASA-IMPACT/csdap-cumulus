@@ -8,7 +8,6 @@ on:
       - closed
     branches:
       - main
-  workflow_dispatch:
 
 defaults:
   run:
@@ -18,138 +17,26 @@ env:
   TF_IN_AUTOMATION: 1
 
 jobs:
-  unit-tests:
-    runs-on: ubuntu-20.04
-    steps:
-      - name: unit tests
-        run: |
-          echo "Nothing to unit test yet"
-
-  #
-  # Intended only for locally testing development deployment job via `act`,
-  # using the following command:
-  #
-  #     act --secret-file .env-act -j deploy-dev workflow_dispatch
-  #
-  # where the file .env-act must have the following environment variables set:
-  # AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_REGION.
-  #
-  deploy-dev:
-    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged != true
-    needs: [unit-tests]
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v2
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-
-      - name: Update packages list
-        run: sudo apt-get update -y
-
-      - name: Install AWS CLI v2
-        run: |
-          curl --no-progress-meter "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
-          unzip -q /tmp/awscliv2.zip -d /tmp
-          /tmp/aws/install --bin-dir /usr/bin
-          rm -rf /tmp/awscliv2.zip /tmp/aws/
-          aws --version
-
-      - name: Install tfenv
-        run: |
-          git clone https://github.com/tfutils/tfenv.git ${HOME}/.tfenv
-          sudo ln -s ${HOME}/.tfenv/bin/* /usr/local/bin
-
-      - name: Install Terraform
-        run: tfenv install
-
-      - name: Install g++
-        run: sudo apt-get install -y g++
-
-      - name: Install Ruby and Bundler
-        run: |
-          sudo apt-get install -y ruby-full
-          gem install bundler
-
-      - name: Install Terraspace
-        run: bundle install
-
-      - name: Install nvm, node/npm, yarn, and dependencies
-        env:
-          NVM_DIR: /usr/local/nvm
-        run: |
-          mkdir -p "${NVM_DIR}"
-          curl --no-progress-meter -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
-          source "${NVM_DIR}/nvm.sh" --install
-          npm install -g yarn
-          yarn install
-
-      - name: Deploy Cumulus
-        env:
-          # Required because bin/ensure-buckets-exist.sh uses AWS CLI
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-        run: |
-          unset AWS_PROFILE
-          bundle exec terraspace logs -f &
-          bundle exec terraspace all plan
+  plan-uat:
+    if: github.event.pull_request.merged != true
+    uses: ./.github/workflows/terraspace.yml
+    with:
+      TS_ENV: uat
+      deploy: false
+    secrets: inherit
 
   deploy-uat:
-    if: github.event.ref == 'refs/heads/main' && github.event.pull_request.merged == true
-    needs: [unit-tests]
-    runs-on: ubuntu-20.04
-    environment:
-      name: uat
-    env:
+    if: github.event.pull_request.merged == true
+    uses: ./.github/workflows/terraspace.yml
+    with:
       TS_ENV: uat
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v2
+      deploy: true
+    secrets: inherit
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-
-      - name: Update package list
-        run: sudo apt-get update -y
-
-      - name: Install tfenv
-        run: |
-          git clone https://github.com/tfutils/tfenv.git ${HOME}/.tfenv
-          rm -f /usr/local/bin/terraform
-          sudo ln -s ${HOME}/.tfenv/bin/* /usr/local/bin
-
-      - name: Install Terraform
-        run: tfenv install
-
-      - name: Install g++
-        run: sudo apt-get install -y g++
-
-      - name: Install Ruby and Bundler
-        run: |
-          sudo apt-get install -y ruby-full
-          sudo gem install bundler
-
-      - name: Install Terraspace
-        run: bundle install
-
-      # See https://github.com/actions/virtual-environments/issues/4#issuecomment-617671978
-      - name: Install node (version in .nvmrc) and dependencies
-        shell: bash -l {0}
-        run: |
-          nvm install
-          yarn install
-
-      - name: Deploy Cumulus
-        run: |
-          bundle exec terraspace logs -f &
-          bundle exec terraspace all up --yes
+  deploy-prod:
+    needs: deploy-uat
+    uses: ./.github/workflows/terraspace.yml
+    with:
+      TS_ENV: prod
+      deploy: true
+    secrets: inherit

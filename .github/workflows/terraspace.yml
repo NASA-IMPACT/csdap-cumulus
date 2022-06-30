@@ -1,0 +1,123 @@
+name: Terraspace
+on:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      TS_ENV:
+        required: true
+        type: string
+      deploy:
+        required: true
+        type: boolean
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  AWS_REGION: us-west-2
+  TF_IN_AUTOMATION: 1
+
+  #
+  # For locally testing this GitHub Action via `act`, use the following command:
+  #
+  #     act workflow_dispatch
+  #
+  # Note that `act` adds command-line arguments from `.actrc`, which expects
+  # the file `.env-act` to exist and to have the following environment variables
+  # set: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_REGION.
+  #
+  # Since the Docker container that `act` uses to simulate the GitHub Action
+  # does not contain any AWS profiles, you must set the AWS variables above
+  # instead of setting the variable AWS_PROFILE, which won't work in the
+  # container.
+  #
+  # Note that this will also use `.env` by default as well, so `act` will also
+  # pick up your TS_ENV value, which is required below.
+  #
+jobs:
+  terraspace:
+    runs-on: ubuntu-20.04
+    environment: ${{ inputs.TS_ENV }}
+    env:
+      TS_ENV: ${{ inputs.TS_ENV }}
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Update packages list
+        run: sudo apt-get update -y
+
+      - name: Install AWS CLI v2
+        # GitHub Action container already has this installed, so we need to run
+        # this only when using `act` for local action testing.
+        if: ${{ env.ACT }}
+        run: |
+          curl --no-progress-meter "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
+          unzip -q /tmp/awscliv2.zip -d /tmp
+          /tmp/aws/install --bin-dir /usr/bin
+          rm -rf /tmp/awscliv2.zip /tmp/aws/
+          aws --version
+
+      - name: Install Ruby and Bundler (for Terraspace)
+        run: |
+          # Ruby requires g++ to build gem native extensions
+          sudo apt-get install -y --no-install-recommends g++ ruby-full
+          sudo gem install bundler
+
+      - name: Install tfenv
+        run: |
+          git clone https://github.com/tfutils/tfenv.git ${HOME}/.tfenv
+          rm -f /usr/local/bin/terraform
+          sudo ln -s ${HOME}/.tfenv/bin/* /usr/local/bin
+
+      - name: Install Terraform
+        run: tfenv install
+
+      - name: Install Terraspace
+        run: bundle install
+
+      - name: Install node and node dependencies
+        # GitHub Action container already has nvm and yarn installed, so we
+        # don't need to install them.  We simply invoke them to install the
+        # versions of node and yarn specified in .nvmrc and .yarnrc,
+        # respectively.
+        if: ${{ !env.ACT }}
+        # See https://github.com/actions/virtual-environments/issues/4#issuecomment-617671978
+        shell: bash -l {0}
+        run: |
+          nvm install
+          yarn install
+
+      - name: Install nvm, node/npm, yarn, and node dependencies
+        if: ${{ env.ACT }}
+        env:
+          NVM_DIR: /usr/local/nvm
+        run: |
+          mkdir -p "${NVM_DIR}"
+          curl --no-progress-meter -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+          # For nvm.sh, the --install option is required when .nvmrc is present,
+          # otherwise it exits with status 3 (even though it appears to work),
+          # which would cause this step to fail.
+          source "${NVM_DIR}/nvm.sh" --install
+          npm install --global yarn
+          yarn install
+
+      - name: Plan Cumulus
+        if: ${{ !inputs.deploy }}
+        run: |
+          bundle exec terraspace logs -f &
+          bundle exec terraspace all plan
+
+      - name: Deploy Cumulus
+        if: ${{ inputs.deploy }}
+        run: |
+          bundle exec terraspace logs -f &
+          bundle exec terraspace all up --yes
