@@ -1,11 +1,13 @@
 name: Cumulus
 on:
+  push:
+    branches:
+      - main
   pull_request:
     types:
       - opened
       - reopened
       - synchronize
-      - closed
     branches:
       - main
 
@@ -18,7 +20,8 @@ env:
 
 jobs:
   plan-uat:
-    if: github.event.action != 'closed'
+    # Run on PR actions on "source" (head) branches (not on main branch)
+    if: github.event.ref != 'refs/heads/main'
     uses: ./.github/workflows/terraspace.yml
     with:
       TS_ENV: uat
@@ -26,7 +29,8 @@ jobs:
     secrets: inherit
 
   deploy-uat:
-    if: github.event.ref == 'refs/heads/main' && github.event.pull_request.merged == true
+    # Run only on main branch (on push, including on merged PRs)
+    if: github.event.ref == 'refs/heads/main'
     uses: ./.github/workflows/terraspace.yml
     with:
       TS_ENV: uat
@@ -34,7 +38,8 @@ jobs:
     secrets: inherit
 
   deploy-prod:
-    if: github.event.ref == 'refs/heads/main' && github.event.pull_request.merged == true
+    # Run only on main branch (on push, including on merged PRs)
+    if: github.event.ref == 'refs/heads/main'
     needs: deploy-uat
     uses: ./.github/workflows/terraspace.yml
     with:
