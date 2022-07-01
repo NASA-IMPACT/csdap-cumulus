@@ -16,7 +16,7 @@ locals {
 
   ecs_task_cpu                = 768
   ecs_task_image              = "cumuluss/cumulus-ecs-task:1.7.0"
-  ecs_task_memory_reservation = 2048
+  ecs_task_memory_reservation = 3277
 
   elasticsearch_alarms            = jsondecode("<%= json_output('data-persistence.elasticsearch_alarms') %>")
   elasticsearch_domain_arn        = jsondecode("<%= json_output('data-persistence.elasticsearch_domain_arn') %>")
