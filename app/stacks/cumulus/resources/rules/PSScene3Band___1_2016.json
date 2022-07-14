@@ -1,0 +1,22 @@
+{
+  "name": "PSScene3Band___1_2016",
+  "state": "DISABLED",
+  "provider": "planet",
+  "collection": {
+    "name": "PSScene3Band",
+    "version": "1"
+  },
+  "workflow": "DiscoverAndQueueGranules",
+  "rule": {
+    "type": "onetime"
+  },
+  "meta": {
+    "providerPathFormat": "[storage-ss-ingest-prod-ingesteddata-uswest2/planet/PSScene3Band-]YYYYMM",
+    "startDate": "2016-01-01",
+    "endDate": "2017-01-01",
+    "step": "P1M",
+    "rule": {
+      "state": "DISABLED"
+    }
+  }
+}
