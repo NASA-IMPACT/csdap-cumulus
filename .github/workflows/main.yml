@@ -3,6 +3,14 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'app/**'
+      - '!app/stacks/cumulus/resources/**'
+      - 'config/**'
+      - 'src/**'
+      - .nvmrc
+      - .yarnrc
+      - yarn.lock
   pull_request:
     types:
       - opened
@@ -10,6 +18,14 @@ on:
       - synchronize
     branches:
       - main
+    paths:
+      - 'app/**'
+      - '!app/stacks/cumulus/resources/**'
+      - 'config/**'
+      - 'src/**'
+      - .nvmrc
+      - .yarnrc
+      - yarn.lock
 
 defaults:
   run:
