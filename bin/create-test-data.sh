@@ -12,15 +12,15 @@ _bucket_prefix=$(test "${TS_ENV}" == "uat" && echo "csdap-uat-" || echo "csdap-$
 
 echo -n "Upserting provider '${_provider}' ... "
 _provider_bucket=${_bucket_prefix}provider
-./cumulus providers upsert --data '{ "id": "'"${_provider}"'", "protocol": "s3", "host": "'"${_provider_bucket}"'" }' >/dev/null
+cumulus providers upsert --data '{ "id": "'"${_provider}"'", "protocol": "s3", "host": "'"${_provider_bucket}"'" }' >/dev/null
 echo "Done"
 
 echo -n "Upserting collection '${_collection_id}' ... "
-./cumulus collections upsert --data "app/stacks/cumulus/resources/collections/${_collection_id}.json" >/dev/null
+cumulus collections upsert --data "app/stacks/cumulus/resources/collections/${_collection_id}.json" >/dev/null
 echo "Done"
 
 echo -n "Upserting rule '${_rule}' ... "
-./cumulus rules upsert --data "app/stacks/cumulus/resources/rules/${_rule}.json" >/dev/null
+cumulus rules upsert --data "app/stacks/cumulus/resources/rules/${_rule}.json" >/dev/null
 echo "Done"
 
 # Add sample granule files
@@ -34,11 +34,11 @@ echo "To run a smoke test, do the following, within the Docker container:"
 echo
 echo "1. Enable the rule:"
 echo
-echo "     ./cumulus rules enable --name ${_rule}"
+echo "     cumulus rules enable --name ${_rule}"
 echo
 echo "2. Run the rule to trigger discovery and ingestion:"
 echo
-echo "     ./cumulus rules run --name ${_rule}"
+echo "     cumulus rules run --name ${_rule}"
 echo
 echo "3. Follow the logs for discovery to confirm discovery of the uploaded"
 echo "   sample granule files (NOTE: it may take a minute or so before you see"

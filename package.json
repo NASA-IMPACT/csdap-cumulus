@@ -20,7 +20,6 @@
     "clean:build": "rm -rf build/*",
     "clean:dependencies": "rm -rf node_modules/* node_modules/.bin node_modules/.cache node_modules/.yarn-integrity",
     "clean:all": "run-s clean:build clean:dependencies",
-    "cumulus": "yarn --cwd scripts cumulus",
     "rerun-step-function": "yarn --cwd scripts rerun-step-function",
     "terraform-doctor": "yarn --cwd scripts terraform-doctor",
     "fix": "run-s fix:*",
