@@ -58,6 +58,9 @@ RUN tfenv install
 
 # Install nvm, node (version specified in `.nvmrc`), npm, and yarn
 ENV NVM_DIR=/usr/local/nvm
+ENV NODE_VERSIONS=$NVM_DIR/versions/node
+ENV NODE_VERSION_PREFIX=v
+
 COPY .nvmrc package.json ./
 # hadolint ignore=SC1091
 RUN : \
@@ -67,8 +70,21 @@ RUN : \
   # otherwise it exits with status 3 (even though it appears to work), which
   # causes Docker image build failure.
   && source "${NVM_DIR}/nvm.sh" --install \
+  && nvm install \
   && npm install -g yarn@1.22.19 \
   && :
+
+# Install Cumulus CLI (see https://github.com/NASA-IMPACT/cumulus-cli)
+RUN git clone --depth 1 https://github.com/NASA-IMPACT/cumulus-cli.git /usr/src/cumulus-cli
+WORKDIR /usr/src/cumulus-cli
+# hadolint ignore=SC1091
+RUN : \
+  && source "${NVM_DIR}/nvm.sh" --install \
+  && nvm install \
+  && npm install \
+  && npm run build \
+  && npm install -g \
+  && ln -s "$(which cumulus)" /usr/local/bin/cumulus
 
 # Include TS_ENV in bash prompt so it is easy to see which environment
 # we're dealing with, in order to reduce the likelihood of accidentally making

@@ -14,7 +14,7 @@
 
 ## Cumulus CLI
 
-The Cumulus CLI provides a means for using the [Cumulus API][3] from the
+The [Cumulus CLI][5] provides a means for using the [Cumulus API][3] from the
 command-line, rather than via the Cumulus Dashboard, which is particularly
 useful when the Dashboard is not deployed.
 
@@ -23,10 +23,9 @@ it provide as much functionality as the Dashboard. Rather, it is focused on
 supporting a small number of common management functions, such as managing
 providers, collections, and rules (see [Cumulus Data Management Types][4]).
 
-Ideally, the Cumulus CLI should be developed as an independent tool, but for
-now, it resides within this repository, and requires `yarn` and `node` to run.
-However, to avoid the need to install `yarn` and `node` locally, you may run the
-CLI from within the Docker container, as described below.
+The Docker development image that you should have already built (see the
+`README.md` file at the root of this repository) includes the Cumulus CLI, so
+there's no need to manually install.
 
 ### Using the Cumulus CLI
 
@@ -41,19 +40,19 @@ make bash
 Within the container, Cumulus CLI commands have the following general form:
 
 ```plain
-./cumulus <subcommand> <options>
+cumulus <subcommand> <options>
 ```
 
 To see the available subcommands, run the following:
 
 ```plain
-./cumulus --help
+cumulus --help
 ```
 
 To get help for a particular subcommand, run the following:
 
 ```plain
-./cumulus <subcommand> --help
+cumulus <subcommand> --help
 ```
 
 ### Running Workflows
@@ -66,7 +65,7 @@ in the rule definition using the following command, where `NAME` is the name of
 the rule (also specified in the rule definition):
 
 ```sh
-./cumulus rules run --name NAME
+cumulus rules run --name NAME
 ```
 
 **NOTE:** To get started with some test data in a development deployment, first,
@@ -134,7 +133,7 @@ at rule-creation time, which we likely do not want to do):
    described above). For example, you might use the Cumulus CLI, like so:
 
    ```sh
-   ./cumulus rules add --data '{
+   cumulus rules add --data '{
      "name": "my_rule",
      "state": "DISABLED",
      "rule": {
@@ -157,7 +156,7 @@ at rule-creation time, which we likely do not want to do):
    command:
 
    ```plain
-   ./cumulus rules enable --name my_rule
+   cumulus rules enable --name my_rule
    ```
 
    This will **not** trigger the workflow again because updates (replacements)
@@ -175,7 +174,7 @@ initial execution triggered at rule-creation time). This can be achieved via the
 Cumulus CLI as follows:
 
 ```sh
-./cumulus rules run --name my_rule
+cumulus rules run --name my_rule
 ```
 
 ### Viewing CloudWatch Logs
@@ -372,3 +371,4 @@ Again, if you encounter any errors during any of these steps, refer to the
 [2]: https://nasa.github.io/cumulus-api/#updatereplace-rule
 [3]: https://nasa.github.io/cumulus-api/
 [4]: https://nasa.github.io/cumulus/docs/configuration/data-management-types
+[5]: https://github.com/NASA-IMPACT/cumulus-cli
