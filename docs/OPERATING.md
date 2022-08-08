@@ -87,9 +87,6 @@ few granule files to your deployment. Once the script finishes, it will output
 detailed steps to follow for enabling the rule, running the rule, and checking
 the logs.
 
-Note that in development deployments, CMR metadata is only _validated_ against
-the UAT CMR. It is not _published_ to the CMR.
-
 ## Granule Discovery and Ingestion
 
 ### Creating Cumulus "Onetime" Rules

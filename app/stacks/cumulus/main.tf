@@ -15,7 +15,7 @@ locals {
   dynamo_tables = jsondecode("<%= json_output('data-persistence.dynamo_tables') %>")
 
   ecs_task_cpu                = 768
-  ecs_task_image              = "cumuluss/cumulus-ecs-task:1.7.0"
+  ecs_task_image              = "cumuluss/cumulus-ecs-task:1.8.0"
   ecs_task_memory_reservation = 3277
 
   elasticsearch_alarms            = jsondecode("<%= json_output('data-persistence.elasticsearch_alarms') %>")

@@ -85,41 +85,80 @@ have to follow the steps in the following section _twice_: once for 9.7.0 ->
 
 ### Upgrading to the Next Version in the Upgrade Path
 
-To upgrade to a particular version of Cumulus, do the following:
+Once you have determined the next version of Cumulus you want to upgrade this
+repository to use (see previous section), you must first take a few steps to
+prepare:
 
-1. Check out this repository's `main` branch and pull the latest changes.
-1. Create a new branch (recommended name: `cumulus-upgrade-VERSION`, where
-   `VERSION` is the next version in the upgrade path).
-1. Run `bin/set-cumulus-version.sh VERSION` to update the version numbers of the
-   Cumulus dependencies specified in various files.  This saves a bit of
-   work hunting through the files to manually change version numbers.
-1. Run `make all-init` to initialize the Terraform modules. (**NOTE:** This will
-   take quite a bit of time, perhaps 45 minutes or more, because the Cumulus
-   Terraform module file is rather large, and Terraform needlessly downloads the
-   module file multiple times.)
+1. Get the lastest code for this repository and ensure your Docker image is
+   up-to-date, as follows:
 
-Once Terraform is initialized, consult the release notes for the corresponding
-Cumulus version, found on the [Cumulus releases] page. The release notes will
-contain information about breaking changes, if any, and may also include
-specific migration steps.
+   ```bash
+   git checkout main
+   git pull
+   make docker
+   ```
 
-In some cases, an upgrade may consist of nothing more than the steps above. In
-other cases, there may be Terraform configuration changes required, and possibly
-even required code changes.
+1. Create a new branch named `cumulus-upgrade-VERSION`, where `VERSION` is the
+   next Cumulus version in the upgrade path (as determined from the previous
+   section):
 
-After consulting the release notes:
+   ```bash
+   git checkout -b cumulus-upgrade-VERSION
+   ```
 
-1. Make necessary code and configuration changes, if any.
-1. Deploy the changes to a development stack (`make all-up-yes`). (**NOTE:**
-   This may take quite a bit of time to complete, perhaps 30 minutes or more,
-   depending on how many changes are required.)
-1. Test the changes to make sure discovery and ingestion still work.
-1. As needed, go back to step 1 until you confirm proper operation of Cumulus.
-1. Commit and push all changes made to the branch and open a Pull Request (PR).
+1. Run the following command to update the version numbers of the Cumulus
+   dependencies specified in various files.  This saves a bit of work hunting
+   through the files to manually change version numbers:
+
+   ```bash
+   bin/set-cumulus-version.sh VERSION
+   ```
+
+1. Run the following command to download and initialize the new versions of the
+   Cumulus Terraform modules.  **NOTE:** This may take quite a bit of time,
+   perhaps 45 minutes or more, because the Cumulus Terraform module files are
+   rather large, and Terraform may needlessly download each module file multiple
+   times.
+
+   ```bash
+   make all-init
+   ```
+
+Now that the preparation is complete, consult the Cumulus release notes for all
+of the Cumulus versions after the currently deployed version through the version
+you just prepared for, as found on the [Cumulus releases] page, and continue as
+follows:
+
+1. Make a list of **all necessary code and configuration changes**, according to
+   the relevant **breaking changes** and **migration steps** in the relevant
+   Cumulus release notes, if any.  Sometimes, an upgrade may be so simple that
+   there are no required changes to be made.
+1. **Deploy** the changes to a development stack:
+
+   ```plain
+   make all-up-yes
+   ```
+
+   **NOTE:** This may take quite a bit of time to complete, perhaps 30 minutes
+   or more, depending on how many changes are required.
+1. To make sure discovery and ingestion still work, **create some test data**
+   for a smoke test:
+
+   ```plain
+   make create-test-data
+   ```
+
+1. Run a **smoke test** by following the instructions output by the previous
+   command.
+1. If the smoke test fails, go back to step 1 until you get a successful smoke
+   test.
+1. Once the smoke test succeeds, **commit and push** all changes made to the
+   branch.
+1. Open a Pull Request (PR) for merging your new branch to the `main` branch.
 1. After your PR is approved, merge it into the `main` branch to have it
    automatically deployed to UAT.
-1. Once deployment to UAT succeeds, run a sample discover/ingest to check that
-   the upgrade works as expected. If not, make the necessary corrections.
+1. Once deployment to UAT succeeds, run a smoke test to check that the upgrade
+   works as expected.  If not, make the necessary corrections.
 1. Deploy to Production.
 
 Go back to the top of this section, and repeat as necessary until you reach the
