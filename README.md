@@ -51,36 +51,39 @@ follows:
 make docker
 ```
 
-Once the image is built, you should not have to build it again unless one of the
-following files change:
-
-- `.dockerignore`
-- `.terraform-version`
-- `Dockerfile`
-- `Gemfile`
-- `Gemfile.lock`
+Further, it is good practice to run the command above whenever you switch
+branches, or pull the latest code on any branch, in case changes were made to
+any files that affect the Docker image.
 
 ### Deploying Cumulus
 
-Once the Docker image is built, deploy all of the Terraform modules with the
-following command, which will deploy the modules in the correct order of their
+Once the Docker image is built, perform some setup required prior to your first
+deployment of Cumulus:
+
+```plain
+make pre-deploy-setup
+```
+
+Next, deploy all of the Terraform modules with the following commands, which
+will initialize and deploy the modules in the correct order of their
 dependencies:
 
 ```plain
-make all-up
+make all-init
+make all-up-yes
 ```
 
-The first time you run this command, you will be prompted to supply values for a
-number of secrets, which will be stored as AWS SSM Parameters of type
-SecureString.
+The first time you run the `make all-up-yes` command, you will be prompted to
+supply values for a number of secrets, which will be stored as AWS SSM
+Parameters of type SecureString.
 
-If you are unsure of what value to supply for a prompt, consult
-a team member who has already deployed Cumulus from this repository.  If you
-cannot immediately obtain an appropriate value for a prompt, you may simply
-supply a dummy value (e.g., TBD).  This will allow you to continue with deployment,
-and add the secret value at a later point, but you'll have to use the AWS CLI or
-AWS Management Console to do so, because during subsequent deployments, you will
-no longer be prompted for the value.
+If you are unsure of what value to supply for a prompt, consult a team member
+who has already deployed Cumulus from this repository.  If you cannot
+immediately obtain an appropriate value for a prompt, you may simply supply an
+empty value (i.e., simply press Enter/Return).  This will allow you to continue
+with deployment, and add the secret value at a later point.  The next time you
+deploy Cumulus, you will be reprompted for any values that you have not yet
+supplied.
 
 Initial deployment will take roughly 2 hours in total, but close to the end of
 the process, the deployment might fail with several error messages of the
@@ -104,91 +107,40 @@ not yet fully ready.  Typically, by the time you rerun the command, the required
 resource is ready.  See [Deploying Cumulus Troubleshooting] for more
 information.
 
-After your initial, successful, full deployment, you should rarely need to
-redeploy _all_ of the modules that Cumulus comprises.  Therefore, you may
-perform subsequent deployments with the following command:
+After your initial, successful deployment, one of the listed deployment outputs
+will be `cumulus_distribution_api_uri`.  Add the following line to your `.env`
+file, where `<URI>` is the value of that output.
 
 ```plain
-make up-cumulus
+TF_VAR_cumulus_distribution_url=<URI>
 ```
 
-Since this will avoid deploying the other modules, deployment time will be
-shorter.
+Then, to apply the value, redploy the `cumulus` module, as follows:
 
-One of the outputs from your deployment will be `cumulus_distribution_api_uri`.
-Copy the value to `.env` for `TF_VAR_cumulus_distribution_url`. Then redeploy.
+```plain
+make up-cumulus-yes
+```
+
+Finally, populate your development deployment with some data that will allow you
+to perform a small smoke test to verify that your deployment is operating
+properly:
+
+```plain
+make create-test-data
+```
+
+To run a smoke test, follow the instructions output by the command above.
 
 ### Destroying a Deployment
 
 See [Destroying a Deployment](docs/OPERATING.md#destroying-a-deployment) in
-[Operating CSDAP Cumulus](docs/OPERATING.md)
-
-## Using the Cumulus Dashboard
-
-If you wish to use the Cumulus Dashboard with your Cumulus deployment, follow
-the steps in this section.  Otherwise, you may skip these instructions.
-
-### Registering and Configuring an Earthdata Login Application
-
-Since the Cumulus Dashboard uses the Cumulus API (deployed as part of Cumulus),
-and the Cumulus API uses Earthdata Login for authentication, you must
-[register an Earthdata Login application] in order to enable such
-authentication.  Since the registration process can take several days to
-complete, it is recommended that you initiate the appropriate request as soon as
-possible.
-
-Once you receive notification that your application registration is complete,
-and you have also successfully deployed Cumulus as described above, you must
-update your Earthdata application as follows:
-
-1. Login to [Earthdata Login]
-1. Navigate to **Applications > My Applications**
-1. To the right of your listed Cumulus application, click either the Home or
-   Edit icon to show the details of your application.
-1. Along the top of the page, there are navigation links.  Click
-   **Manage > Redirect Uris**.
-1. Switch to your terminal window and run `make output-cumulus` to show the
-   Terraform outputs for your Cumulus deployment.
-1. Copy the value of `archive_api_redirect_uri`, go back to your Earthdata Login
-   browser session, paste the value into the text box for
-   **Redirect Uri to add**, and click the **ADD REDIRECT URI** button.
-1. Repeat the previous step for the value of `cumulus_distribution_api_redirect_uri`.
-
-Finally, you must set appropriate values for related environment variables in
-your `.env` file, as follows:
-
-1. Still within your EDL session, click the **Details** link in the row of links
-   along the top of the page.
-1. Copy the value of **Client ID** and paste it as the value of the
-   `URS_CLIENT_ID` variable in your `.env` file.
-1. Click **Manage > App Password** in the row of links along the top.
-1. Click **RESET PASSWORD** to initiate the process of setting an application
-   password.
-1. Once you have obtained an application password, set the value of the
-   `URS_CLIENT_PASSWORD` variable in your `.env` file to your application
-   password.
-1. Add your EDL username (in double quotes) to the list of `API_USERS` in your
-   `.env` file.
-1. Save your `.env` file.
-1. Run `make up-cumulus` to redeploy your
-   `cumulus` module so that your Cumulus API can perform authentication against
-   your EDL application.
-
-### Deploying and Launching the Cumulus Dashboard
-
-TBD
+[Operating CSDAP Cumulus](docs/OPERATING.md).
 
 [Deploying Cumulus Troubleshooting]:
    https://nasa.github.io/cumulus/docs/troubleshooting/troubleshooting-deployment#deploying-cumulus
-[Earthdata Login]:
-   https://uat.urs.earthdata.nasa.gov/
 [How to Destroy Everything]:
    https://nasa.github.io/cumulus/docs/deployment/terraform-best-practices#how-to-destroy-everything
-[Register an Earthdata Login Application]:
-   https://wiki.earthdata.nasa.gov/display/EL/How+To+Register+An+Application
 [Terraform]:
    https://www.terraform.io/
 [Terraspace]:
    https://terraspace.cloud/
-[Update Your Earthdata Application]:
-   https://nasa.github.io/cumulus/docs/deployment/deployment-readme#update-earthdata-application

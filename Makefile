@@ -88,9 +88,21 @@ clean-cache:
 clean-logs:
 	$(TERRASPACE) clean logs
 
+## copy-launchpad-pfx: Copy launchpad.pfx file to expected location
+copy-launchpad-pfx:
+	$(DOCKER_RUN) --tty $(IMAGE) -ic "bin/copy-launchpad-pfx.sh"
+
+## create-test-data: Creates data for use with discovery/ingestion smoke test
+create-test-data:
+	$(DOCKER_RUN) --tty $(IMAGE) -ic "bin/create-test-data.sh"
+
 ## docker: Builds Docker image for running Terraspace/Terraform
 docker: Dockerfile .dockerignore .terraform-version Gemfile Gemfile.lock
 	$(DOCKER_BUILD)
+
+## ensure-buckets-exist
+ensure-buckets-exist:
+	$(DOCKER_RUN) --tty $(IMAGE) -ic "bin/ensure-buckets-exist.sh"
 
 ## init-STACK: Runs `terraform init` for specified STACK
 init-%:
@@ -120,6 +132,9 @@ plan-cumulus: install
 ## plan-STACK: Runs `terraform plan` for specified STACK
 plan-%:
 	$(TERRASPACE) plan $*
+
+## pre-deploy-setup: Setup resources prior to initial deployment (idempotent)
+pre-deploy-setup: ensure-buckets-exist copy-launchpad-pfx
 
 ## terraform-doctor-STACK: Fixes "duplicate resource" errors for specified STACK
 terraform-doctor-%: install

@@ -11,7 +11,7 @@
 #
 # Usage:
 #
-#     ensure-buckets-exist.sh [BUCKET [BUCKET [...]]]
+#     ensure-buckets-exist.sh
 #
 
 set -Eeu
@@ -39,13 +39,20 @@ function create_bucket() {
 }
 
 function main() {
-  declare -a _buckets=("${@}")
+  declare _buckets
 
-  for _bucket in "${_buckets[@]}"; do
+  _buckets="$(
+    echo "var.buckets" |
+      terraspace console cumulus |
+      grep '"name" = ' |
+      sed -E 's/.*= "([^"]*)"/\1/'
+  )"
+
+  for _bucket in ${_buckets}; do
     if ! bucket_exists "${_bucket}"; then
       create_bucket "${_bucket}" "${AWS_REGION}"
     fi
   done
 }
 
-main "$@"
+main
