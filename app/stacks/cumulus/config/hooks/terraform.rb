@@ -77,6 +77,8 @@ class SetLambdaMemorySizes
 
     memory_sizes = {
       "PostToCmr": 512,
+      "DiscoverGranules": 1024,
+      "QueueGranules": 1024,
     }
 
     memory_sizes.each do |name, size|
@@ -170,7 +172,4 @@ end
 before("plan", execute: EnsureSsmParametersExist)
 before("apply", execute: InteractivelySetSsmParameters)
 
-# Technically speaking, we only need to do this after "apply", but we're also
-# doing it after "plan" so that we can fail-fast, if there is an issue, and the
-# operation is fast and free, so there's no problem doing it twice.
-after("plan", "apply", execute: SetLambdaMemorySizes)
+after("apply", execute: SetLambdaMemorySizes)

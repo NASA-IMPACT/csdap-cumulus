@@ -78,7 +78,7 @@
                 }
               },
               "Type": "Task",
-              "Resource": "${discover_granules_activity_id}",
+              "Resource": "${discover_granules_task_arn}",
               "Retry": [
                 {
                   "ErrorEquals": [
@@ -133,7 +133,7 @@
                 }
               },
               "Type": "Task",
-              "Resource": "${queue_granules_activity_id}",
+              "Resource": "${queue_granules_task_arn}",
               "Retry": [
                 {
                   "ErrorEquals": [
