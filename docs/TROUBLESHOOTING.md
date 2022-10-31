@@ -7,6 +7,7 @@
   - [Error Reading Secrets Manager Secret Policy](#error-reading-secrets-manager-secret-policy)
   - [Instance Cannot be Destroyed (Resource has `lifecycle.prevent_destroy` set)](#instance-cannot-be-destroyed-resource-has-lifecycleprevent_destroy-set)
   - [Error Deleting Lambda ENIs Using Security Group](#error-deleting-lambda-enis-using-security-group)
+  - [Error Waiting for Step Function State Machine Deletion](#error-waiting-for-step-function-state-machine-deletion)
   - [Error Deleting EventBridge Rule](#error-deleting-eventbridge-rule)
   - [Error Deleting Security Group (DependencyViolation)](#error-deleting-security-group-dependencyviolation)
   - [Error Deleting RDS Cluster (Cannot delete protected Cluster)](#error-deleting-rds-cluster-cannot-delete-protected-cluster)
@@ -227,9 +228,12 @@ If there are several lambda functions, you can save yourself some effort by
 using the following command to find them and delete them all at once:
 
 ```sh
-aws-support-tools/Lambda/FindEniMappings/findEniAssociations \
+findEniAssociations \
   --region ${AWS_REGION} \
-  --eni <ENI> | grep ':function:' | xargs -L1 aws lambda delete-function --function-name
+  --eni <ENI> |
+  grep ':function:' |
+  sed -E 's/.*:function:([^:]*):.*/\1/' |
+  xargs -L1 aws lambda delete-function --function-name
 ```
 
 Once you've deleted the Lambda functions, run the `findEniAssociations` command
@@ -238,6 +242,32 @@ again to make sure you've deleted them all.
 Your destruction command might fail again for the same reason, but for a
 different ENI.  If so, repeat the steps above, using the new ENI given in the
 new error message.
+
+### Error Waiting for Step Function State Machine Deletion
+
+```Error: error waiting for Step Function State Machine (arn:aws:states:us-west-2:852078737469:stateMachine:cumulus-jayanthi-DiscoverAndQueueGranules) deletion: timeout while waiting for resource to be gone (last state: 'DELETING', timeout: 5m0s)
+
+
+Time took: 30m 55s
+Error running command: terraform destroy -auto-approve
+
+aws stepfunctions list-executions --state-machine-arn arn:aws:states:us-west-2:852078737469:stateMachine:cumulus-jayanthi-DiscoverAndQueueGranules --status-filter RUNNING
+{
+    "executions": [
+        {
+            "executionArn": "arn:aws:states:us-west-2:852078737469:execution:cumulus-jayanthi-DiscoverAndQueueGranules:765e8f07-bc02-4d1e-80f7-559da47c41b7",
+            "stateMachineArn": "arn:aws:states:us-west-2:852078737469:stateMachine:cumulus-jayanthi-DiscoverAndQueueGranules",
+            "name": "765e8f07-bc02-4d1e-80f7-559da47c41b7",
+            "status": "RUNNING",
+            "startDate": "2022-09-09T18:28:23.971000+00:00"
+        }
+    ]
+}
+(chuckwondo):/work $ aws stepfunctions stop-execution --execution-arn arn:aws:states:us-west-2:852078737469:execution:cumulus-jayanthi-DiscoverAndQueueGranules:765e8f07-bc02-4d1e-80f7-559da47c41b7 --error "Manual Abort"
+{
+    "stopDate": "2022-09-10T01:08:48.240000+00:00"
+}
+```
 
 ### Error Deleting EventBridge Rule
 

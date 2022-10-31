@@ -108,8 +108,18 @@ resource is ready.  See [Deploying Cumulus Troubleshooting] for more
 information.
 
 After your initial, successful deployment, one of the listed deployment outputs
-will be `cumulus_distribution_api_uri`.  Add the following line to your `.env`
-file, where `<URI>` is the value of that output.
+will be `cumulus_distribution_api_uri`.  To locate this output, look at the file
+`log/up/cumulus.log`.  The output should appear near the end of the file, and
+the line should look similar to the following:
+
+```plain
+[... terraspace up cumulus]: cumulus_distribution_api_uri = <URI>
+```
+
+Add the following line to your `.env` file, where `<URI>` is the value of that
+output.  Note that if you copied your `.env` file from `.env.example`, you
+should already have a line at the bottom of the file that you can uncomment and
+paste the value of `<URI>` there:
 
 ```plain
 TF_VAR_cumulus_distribution_url=<URI>
@@ -138,8 +148,6 @@ See [Destroying a Deployment](docs/OPERATING.md#destroying-a-deployment) in
 
 [Deploying Cumulus Troubleshooting]:
    https://nasa.github.io/cumulus/docs/troubleshooting/troubleshooting-deployment#deploying-cumulus
-[How to Destroy Everything]:
-   https://nasa.github.io/cumulus/docs/deployment/terraform-best-practices#how-to-destroy-everything
 [Terraform]:
    https://www.terraform.io/
 [Terraspace]:

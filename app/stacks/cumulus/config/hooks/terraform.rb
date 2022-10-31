@@ -72,6 +72,7 @@ class SetLambdaMemorySizes
     puts "via Terraform configuration.  This should be removed and performed"
     puts "in the appropriate tf or tfvars file(s) when supported by Cumulus."
     puts "(See #{__FILE__.delete_prefix(Dir.pwd).delete_prefix('/')})"
+    puts
 
     client = Aws::Lambda::Client.new
 
@@ -92,7 +93,6 @@ class SetLambdaMemorySizes
       #
       function_name = "cumulus-#{Terraspace.env}-#{name}"
 
-      puts
       puts "~ #{function_name} -> #{size} MB"
 
       client.update_function_configuration(

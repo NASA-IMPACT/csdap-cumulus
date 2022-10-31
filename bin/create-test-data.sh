@@ -30,23 +30,27 @@ aws s3 cp --recursive "app/stacks/cumulus/resources/granules/${_collection_name}
 echo "Done"
 
 echo
-echo "To run a smoke test, do the following, within the Docker container:"
+echo "To run a smoke test, do the following:"
 echo
-echo "1. Enable the rule:"
+echo "1. Open a terminal in a Docker container:"
+echo
+echo "     make bash"
+echo
+echo "2. Enable the rule:"
 echo
 echo "     cumulus rules enable --name ${_rule}"
 echo
-echo "2. Run the rule to trigger discovery and ingestion:"
+echo "3. Run the rule to trigger discovery and ingestion:"
 echo
 echo "     cumulus rules run --name ${_rule}"
 echo
-echo "3. Follow the logs for discovery to confirm discovery of the uploaded"
+echo "4. Follow the logs for discovery to confirm discovery of the uploaded"
 echo "   sample granule files (NOTE: it may take a minute or so before you see"
 echo "   any logging output):"
 echo
 echo "     aws logs tail --follow /aws/lambda/${CUMULUS_PREFIX}-DiscoverGranulesPrefixingIds"
 echo
-echo "4. Follow the logs for ingestion to confirm CMR validation of the metadata"
+echo "5. Follow the logs for ingestion to confirm CMR validation of the metadata"
 echo "   (NOTE: either kill the previous command with Ctrl-C, or open another"
 echo "   terminal window and start another Docker container by running 'make bash'):"
 echo
