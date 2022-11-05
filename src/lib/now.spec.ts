@@ -1,13 +1,12 @@
 /* eslint-disable functional/no-return-void */
-import anyTest, { TestInterface } from 'ava'; // AVA 3
-// import anyTest, {TestFn as TestInterface} from 'ava'; // AVA 4, usage is the same
+import anyTest, { TestFn } from 'ava';
 
 type Context = {
   // eslint-disable-next-line functional/prefer-readonly-type
   now: () => number;
 };
 
-const test = anyTest as TestInterface<Context>;
+const test = anyTest as TestFn<Context>;
 
 test.beforeEach((t) => {
   // Stub out Date.now() so we can test against fixed Date values.

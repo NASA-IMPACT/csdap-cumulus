@@ -69,7 +69,7 @@
     "newtype-ts": "^0.3.4"
   },
   "devDependencies": {
-    "@ava/typescript": "^2.0.0",
+    "@ava/typescript": "^3.0.1",
     "@cumulus/types": "13.3.0",
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
     "@tsconfig/node14": "^1.0.1",
@@ -78,7 +78,7 @@
     "@types/node": "^16.11.1",
     "@typescript-eslint/eslint-plugin": "^5.1.0",
     "@typescript-eslint/parser": "^5.1.0",
-    "ava": "^3.12.1",
+    "ava": "^4.3.3",
     "codecov": "^3.5.0",
     "cz-conventional-changelog": "^3.3.0",
     "eslint": "^8.0.1",
