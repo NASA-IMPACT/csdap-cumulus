@@ -1,10 +1,20 @@
-import { Duration } from 'dayjs/plugin/duration';
+import * as dates from 'date-fns';
+import * as duration from 'duration-fns';
 import * as E from 'fp-ts/Either';
 import { pipe } from 'fp-ts/function';
 import * as t from 'io-ts';
 import * as tt from 'io-ts-types';
 
-import dayjs from '../dayjs';
+const DURATION_OBJECT_KEYS = Object.freeze([
+  'years',
+  'months',
+  'weeks',
+  'days',
+  'hours',
+  'minutes',
+  'seconds',
+  'milliseconds',
+]);
 
 export type DurationFromISOStringC = t.Type<Duration, string, unknown>;
 
@@ -13,8 +23,10 @@ export type DurationFromISOStringC = t.Type<Duration, string, unknown>;
  * it must be an [ISO 8601 Duration](https://en.wikipedia.org/wiki/ISO_8601#Durations).
  *
  * @example
+ * import { Duration } from 'date-fns';
+ *
  * const d: Duration =
- *   E.getOrElse(() => dayjs.duration(0))(DurationFromISOString.decode('P1M'))
+ *   E.getOrElse(() => ({} as Duration))(DurationFromISOString.decode('P1M'))
  *
  * @example
  * const MyType = t.type({
@@ -23,16 +35,24 @@ export type DurationFromISOStringC = t.Type<Duration, string, unknown>;
  * })
  */
 export const DurationFromISOString: DurationFromISOStringC = new t.Type<
-  Duration,
+  dates.Duration,
   string
 >(
   'DurationFromISOString',
-  (u): u is Duration => dayjs.isDuration(u) && !isNaN(u.asMilliseconds()),
+  (u): u is dates.Duration =>
+    typeof u === 'object' &&
+    u !== null &&
+    Object.keys(u).every((k) => DURATION_OBJECT_KEYS.includes(k)),
   (u, c) =>
     pipe(
       tt.NonEmptyString.validate(u, c),
-      E.map(dayjs.duration),
-      E.chain((d) => (isNaN(d.asMilliseconds()) ? t.failure(u, c) : t.success(d)))
+      E.chain(
+        E.tryCatchK(
+          duration.parse,
+          (e) => [{ value: u, context: c, message: (e as Error).message }] as t.Errors
+        )
+      ),
+      E.chain((d) => t.success(d))
     ),
-  (d: Duration) => d.toISOString()
+  (d: dates.Duration) => duration.toString(d)
 );

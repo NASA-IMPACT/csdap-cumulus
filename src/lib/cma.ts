@@ -31,6 +31,9 @@ export type CMAAsyncHandler = L.AsyncHandler<CMAEvent, CMAResult>;
  *   ...,
  * }
  *
+ * // Import this module
+ * import * as cma from './cma';
+ *
  * // Define event type based upon task_config in state machine definition
  * type Event = {
  *   config: {
@@ -48,7 +51,7 @@ export type CMAAsyncHandler = L.AsyncHandler<CMAEvent, CMAResult>;
  * }
  *
  * // Export wrapped handler to configure as the AWS Lambda Function handler
- * export const handler = asyncHandler(internalHandler);
+ * export const handler = CMA.asyncHandler(internalHandler);
  *
  * @param handler - an async AWS Lambda Function handler
  * @returns an async AWS Lambda Function handler that wraps the specified "vanilla"

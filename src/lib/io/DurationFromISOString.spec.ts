@@ -1,6 +1,5 @@
 /* eslint-disable functional/no-return-void */
 import test from 'ava';
-import dayjs from 'dayjs';
 import * as E from 'fp-ts/Either';
 
 import * as PR from './PathReporter';
@@ -39,7 +38,10 @@ test('should fail to decode an invalid ISO Duration string', (t) => {
 
   t.deepEqual(
     E.mapLeft(PR.failure)(result),
-    E.left(['Invalid value for type DurationFromISOString: "P1m"'])
+    E.left([
+      'Invalid value for type DurationFromISOString: "P1m":' +
+        ' Failed to parse duration. "P1m" is not a valid ISO duration string.',
+    ])
   );
 });
 
@@ -48,16 +50,15 @@ test('should decode a valid ISO Duration string', (t) => {
 
   t.deepEqual(
     E.mapLeft(PR.failure)(result),
-    E.right(
-      dayjs.duration({
-        years: 0,
-        months: 1,
-        weeks: 0,
-        days: 0,
-        hours: 0,
-        minutes: 0,
-        seconds: 0,
-      })
-    )
+    E.right({
+      years: 0,
+      months: 1,
+      weeks: 0,
+      days: 0,
+      hours: 0,
+      minutes: 0,
+      seconds: 0,
+      milliseconds: 0,
+    })
   );
 });

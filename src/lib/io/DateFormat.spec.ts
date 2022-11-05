@@ -20,7 +20,9 @@ test('should fail to decode an empty string', (t) => {
 
   t.deepEqual(
     E.mapLeft(PR.failure)(result),
-    E.left(['Invalid value for type DateFormat: ""'])
+    E.left([
+      'Invalid value for type DateFormat: "": Cannot read property \'map\' of null',
+    ])
   );
 });
 
@@ -38,21 +40,27 @@ test('should fail to decode "hello"', (t) => {
 
   t.deepEqual(
     E.mapLeft(PR.failure)(result),
-    E.left(['Invalid value for type DateFormat: "hello"'])
+    E.left([
+      'Invalid value for type DateFormat: "hello":' +
+        ' Format string contains an unescaped latin alphabet character `l`',
+    ])
   );
 });
 
-test('should fail to decode "yyyy"', (t) => {
+test('should decode "yyyy"', (t) => {
   const result = $t.DateFormat.decode('yyyy');
 
-  t.deepEqual(
-    E.mapLeft(PR.failure)(result),
-    E.left(['Invalid value for type DateFormat: "yyyy"'])
-  );
+  t.deepEqual(result, E.right('yyyy'));
 });
 
-test('should decode "[escaped]-YYYYMM"', (t) => {
-  const result = $t.DateFormat.decode('[escaped]-YYYYMM');
+test("should decode 'escaped'-yyyyMM", (t) => {
+  const result = $t.DateFormat.decode("'escaped'-yyyyMM");
 
-  t.deepEqual(result, E.right('[escaped]-YYYYMM'));
+  t.deepEqual(result, E.right("'escaped'-yyyyMM"));
+});
+
+test('should decode "yyyy/DDD"', (t) => {
+  const result = $t.DateFormat.decode('yyyy/DDD');
+
+  t.deepEqual(result, E.right('yyyy/DDD'));
 });

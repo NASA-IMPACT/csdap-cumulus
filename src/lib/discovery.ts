@@ -1,27 +1,30 @@
 import { discoverGranules } from '@cumulus/discover-granules';
-import { Duration } from 'dayjs/plugin/duration';
+import * as dates from 'date-fns/fp';
 import * as O from 'fp-ts/Option';
 import { constant, pipe } from 'fp-ts/function';
 import * as t from 'io-ts';
 import * as tt from 'io-ts-types';
 import * as fp from 'lodash/fp';
 
-import * as CMA from './cma';
-import dayjs from './dayjs';
+import * as cma from './cma';
 import * as $t from './io';
 import * as L from './lambda';
 import { traceAsync } from './logging';
 
-export const DiscoverGranulesProps = t.type({
-  config: t.type({
-    providerPathFormat: $t.DateFormat,
-    startDate: tt.DateFromISOString,
-    endDate: tt.optionFromNullable(tt.DateFromISOString),
-    step: tt.optionFromNullable($t.DurationFromISOString),
-  }),
-});
+export const ProviderPathProps = t.readonly(
+  t.type({
+    config: t.readonly(
+      t.type({
+        providerPathFormat: $t.DateFormat,
+        startDate: tt.DateFromISOString,
+        endDate: tt.optionFromNullable(tt.DateFromISOString),
+        step: tt.optionFromNullable($t.DurationFromISOString),
+      })
+    ),
+  })
+);
 
-export const ConfigCollectionProps = t.readonly(
+export const DiscoverGranulesProps = t.readonly(
   t.type({
     config: t.readonly(t.type({ collection: t.readonly(t.type({ name: t.string })) })),
   })
@@ -35,8 +38,8 @@ export const GranulesPayload = t.type({
   granules: t.readonlyArray(Granule),
 });
 
+export type ProviderPathProps = t.TypeOf<typeof ProviderPathProps>;
 export type DiscoverGranulesProps = t.TypeOf<typeof DiscoverGranulesProps>;
-export type ConfigCollectionProps = t.TypeOf<typeof ConfigCollectionProps>;
 export type Granule = t.TypeOf<typeof Granule>;
 export type GranulesPayload = t.TypeOf<typeof GranulesPayload>;
 
@@ -45,20 +48,21 @@ export type GranulesPayload = t.TypeOf<typeof GranulesPayload>;
  *
  * Uses the specified `providerPathFormat` property to format the `startDate` property
  * as the provider path.  Expects `providerPathFormat` to be a valid format according to
- * the [Day.js Format specification](https://day.js.org/docs/en/display/format).
+ * the [Unicode Date Format Patterns](
+ * https://www.unicode.org/reports/tr35/tr35-dates.html#8-date-format-patterns).
  *
- * For example, if the `providerPathFormat` is `"[path/to/collection-name]-YYYY"`, and
+ * For example, if the `providerPathFormat` is `"'path/to/collection-name'-yyyy"`, and
  * the year of the `startDate` is 2019, returns the provider path as
- * `"path/to/collection-name-2019"`.
+ * `"path/to/collection-name-2019"`.  Note that any text within the date format pattern
+ * that is surrounded by single quotes is taken literally, and the single quotes are
+ * not present in the result.
  *
  * @param props - granule discovery properties
  * @returns the provider path for granule discovery
  */
-export const formatProviderPath = (props: DiscoverGranulesProps) => {
+export const formatProviderPath = (props: ProviderPathProps) => {
   const { providerPathFormat, startDate } = props.config;
-  const providerPath = dayjs.utc(startDate).format(providerPathFormat);
-
-  return providerPath;
+  return dates.format(providerPathFormat, startDate);
 };
 
 /**
@@ -95,7 +99,7 @@ export const formatProviderPath = (props: DiscoverGranulesProps) => {
  * @returns granules payload with collection name added as prefix to granule IDs
  */
 export const discoverGranulesPrefixingIds = (
-  props: ConfigCollectionProps
+  props: DiscoverGranulesProps
 ): Promise<GranulesPayload> =>
   discoverGranules(props).then(prefixGranuleIds(props.config.collection.name));
 
@@ -128,11 +132,11 @@ export const prefixGranuleIds = (collectionName: string) =>
  *    start date is greater than or equal to the discovery end date or no step property
  *    is specified
  */
-export const advanceStartDate = (props: DiscoverGranulesProps): string | null => {
+export const advanceStartDate = (props: ProviderPathProps): string | null => {
   const { startDate, step } = props.config;
   const now = () => new Date(Date.now());
   const endDate = pipe(props.config.endDate, O.getOrElse(now));
-  const addDuration = (d: Duration) => dayjs.utc(startDate).add(d).toDate();
+  const addDuration = (d: Duration) => dates.add(d, startDate);
   const nextStartDate = pipe(step, O.match(constant(endDate), addDuration));
 
   return nextStartDate < endDate ? nextStartDate.toISOString() : null;
@@ -142,21 +146,21 @@ export const advanceStartDate = (props: DiscoverGranulesProps): string | null =>
 // HANDLERS
 //------------------------------------------------------------------------------
 
-const mkDiscoverGranulesHandler = L.mkAsyncHandler(DiscoverGranulesProps);
+const mkProviderPathHandler = L.mkAsyncHandler(ProviderPathProps);
 
 // For testing
 
 export const formatProviderPathHandler = traceAsync(
-  mkDiscoverGranulesHandler(formatProviderPath)
+  mkProviderPathHandler(formatProviderPath)
 );
 export const advanceStartDateHandler = traceAsync(
-  mkDiscoverGranulesHandler(advanceStartDate)
+  mkProviderPathHandler(advanceStartDate)
 );
 
 // For Lambda functions
 
-export const formatProviderPathCMAHandler = CMA.asyncHandler(formatProviderPathHandler);
-export const discoverGranulesCMAHandler = CMA.asyncHandler(
-  L.mkAsyncHandler(ConfigCollectionProps)(discoverGranulesPrefixingIds)
+export const formatProviderPathCMAHandler = cma.asyncHandler(formatProviderPathHandler);
+export const discoverGranulesCMAHandler = cma.asyncHandler(
+  L.mkAsyncHandler(DiscoverGranulesProps)(discoverGranulesPrefixingIds)
 );
-export const advanceStartDateCMAHandler = CMA.asyncHandler(advanceStartDateHandler);
+export const advanceStartDateCMAHandler = cma.asyncHandler(advanceStartDateHandler);

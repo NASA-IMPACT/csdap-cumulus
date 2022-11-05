@@ -250,7 +250,7 @@ recommended collection definition structure for collections in this project:
   "granuleId": ".*",
   "granuleIdExtraction": "^(<GRANULE_ID_PATTERN>)(?:<SUFFIX_PATTERN>)$",
   "sampleFileName": "<SAMPLE_GRANULE_ID><SAMPLE_SUFFIX>",
-  "url_path": "<PROVIDER_ID>/{cmrMetadata.CollectionReference.ShortName}___{cmrMetadata.CollectionReference.Version}/{cmrMetadata.GranuleUR}",
+  "url_path": "{cmrMetadata.CollectionReference.ShortName}___{cmrMetadata.CollectionReference.Version}/{cmrMetadata.GranuleUR}",
   "ignoreFilesConfigForDiscovery": true,
   "files": [
     {
@@ -276,8 +276,6 @@ where:
   `<GRANULE_ID_PATTERN>` regular expression
 - `<SAMPLE_SUFFIX>` is an example of a filename suffix that matches the
   `<SUFFIX_PATTERN>` regular expression
-- `<PROVIDER_ID>` is the provider ID for the provider where the granule files
-  are to be discovered
 - the `"url_path"` property value is the S3 key prefix to use for the
   destination location of the granule files.  See
   [How to specify a file location in a bucket] for details on how to construct a
@@ -340,7 +338,7 @@ project (with details below):
     "startDate": "<START_DATE>",
     "endDate": "<END_DATE>",
     "step": "P1D",
-    "providerPathFormat": "[<STATIC_PATH>]<DYNAMIC_DATE_PATH>",
+    "providerPathFormat": "<DATE_FORMAT_PATTERN>",
     "discoverOnly": false
   }
 }
@@ -372,21 +370,34 @@ work around a severe scalability limitation in the core Cumulus implementation.
 
 Within the `"meta"` section shown in the JSON definition template above:
 
-- `<START_DATE>` is an [ISO 8601 Date] (or combined date and time)
-- `<END_DATE>` is an [ISO 8601 Date] (the date range _excludes_ this date)
+- `<START_DATE>` is an [ISO 8601 Date] (or combined date and time), which should
+  end with a `Z` to indicate UTC time
+- `<END_DATE>` is an [ISO 8601 Date] (the date range _excludes_ this date),
+  which should end with a `Z` to indicate UTC time
 - the `"step"` property value is an [ISO 8601 Duration], and should generally be
   set to `"P1D"` (representing a duration of 1 day) to avoid crashing the
   `DiscoverGranules` task for collections that may include large numbers of
-  granule files in any given month
-- `<STATIC_PATH>` appears with square brackets (`[` and `]`) to indicate that
-  the text _within_ the brackets must be used literally, not translated as any
-  date format characters (the brackets are _not_ included in the output).  This
-  represents the part of the bucket key prefix that is static with respect to
-  all of the granule files that this rule will discover.
-- `<DYNAMIC_DATE_PATH>` is the remainder of the bucket key prefix that varies
-  based upon the date of the granule files, and should have the same granularity
-  as the `"step"` duration.  For example, if `"step"` is set to 1 day (`"P1D"`),
-  this date pattern must be down to the day resolution.
+  granule files in any given month.  For very small collections (perhaps a max
+  of 10K per month), this could be set to `"P1M"`, representing a duration of 1
+  month).
+- `<DATE_FORMAT_PATTERN>` is a [date format pattern] that is used to format the
+  dates produced by starting with `<START_DATE>` and incrementing the date by
+  the `"step"` value until the `<END_DATE>` is reached.  Each formatted result
+  is used as the "provider path" that Cumulus uses to determine the S3 key
+  prefix (within the S3 bucket specified by the provider identified by
+  `<PROVIDER_ID>`) where it will discover files.  Typically, this pattern should
+  be in the form `"'path/to/collection/'<DATE_PATTERN>"`, where
+  `"'path/to/collection'"` represents the literal path that is the part of the
+  prefix that does not contain date information (and **must be surrounded by
+  single quotes** to avoid having any characters interpreted as part of a date
+  pattern), and `<DATE_PATTERN>` is the subsequent part of the path that
+  contains date information.  For example, for the PSScene3Band collection, this
+  might be `"'planet/PSScene3Band'yyyyMMdd"`, where `'planet/PSScene3Band'` is
+  the literal part, and `yyyyMMdd` represents the 4-digit year (`yyyy`, _not_
+  `YYYY`), 2-digit month (`MM`) and 2-digit day of the month (`dd`).  This
+  should have the same granularity as the `"step"` duration.  For example, if
+  `"step"` is set to 1 day (`"P1D"`), this date format must be down to the day
+  resolution.
 
 Once a rule `.json` file is created, you can add it to the Cumulus database (or
 update it) with the following command (from within the Docker container):
@@ -695,6 +706,8 @@ cumulus rules run --name my_rule
   https://nasa.github.io/cumulus/docs/configuration/data-management-types
 [collection]:
   https://nasa.github.io/cumulus/docs/data-cookbooks/setup#collections
+[date format pattern]:
+  https://www.unicode.org/reports/tr35/tr35-dates.html#8-date-format-patterns
 [provider]:
   https://nasa.github.io/cumulus/docs/operator-docs/provider
 [rule]:
