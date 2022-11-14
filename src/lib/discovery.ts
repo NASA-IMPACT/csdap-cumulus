@@ -1,5 +1,5 @@
 import { discoverGranules } from '@cumulus/discover-granules';
-import * as dates from 'date-fns/fp';
+import * as dates from 'date-fns';
 import * as O from 'fp-ts/Option';
 import { constant, pipe } from 'fp-ts/function';
 import * as t from 'io-ts';
@@ -24,9 +24,23 @@ export const ProviderPathProps = t.readonly(
   })
 );
 
+const CollectionMeta = t.readonly(
+  t.type({ prefixGranuleIds: tt.fromNullable(t.boolean, false) })
+);
+type CollectionMeta = t.TypeOf<typeof CollectionMeta>;
+
+const Collection = t.readonly(
+  t.type({
+    name: t.string,
+    meta: tt.fromNullable(CollectionMeta, {} as CollectionMeta),
+  })
+);
+
 export const DiscoverGranulesProps = t.readonly(
   t.type({
-    config: t.readonly(t.type({ collection: t.readonly(t.type({ name: t.string })) })),
+    config: t.type({
+      collection: Collection,
+    }),
   })
 );
 
@@ -42,6 +56,8 @@ export type ProviderPathProps = t.TypeOf<typeof ProviderPathProps>;
 export type DiscoverGranulesProps = t.TypeOf<typeof DiscoverGranulesProps>;
 export type Granule = t.TypeOf<typeof Granule>;
 export type GranulesPayload = t.TypeOf<typeof GranulesPayload>;
+
+type DiscoverGranules = (props: DiscoverGranulesProps) => Promise<GranulesPayload>;
 
 /**
  * Returns the provider path for granule discovery.
@@ -62,46 +78,72 @@ export type GranulesPayload = t.TypeOf<typeof GranulesPayload>;
  */
 export const formatProviderPath = (props: ProviderPathProps) => {
   const { providerPathFormat, startDate } = props.config;
-  return dates.format(providerPathFormat, startDate);
+  return dates.format(startDate, providerPathFormat);
 };
 
 /**
- * Returns a payload identical to the payload produced by the `discoverGranules` Lambda
- * Function, but where the `granuleId` of every granule has been prefixed with the
- * specified collection's name, delimited from the original `granuleId` by a dash (`-`).
+ * Decorates the specified function, possibly applying the `prefixGranuleIds` function
+ * to the output of the specified function.  The specified function must have the same
+ * signature as the `discoverGranules` function from the `@cumulus/discover-granules`
+ * module.
  *
- * For example, if the collection's name given in the input config is `MyCollection`,
- * then each granule in the payload would have it's `granuleId` prefixed with
- * `MyCollection-`.  Thus, if on input, a granule's `granuleId` were `12345`, then on
- * output, it's `granuleId` would be `MyCollection-12345`.
+ * Returns a function that also has the same signature as the `discoverGranules`
+ * function.  However, upon invocation, the returned function invokes the specified
+ * function, and then may or may not apply the `prefixGranuleIds` function to the
+ * result before returning it.
+ *
+ * When the returned function is invoked, if the input event contains the value `true`
+ * at the path `config.collection.meta.prefixGranuleIds`, it applies the function
+ * `prefixGranuleIds` to the result of invoking the wrapped function, before returning
+ * the final result.
+ *
+ * In the following examples, we define `mockDiscoverGranules` to mock the
+ * `discoverGranules` function. The ability to easily mock `discoverGranules` is the
+ * reason for defining the function as an input to be wrapped/decorated.
+ *
+ * In the first example, since `props1` does _not_ specify a
+ * `config.collection.meta.prefixGranuleIds` property set to `true`, the granule IDs
+ * produced by `mockDiscoverGranules` are _not_ prefixed with the name of the
+ * collection.
+ *
+ * However, in the second example, we do set such a property to `true`. Thus, the
+ * granule IDs _are_ prefixed with the name of the collection.
  *
  * @example
- * const props = {
- *   config: {
- *     collection: {
- *       name: 'MyCollection'
- *     }
- *   }
- * };
+ * > const mockDiscoverGranules = async (props: DiscoverGranulesProps) => ({
+ * ...   granules: [{ granuleId: '12345', ... }]
+ * ... })
+ * undefined
+ * > const props1 = { config: { collection: { name: 'MyCollection' } } };
+ * undefined
+ * > await discoverGranulesPrefixingIds(mockDiscoverGranules)(props1);
+ * { granules: [{ granuleId: '12345', ... }] }
  *
- * console.log(await discoverGranulesPrefixingIds(props));
- * // {
- * //   granules: [
- * //     {
- * //       granuleId: 'MyCollection-12345',
- * //       ...
- * //     },
- * //     ...
- * //   ]
- * // }
+ * @example
+ * > const props2 = { config: { collection: {
+ * ...   name: 'MyCollection',
+ * ...   prefixGranuleIds: true
+ * ... }}};
+ * undefined
+ * > await discoverGranulesPrefixingIds(mockDiscoverGranules)(props2);
+ * { granules: [{ granuleId: 'MyCollection-12345', ... }] }
  *
- * @param props - granule ID prefix properties
- * @returns granules payload with collection name added as prefix to granule IDs
+ * @param discover - function to be decorated, which must have the same signature as
+ *    the `discoverGranules` function from the `@cumulus/discover-granules` module.
+ * @returns function wrapping the specified function, which applies the
+ *    `prefixGranuleIds` function to the output of the specified function if the input
+ *    to the wrapping function contains a property at the path
+ *    `config.collection.meta.prefixGranuleIds` set to `true`; otherwise, does nothing
+ *    to the output (thus behaving identically to the wrapped function)
  */
-export const discoverGranulesPrefixingIds = (
-  props: DiscoverGranulesProps
-): Promise<GranulesPayload> =>
-  discoverGranules(props).then(prefixGranuleIds(props.config.collection.name));
+export const discoverGranulesPrefixingIds =
+  (discover: DiscoverGranules): DiscoverGranules =>
+  (props: DiscoverGranulesProps): Promise<GranulesPayload> =>
+    discover(props).then(
+      props.config.collection.meta.prefixGranuleIds
+        ? prefixGranuleIds(props.config.collection.name)
+        : t.identity
+    );
 
 export const prefixGranuleIds = (collectionName: string) =>
   fp.tap<GranulesPayload>(
@@ -136,7 +178,7 @@ export const advanceStartDate = (props: ProviderPathProps): string | null => {
   const { startDate, step } = props.config;
   const now = () => new Date(Date.now());
   const endDate = pipe(props.config.endDate, O.getOrElse(now));
-  const addDuration = (d: Duration) => dates.add(d, startDate);
+  const addDuration = (d: dates.Duration) => dates.add(startDate, d);
   const nextStartDate = pipe(step, O.match(constant(endDate), addDuration));
 
   return nextStartDate < endDate ? nextStartDate.toISOString() : null;
@@ -161,6 +203,8 @@ export const advanceStartDateHandler = traceAsync(
 
 export const formatProviderPathCMAHandler = cma.asyncHandler(formatProviderPathHandler);
 export const discoverGranulesCMAHandler = cma.asyncHandler(
-  L.mkAsyncHandler(DiscoverGranulesProps)(discoverGranulesPrefixingIds)
+  L.mkAsyncHandler(DiscoverGranulesProps)(
+    discoverGranulesPrefixingIds(discoverGranules)
+  )
 );
 export const advanceStartDateCMAHandler = cma.asyncHandler(advanceStartDateHandler);

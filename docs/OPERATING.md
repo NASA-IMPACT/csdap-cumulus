@@ -258,7 +258,10 @@ recommended collection definition structure for collections in this project:
       "sampleFileName": "<SAMPLE_GRANULE_ID><SAMPLE_SUFFIX>",
       "bucket": "protected"
     }
-  ]
+  ],
+  "meta": {
+    "prefixGranuleIds": "<BOOLEAN>"
+  }
 }
 ```
 
@@ -287,6 +290,25 @@ where:
   `"granuleIdExtraction"` property value (again, for convenience)
 - the `"files"/"sampleFileName"` property value should match the top level
   `"sampleFileName"` property value (again, for convenience)
+- the `"meta/prefixGranuleIds"` property value is optional, and defaults to
+  `false`.  If specified, it should be either `true` or `false`.  Note that this
+  is a _boolean_ value, and thus must _not_ be enclosed in quotes.  If set to
+  `true`, during discovery, the granule ID extracted from the name of a file
+  (via the `"granuleIdExtraction"` regular expression) will be prefixed with the
+  name of the collection (as specified by the `"name"` property in this
+  definition file), separated by a dash (`"-"`).  For example, if the collection
+  name is `"MyCollection"`, and the granule ID extracted from a granule file's
+  name is `"12345"`, the granule ID will be modified to be
+  `"MyCollection-12345"`.  This feature is a naive accomodation for granules
+  where the `"GranuleUR"` property within a granules UMM-G metadata file
+  (`"*cmr.json"`) does _not_ match the granule ID that Cumulus extracted from
+  the file name (which is an assumption made within Cumulus).  Rather, the
+  `"GranuleUR"` value is in the format just described.  Such is the case for the
+  PSScene3Band collection, so that collection explicitly sets this property to
+  `true`.  This is generally not the case, so it is generally unlikely that this
+  property needs to be set.  Further, if the `"GranuleUR"` differs from the
+  extracted granule ID in some other way, this naive accomodation won't work,
+  and further logic will be required.
 
 The trickiest part of configuring a collection is determining the regular
 expression to use for extracting the granule ID from a filename.  For examples,

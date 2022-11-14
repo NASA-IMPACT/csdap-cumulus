@@ -4,9 +4,11 @@ import * as duration from 'duration-fns';
 import * as E from 'fp-ts/Either';
 import * as O from 'fp-ts/Option';
 import { pipe } from 'fp-ts/function';
+import * as fp from 'lodash/fp';
 
 import {
   advanceStartDate,
+  discoverGranulesPrefixingIds,
   formatProviderPath,
   prefixGranuleIds,
   ProviderPathProps,
@@ -345,6 +347,30 @@ test(
   formatProviderPath,
   {
     config: {
+      providerPathFormat: "'css/nga/WV04/1B/'yyyy/DDD",
+      startDate: '2017-05-04',
+    },
+  },
+  'css/nga/WV04/1B/2017/124'
+);
+
+test(
+  shouldOutput,
+  formatProviderPath,
+  {
+    config: {
+      providerPathFormat: "'planet/PSScene3Band-'yyyyMM_dd",
+      startDate: '2018-08',
+    },
+  },
+  'planet/PSScene3Band-201808_01'
+);
+
+test(
+  shouldOutput,
+  formatProviderPath,
+  {
+    config: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: '2018-08',
     },
@@ -437,3 +463,42 @@ test(
   },
   '2019-08-01T00:00:00.000Z'
 );
+
+const discoveredGranules = {
+  granules: [
+    {
+      granuleId: 'Bar',
+    },
+  ],
+};
+
+test('discovery should prefix granule IDs', async (t) => {
+  const name = 'Foo';
+  const actual = await discoverGranulesPrefixingIds(() =>
+    Promise.resolve(fp.cloneDeep(discoveredGranules))
+  )({
+    config: {
+      collection: {
+        name,
+        meta: { prefixGranuleIds: true },
+      },
+    },
+  });
+
+  t.deepEqual(actual, prefixGranuleIds(name)(discoveredGranules));
+});
+
+test('discovery should not prefix granule IDs', async (t) => {
+  const actual = await discoverGranulesPrefixingIds(() =>
+    Promise.resolve(fp.cloneDeep(discoveredGranules))
+  )({
+    config: {
+      collection: {
+        name: 'Foo',
+        meta: { prefixGranuleIds: true },
+      },
+    },
+  });
+
+  t.deepEqual(actual, discoveredGranules);
+});
