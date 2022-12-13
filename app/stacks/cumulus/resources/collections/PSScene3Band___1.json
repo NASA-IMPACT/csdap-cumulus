@@ -15,6 +15,7 @@
     }
   ],
   "meta": {
+    "preferredQueueBatchSize": 5,
     "prefixGranuleIds": true
   }
 }

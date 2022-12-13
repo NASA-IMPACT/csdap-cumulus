@@ -123,7 +123,7 @@
                   },
                   "task_config": {
                     "queueUrl": "${background_job_queue_url}",
-                    "preferredQueueBatchSize": 5,
+                    "preferredQueueBatchSize": "{$.meta.collection.preferredQueueBatchSize}",
                     "provider": "{$.meta.provider}",
                     "internalBucket": "{$.meta.buckets.internal.name}",
                     "stackName": "{$.meta.stack}",
