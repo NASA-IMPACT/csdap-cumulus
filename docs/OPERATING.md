@@ -144,13 +144,14 @@ is to define a [provider] in a `.json` file under
 provider's `"id"` property.
 
 In this project, we're only discovering granules in AWS S3 buckets, so this
-means that to define a provider for Planet data, for example, we might create
-the file `app/stacks/cumulus/resources/providers/planet.json` with the following
-contents:
+means that to define a provider, we must create the file
+`app/stacks/cumulus/resources/providers/<PROVIDER_ID>.json` with the following
+contents (with the convention that `<PROVIDER_ID>` is all lowercase, both for
+the filename as well as for the value of `"id"` within the file):
 
 ```json
 {
-  "id": "planet",
+  "id": "<PROVIDER_ID>",
   "protocol": "s3",
   "host": "<BUCKET_NAME>"
 }
@@ -224,6 +225,34 @@ collection.  The following section covers defining a collection.
 deployment, see
 [Running Against Non-Development Deployments](#running-against-non-development-deployments).
 
+In addition to creating a new provider definition, you must also add the
+provider's bucket to the list of buckets configured in Terraform, if the bucket
+is not already configured.  This requires adding the bucket definition to the
+following files:
+
+- `app/stacks/cumulus/tfvars/uat.tfvars`
+- `app/stacks/cumulus/tfvars/prod.tfvars`
+
+Within both of these files, within the `buckets` variable value, add an entry of
+the following form, where `<PROVIDER_ID>` and `<BUCKET_NAME>` are the same
+values you used within the corresponding provider's `.json` file definition, as
+described above:
+
+```hcl
+buckets = {
+  ...
+  <PROVIDER_ID> = {
+    name = "<BUCKET_NAME>"
+    type = "provider"
+  }
+}
+```
+
+**IMPORTANT:** Note that there are _no_ quotes surrounding `<PROVIDER_ID>`, but
+that there _are_ quotes surrounding `<BUCKET_NAME>`.
+
+**IMPORTANT:** When you add a new bucket definition, you must redeploy Cumulus.
+
 ### Defining a Collection
 
 Once a provider is defined, you may define a collection indicating a number of
@@ -250,7 +279,7 @@ recommended collection definition structure for collections in this project:
   "granuleId": ".*",
   "granuleIdExtraction": "^(<GRANULE_ID_PATTERN>)(?:<SUFFIX_PATTERN>)$",
   "sampleFileName": "<SAMPLE_GRANULE_ID><SAMPLE_SUFFIX>",
-  "url_path": "<PROVIDER_ID>/{cmrMetadata.CollectionReference.ShortName}___{cmrMetadata.CollectionReference.Version}/{cmrMetadata.GranuleUR}",
+  "url_path": "{cmrMetadata.CollectionReference.ShortName}___{cmrMetadata.CollectionReference.Version}/{cmrMetadata.GranuleUR}",
   "ignoreFilesConfigForDiscovery": true,
   "files": [
     {
@@ -258,7 +287,10 @@ recommended collection definition structure for collections in this project:
       "sampleFileName": "<SAMPLE_GRANULE_ID><SAMPLE_SUFFIX>",
       "bucket": "protected"
     }
-  ]
+  ],
+  "meta": {
+    "prefixGranuleIds": "<BOOLEAN>"
+  }
 }
 ```
 
@@ -276,8 +308,6 @@ where:
   `<GRANULE_ID_PATTERN>` regular expression
 - `<SAMPLE_SUFFIX>` is an example of a filename suffix that matches the
   `<SUFFIX_PATTERN>` regular expression
-- `<PROVIDER_ID>` is the provider ID for the provider where the granule files
-  are to be discovered
 - the `"url_path"` property value is the S3 key prefix to use for the
   destination location of the granule files.  See
   [How to specify a file location in a bucket] for details on how to construct a
@@ -289,6 +319,25 @@ where:
   `"granuleIdExtraction"` property value (again, for convenience)
 - the `"files"/"sampleFileName"` property value should match the top level
   `"sampleFileName"` property value (again, for convenience)
+- the `"meta/prefixGranuleIds"` property value is optional, and defaults to
+  `false`.  If specified, it should be either `true` or `false`.  Note that this
+  is a _boolean_ value, and thus must _not_ be enclosed in quotes.  If set to
+  `true`, during discovery, the granule ID extracted from the name of a file
+  (via the `"granuleIdExtraction"` regular expression) will be prefixed with the
+  name of the collection (as specified by the `"name"` property in this
+  definition file), separated by a dash (`"-"`).  For example, if the collection
+  name is `"MyCollection"`, and the granule ID extracted from a granule file's
+  name is `"12345"`, the granule ID will be modified to be
+  `"MyCollection-12345"`.  This feature is a naive accomodation for granules
+  where the `"GranuleUR"` property within a granules UMM-G metadata file
+  (`"*cmr.json"`) does _not_ match the granule ID that Cumulus extracted from
+  the file name (which is an assumption made within Cumulus).  Rather, the
+  `"GranuleUR"` value is in the format just described.  Such is the case for the
+  PSScene3Band collection, so that collection explicitly sets this property to
+  `true`.  This is generally not the case, so it is generally unlikely that this
+  property needs to be set.  Further, if the `"GranuleUR"` differs from the
+  extracted granule ID in some other way, this naive accomodation won't work,
+  and further logic will be required.
 
 The trickiest part of configuring a collection is determining the regular
 expression to use for extracting the granule ID from a filename.  For examples,
@@ -340,7 +389,7 @@ project (with details below):
     "startDate": "<START_DATE>",
     "endDate": "<END_DATE>",
     "step": "P1D",
-    "providerPathFormat": "[<STATIC_PATH>]<DYNAMIC_DATE_PATH>",
+    "providerPathFormat": "<DATE_FORMAT_PATTERN>",
     "discoverOnly": false
   }
 }
@@ -372,21 +421,34 @@ work around a severe scalability limitation in the core Cumulus implementation.
 
 Within the `"meta"` section shown in the JSON definition template above:
 
-- `<START_DATE>` is an [ISO 8601 Date] (or combined date and time)
-- `<END_DATE>` is an [ISO 8601 Date] (the date range _excludes_ this date)
+- `<START_DATE>` is an [ISO 8601 Date] (or combined date and time), which should
+  end with a `Z` to indicate UTC time
+- `<END_DATE>` is an [ISO 8601 Date] (the date range _excludes_ this date),
+  which should end with a `Z` to indicate UTC time
 - the `"step"` property value is an [ISO 8601 Duration], and should generally be
   set to `"P1D"` (representing a duration of 1 day) to avoid crashing the
   `DiscoverGranules` task for collections that may include large numbers of
-  granule files in any given month
-- `<STATIC_PATH>` appears with square brackets (`[` and `]`) to indicate that
-  the text _within_ the brackets must be used literally, not translated as any
-  date format characters (the brackets are _not_ included in the output).  This
-  represents the part of the bucket key prefix that is static with respect to
-  all of the granule files that this rule will discover.
-- `<DYNAMIC_DATE_PATH>` is the remainder of the bucket key prefix that varies
-  based upon the date of the granule files, and should have the same granularity
-  as the `"step"` duration.  For example, if `"step"` is set to 1 day (`"P1D"`),
-  this date pattern must be down to the day resolution.
+  granule files in any given month.  For very small collections (perhaps a max
+  of 10K per month), this could be set to `"P1M"`, representing a duration of 1
+  month).
+- `<DATE_FORMAT_PATTERN>` is a [date format pattern] that is used to format the
+  dates produced by starting with `<START_DATE>` and incrementing the date by
+  the `"step"` value until the `<END_DATE>` is reached.  Each formatted result
+  is used as the "provider path" that Cumulus uses to determine the S3 key
+  prefix (within the S3 bucket specified by the provider identified by
+  `<PROVIDER_ID>`) where it will discover files.  Typically, this pattern should
+  be in the form `"'path/to/collection/'<DATE_PATTERN>"`, where
+  `"'path/to/collection'"` represents the literal path that is the part of the
+  prefix that does not contain date information (and **must be surrounded by
+  single quotes** to avoid having any characters interpreted as part of a date
+  pattern), and `<DATE_PATTERN>` is the subsequent part of the path that
+  contains date information.  For example, for the PSScene3Band collection, this
+  might be `"'planet/PSScene3Band'yyyyMMdd"`, where `'planet/PSScene3Band'` is
+  the literal part, and `yyyyMMdd` represents the 4-digit year (`yyyy`, _not_
+  `YYYY`), 2-digit month (`MM`) and 2-digit day of the month (`dd`).  This
+  should have the same granularity as the `"step"` duration.  For example, if
+  `"step"` is set to 1 day (`"P1D"`), this date format must be down to the day
+  resolution.
 
 Once a rule `.json` file is created, you can add it to the Cumulus database (or
 update it) with the following command (from within the Docker container):
@@ -695,6 +757,8 @@ cumulus rules run --name my_rule
   https://nasa.github.io/cumulus/docs/configuration/data-management-types
 [collection]:
   https://nasa.github.io/cumulus/docs/data-cookbooks/setup#collections
+[date format pattern]:
+  https://www.unicode.org/reports/tr35/tr35-dates.html#8-date-format-patterns
 [provider]:
   https://nasa.github.io/cumulus/docs/operator-docs/provider
 [rule]:

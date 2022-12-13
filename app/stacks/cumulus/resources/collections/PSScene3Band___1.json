@@ -13,5 +13,9 @@
       "sampleFileName": "20160628_204526_1_0c74_3B_Analytic_DN_metadata.xml",
       "bucket": "protected"
     }
-  ]
+  ],
+  "meta": {
+    "preferredQueueBatchSize": 5,
+    "prefixGranuleIds": true
+  }
 }

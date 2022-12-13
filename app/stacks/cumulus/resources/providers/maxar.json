@@ -1,0 +1,5 @@
+{
+  "id": "maxar",
+  "protocol": "s3",
+  "host": "csdap-maxar-delivery"
+}

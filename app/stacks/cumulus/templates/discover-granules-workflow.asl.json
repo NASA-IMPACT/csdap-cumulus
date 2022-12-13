@@ -34,7 +34,7 @@
                 "cma": {
                   "event.$": "$",
                   "ReplaceConfig": {
-                    "MaxSize": 4096,
+                    "MaxSize": 16384,
                     "Path": "$.payload",
                     "TargetPath": "$.payload"
                   },
@@ -63,7 +63,7 @@
                 "cma": {
                   "event.$": "$",
                   "ReplaceConfig": {
-                    "MaxSize": 4096,
+                    "MaxSize": 16384,
                     "Path": "$.payload",
                     "TargetPath": "$.payload"
                   },
@@ -91,39 +91,88 @@
                   "BackoffRate": 2
                 }
               ],
-              "Next": "DiscoverOnly?"
+              "Next": "PrefixGranuleIds?"
             },
-            "DiscoverOnly?": {
+            "PrefixGranuleIds?": {
               "Type": "Choice",
               "Choices": [
                 {
                   "And": [
                     {
-                      "Variable": "$.meta.discoverOnly",
+                      "Variable": "$.meta.collection.meta.prefixGranuleIds",
                       "IsPresent": true
                     },
                     {
-                      "Variable": "$.meta.discoverOnly",
+                      "Variable": "$.meta.collection.meta.prefixGranuleIds",
                       "BooleanEquals": true
                     }
                   ],
-                  "Next": "AdvanceStartDate"
+                  "Next": "PrefixGranuleIds"
                 }
               ],
-              "Default": "QueueGranules"
+              "Default": "QueueGranules?"
+            },
+            "PrefixGranuleIds": {
+              "Parameters": {
+                "cma": {
+                  "event.$": "$",
+                  "ReplaceConfig": {
+                    "MaxSize": 16384,
+                    "Path": "$.payload",
+                    "TargetPath": "$.payload"
+                  },
+                  "task_config": {
+                    "collection": "{$.meta.collection}"
+                  }
+                }
+              },
+              "Type": "Task",
+              "Resource": "${prefix_granule_ids_task_arn}",
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException"
+                  ],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 6,
+                  "BackoffRate": 2
+                }
+              ],
+              "Next": "QueueGranules?"
+            },
+            "QueueGranules?": {
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Or": [
+                    {
+                      "Variable": "$.meta.discoverOnly",
+                      "IsPresent": false
+                    },
+                    {
+                      "Variable": "$.meta.discoverOnly",
+                      "BooleanEquals": false
+                    }
+                  ],
+                  "Next": "QueueGranules"
+                }
+              ],
+              "Default": "AdvanceStartDate"
             },
             "QueueGranules": {
               "Parameters": {
                 "cma": {
                   "event.$": "$",
                   "ReplaceConfig": {
-                    "MaxSize": 4096,
+                    "MaxSize": 16384,
                     "Path": "$.payload",
                     "TargetPath": "$.payload"
                   },
                   "task_config": {
                     "queueUrl": "${background_job_queue_url}",
-                    "preferredQueueBatchSize": 5,
+                    "preferredQueueBatchSize": "{$.meta.collection.preferredQueueBatchSize}",
                     "provider": "{$.meta.provider}",
                     "internalBucket": "{$.meta.buckets.internal.name}",
                     "stackName": "{$.meta.stack}",
@@ -153,7 +202,7 @@
                 "cma": {
                   "event.$": "$",
                   "ReplaceConfig": {
-                    "MaxSize": 4096,
+                    "MaxSize": 16384,
                     "Path": "$.payload",
                     "TargetPath": "$.payload"
                   },

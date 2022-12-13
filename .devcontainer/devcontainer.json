@@ -20,11 +20,13 @@
     "fredwangwang.vscode-hcl-format",
     "github.vscode-pull-request-github",
     "hashicorp.terraform",
+    "marvhen.reflow-markdown",
     "ms-azuretools.vscode-docker",
     "rvest.vs-code-prettier-eslint",
     "tabnine.tabnine-vscode",
     "timonwong.shellcheck",
-    "wholroyd.hcl"
+    "wholroyd.hcl",
+    "yzhang.markdown-all-in-one"
   ],
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   // "forwardPorts": [],

@@ -77,6 +77,7 @@ class SetLambdaMemorySizes
     client = Aws::Lambda::Client.new
 
     memory_sizes = {
+      "AddMissingFileChecksums": 512,
       "PostToCmr": 512,
       "DiscoverGranules": 1024,
       "QueueGranules": 1024,
@@ -98,6 +99,7 @@ class SetLambdaMemorySizes
       client.update_function_configuration(
         function_name: function_name,
         memory_size: size,
+        timeout: 900,
       )
     end
 

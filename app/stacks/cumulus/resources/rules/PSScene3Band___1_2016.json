@@ -11,7 +11,7 @@
     "type": "onetime"
   },
   "meta": {
-    "providerPathFormat": "[storage-ss-ingest-prod-ingesteddata-uswest2/planet/PSScene3Band-]YYYYMM",
+    "providerPathFormat": "'storage-ss-ingest-prod-ingesteddata-uswest2/planet/PSScene3Band-'yyyyMM",
     "startDate": "2016-01-01",
     "endDate": "2017-01-01",
     "step": "P1M",

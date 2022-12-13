@@ -163,7 +163,7 @@ the `"meta"` properties in our rule definition, as follows:
 
 ```json
 "meta": {
-  "providerPathFormat": "[path/to/PSScene3Band-]YYYYMM",
+  "providerPathFormat": "'path/to/PSScene3Band-'yyyyMM",
   "startDate": "2016-01",
   "step": "P1M"
 }
@@ -174,7 +174,7 @@ changes will perform the following steps:
 
 1. `"endDate"` is not specified, so it is set to the current date/time.
 1. Format the `"startDate"` (`"2016-01"`) using the format
-   `"[path/to/PSScene3Band-]YYYYMM"` to generate
+   `"'path/to/PSScene3Band-'yyyyMM"` to generate
    `"path/to/PSScene3Band-201601"` as the value of `"providerPath"`.
 1. Discover and queue all granules generated in January 2016 (as dictated by
    the value of `"providerPath"` from the previous step).
@@ -182,7 +182,7 @@ changes will perform the following steps:
    obtain a new `"startDate"` value of `"2016-02"` (more specifically,
    `"2016-02-01T00:00:00Z"`).
 1. Format the date `"2016-02-01T00:00:00Z"` using the format
-   `"[path/to/PSScene3Band-]YYYYMM"` to generate
+   `"'path/to/PSScene3Band-'yyyyMM"` to generate
    `"path/to/PSScene3Band-201602"` as the value of `"providerPath"`.
 1. Discover and queue all granules generated in February 2016 (as dictated by
    the value of `"providerPath"` from the previous step).

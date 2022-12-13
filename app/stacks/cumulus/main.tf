@@ -147,11 +147,11 @@ resource "aws_lambda_permission" "background_job_queue_watcher" {
   source_arn    = aws_cloudwatch_event_rule.background_job_queue_watcher.arn
 }
 
-resource "aws_lambda_function" "discover_granules" {
-  function_name = "${var.prefix}-DiscoverGranulesPrefixingIds"
+resource "aws_lambda_function" "prefix_granule_ids" {
+  function_name = "${var.prefix}-PrefixGranuleIds"
   filename      = data.archive_file.lambda.output_path
   role          = module.cumulus.lambda_processing_role_arn
-  handler       = "index.discoverGranulesCMAHandler"
+  handler       = "index.prefixGranuleIdsCMAHandler"
   runtime       = "nodejs14.x"
   timeout       = lookup(local.lambda_timeouts, "discover_granules_task_timeout", 300)
   memory_size   = 512
@@ -234,13 +234,43 @@ resource "aws_lambda_function" "advance_start_date" {
   }
 }
 
-resource "aws_sfn_activity" "discover_granules" {
-  name = "${var.prefix}-DiscoverGranules"
+resource "aws_lambda_function" "add_ummg_checksums" {
+  function_name = "${var.prefix}-AddUmmgChecksums"
+  filename      = data.archive_file.lambda.output_path
+  role          = module.cumulus.lambda_processing_role_arn
+  handler       = "index.addUmmgChecksumsCMAHandler"
+  runtime       = "nodejs14.x"
+  timeout       = 300
+  memory_size   = 256
+
+
+  source_code_hash = data.archive_file.lambda.output_base64sha256
+  layers           = [module.cma.lambda_layer_version_arn]
+
+  tags = local.tags
+
+  dynamic "vpc_config" {
+    for_each = length(module.vpc.subnets.ids) == 0 ? [] : [1]
+    content {
+      subnet_ids         = module.vpc.subnets.ids
+      security_group_ids = [aws_security_group.egress_only.id]
+    }
+  }
+
+  environment {
+    variables = {
+      CUMULUS_MESSAGE_ADAPTER_DIR = "/opt/"
+    }
+  }
 }
 
-resource "aws_sfn_activity" "queue_granules" {
-  name = "${var.prefix}-QueueGranules"
-}
+# resource "aws_sfn_activity" "discover_granules" {
+#   name = "${var.prefix}-DiscoverGranules"
+# }
+
+# resource "aws_sfn_activity" "queue_granules" {
+#   name = "${var.prefix}-QueueGranules"
+# }
 
 #-------------------------------------------------------------------------------
 # MODULES
@@ -307,7 +337,8 @@ module "discover_granules_workflow" {
   state_machine_definition = templatefile("${path.module}/templates/discover-granules-workflow.asl.json", {
     ingest_granule_workflow_name : module.ingest_and_publish_granule_workflow.name,
     format_provider_path_task_arn : aws_lambda_function.format_provider_path.arn,
-    discover_granules_task_arn : aws_lambda_function.discover_granules.arn,
+    discover_granules_task_arn : module.cumulus.discover_granules_task.task_arn,
+    prefix_granule_ids_task_arn : aws_lambda_function.prefix_granule_ids.arn,
     queue_granules_task_arn : module.cumulus.queue_granules_task.task_arn,
     advance_start_date_task_arn : aws_lambda_function.advance_start_date.arn,
     background_job_queue_url : aws_sqs_queue.background_job_queue.id
@@ -325,6 +356,7 @@ module "ingest_and_publish_granule_workflow" {
 
   state_machine_definition = templatefile("${path.module}/templates/ingest-and-publish-granule-workflow.asl.json", {
     sync_granule_task_arn : module.cumulus.sync_granule_task.task_arn,
+    add_ummg_checksums_task_arn : aws_lambda_function.add_ummg_checksums.arn,
     add_missing_file_checksums_task_arn : module.cumulus.add_missing_file_checksums_task.task_arn,
     fake_processing_task_arn : module.cumulus.fake_processing_task.task_arn,
     files_to_granules_task_arn : module.cumulus.files_to_granules_task.task_arn,

@@ -13,7 +13,7 @@
                 "cma": {
                   "event.$": "$",
                   "ReplaceConfig": {
-                    "MaxSize": 4096,
+                    "MaxSize": 16384,
                     "Path": "$.payload",
                     "TargetPath": "$.payload"
                   },
@@ -47,7 +47,7 @@
               },
               "Type": "Task",
               "Resource": "${sync_granule_task_arn}",
-              "Next": "AddMissingFileChecksums",
+              "Next": "AddUmmgChecksums",
               "Retry": [
                 {
                   "ErrorEquals": [
@@ -58,6 +58,36 @@
                 }
               ]
             },
+            "AddUmmgChecksums": {
+              "Type": "Task",
+              "Resource": "${add_ummg_checksums_task_arn}",
+              "Parameters": {
+                "cma": {
+                  "event.$": "$",
+                  "ReplaceConfig": {
+                    "MaxSize": 16384,
+                    "Path": "$.payload",
+                    "TargetPath": "$.payload"
+                  },
+                  "task_config": {
+                    "cumulus_message": {
+                      "input": "{$.payload}",
+                      "outputs": [
+                        {
+                          "source": "{$.granules}",
+                          "destination": "{$.meta.input_granules}"
+                        },
+                        {
+                          "source": "{$}",
+                          "destination": "{$.payload}"
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              "Next": "AddMissingFileChecksums"
+            },
             "AddMissingFileChecksums": {
               "Type": "Task",
               "Resource": "${add_missing_file_checksums_task_arn}",
@@ -65,7 +95,7 @@
                 "cma": {
                   "event.$": "$",
                   "ReplaceConfig": {
-                    "MaxSize": 4096,
+                    "MaxSize": 16384,
                     "Path": "$.payload",
                     "TargetPath": "$.payload"
                   },
@@ -94,7 +124,7 @@
                 "cma": {
                   "event.$": "$",
                   "ReplaceConfig": {
-                    "MaxSize": 4096,
+                    "MaxSize": 16384,
                     "Path": "$.payload",
                     "TargetPath": "$.payload"
                   },
@@ -128,7 +158,7 @@
                 "cma": {
                   "event.$": "$",
                   "ReplaceConfig": {
-                    "MaxSize": 4096,
+                    "MaxSize": 16384,
                     "Path": "$.payload",
                     "TargetPath": "$.payload"
                   },
@@ -171,7 +201,7 @@
                 "cma": {
                   "event.$": "$",
                   "ReplaceConfig": {
-                    "MaxSize": 4096,
+                    "MaxSize": 16384,
                     "Path": "$.payload",
                     "TargetPath": "$.payload"
                   },
