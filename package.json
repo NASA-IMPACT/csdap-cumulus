@@ -100,7 +100,8 @@
   },
   "resolutions": {
     "@cumulus/**/@aws-sdk/client-s3": "^3.188.0",
-    "@cumulus/**/@aws-sdk/types": "^3.188.0"
+    "@cumulus/**/@aws-sdk/types": "^3.188.0",
+    "got": "^12.5.3"
   },
   "files": [
     "build/main",
