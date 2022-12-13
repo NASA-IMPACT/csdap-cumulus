@@ -1,6 +1,6 @@
 DOCKER_BUILD = docker build -t $(IMAGE) .
 DOCKER_RUN = docker run \
-  --interactive \
+  --tty \
   --rm \
   --env-file $(DOTENV) \
   --env DOTENV=$(DOTENV) \
@@ -56,11 +56,11 @@ all-%:
 
 ## bash: Runs bash terminal in Docker container
 bash: install
-	$(DOCKER_RUN) --tty $(IMAGE)
+	$(DOCKER_RUN) --interactive $(IMAGE)
 
 ## bash-STACK: Runs bash terminal in Docker container at STACK's Terraspace cache dir
 bash-%:
-	$(DOCKER_RUN) --tty --workdir /work/.terraspace-cache/$(AWS_REGION)/$(TS_ENV)/stacks/$* $(IMAGE)
+	$(DOCKER_RUN) --interactive --workdir /work/.terraspace-cache/$(AWS_REGION)/$(TS_ENV)/stacks/$* $(IMAGE)
 
 ## build: Runs Terraspace to build all stacks
 build: install
@@ -90,11 +90,11 @@ clean-logs:
 
 ## copy-launchpad-pfx: Copy launchpad.pfx file to expected location
 copy-launchpad-pfx:
-	$(DOCKER_RUN) --tty $(IMAGE) -ic "bin/copy-launchpad-pfx.sh"
+	$(DOCKER_RUN) $(IMAGE) -ic "bin/copy-launchpad-pfx.sh"
 
 ## create-test-data: Creates data for use with discovery/ingestion smoke test
 create-test-data:
-	$(DOCKER_RUN) --tty $(IMAGE) -ic "bin/create-test-data.sh"
+	$(DOCKER_RUN) $(IMAGE) -ic "bin/create-test-data.sh"
 
 ## docker: Builds Docker image for running Terraspace/Terraform
 docker: Dockerfile .dockerignore .terraform-version Gemfile Gemfile.lock
@@ -102,14 +102,14 @@ docker: Dockerfile .dockerignore .terraform-version Gemfile Gemfile.lock
 
 ## ensure-buckets-exist
 ensure-buckets-exist:
-	$(DOCKER_RUN) --tty $(IMAGE) -ic "bin/ensure-buckets-exist.sh"
+	$(DOCKER_RUN) $(IMAGE) -ic "bin/ensure-buckets-exist.sh"
 
 ## init-STACK: Runs `terraform init` for specified STACK
 init-%:
 	$(TERRASPACE) init $*
 
 install:
-	$(DOCKER_RUN) --tty $(IMAGE) -ic "YARN_SILENT=1 yarn install --ignore-optional && YARN_SILENT=1 yarn --cwd scripts install"
+	$(DOCKER_RUN) $(IMAGE) -ic "YARN_SILENT=1 yarn install --ignore-optional && YARN_SILENT=1 yarn --cwd scripts install"
 
 ## logs: Shows last 10 lines of all Terraspace logs
 logs:
@@ -121,7 +121,7 @@ logs-follow:
 
 ## nuke: DANGER! Completely annihilates your Cumulus stack (after confirmation)
 nuke:
-	$(DOCKER_RUN) --tty $(IMAGE) -ic "bin/nuke.sh"
+	$(DOCKER_RUN) $(IMAGE) -ic "bin/nuke.sh"
 
 ## output-STACK: Runs `terraform output` for specified STACK
 output-%:
@@ -138,11 +138,11 @@ pre-deploy-setup: ensure-buckets-exist copy-launchpad-pfx
 
 ## terraform-doctor-STACK: Fixes "duplicate resource" errors for specified STACK
 terraform-doctor-%: install
-	$(DOCKER_RUN) --tty $(IMAGE) -ic "bin/terraform-doctor.sh $* | bash -v"
+	$(DOCKER_RUN) $(IMAGE) -ic "bin/terraform-doctor.sh $* | bash -v"
 
 ## test: Runs tests
 test: install
-	$(DOCKER_RUN) --tty $(IMAGE) -ic "yarn test"
+	$(DOCKER_RUN) $(IMAGE) -ic "yarn test"
 
 ## unlock-STACK_ID: Unlocks Terraform state for specified STACK using specified lock ID
 unlock-%:
