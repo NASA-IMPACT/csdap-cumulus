@@ -1,38 +1,29 @@
-/* eslint-disable functional/no-return-void */
 import test, { ExecutionContext } from 'ava';
 import * as duration from 'duration-fns';
 import * as E from 'fp-ts/Either';
 import * as O from 'fp-ts/Option';
-import { pipe } from 'fp-ts/function';
-import * as fp from 'lodash/fp';
+import { flow, pipe } from 'fp-ts/function';
 
+import { DecodedEventHandler } from './aws/lambda';
 import {
   advanceStartDate,
-  discoverGranulesPrefixingIds,
   formatProviderPath,
   prefixGranuleIds,
-  ProviderPathProps,
+  PrefixGranuleIdsInput,
+  ProviderPathInput,
 } from './discovery';
 import * as PR from './io/PathReporter';
-import { PropsHandler } from './lambda';
 
-const shouldDecode = test.macro({
-  title: (_, input) => `should decode ${JSON.stringify(input)}`,
-  exec: (t: ExecutionContext, input: unknown, expected: unknown) =>
-    pipe(
-      ProviderPathProps.decode(input),
-      E.match(
-        (errors) => t.fail(PR.failure(errors).join('\n')),
-        (actual) => t.deepEqual(actual, expected)
-      )
-    ),
-});
+//------------------------------------------------------------------------------
+// Expected decoding failures
+//------------------------------------------------------------------------------
 
 const shouldFailToDecode = test.macro({
-  title: (_, input) => `should fail to decode ${JSON.stringify(input)}`,
+  title: (_, input) =>
+    `ProviderPathInput should fail to decode ${JSON.stringify(input)}`,
   exec: (t: ExecutionContext, input, paths: readonly (readonly string[])[]) =>
     pipe(
-      ProviderPathProps.decode(input),
+      ProviderPathInput.decode(input),
       E.match(
         (errors) => {
           const messages = PR.failure(errors);
@@ -44,63 +35,12 @@ const shouldFailToDecode = test.macro({
             path.map((segment) => `.${segment}`).join('')
           );
 
-          t.deepEqual(actualPaths, expectedPaths, messages.join('\n'));
+          return t.deepEqual(actualPaths, expectedPaths, messages.join('\n'));
         },
         (output) => t.fail(`Unexpected output: ${JSON.stringify(output)}`)
       )
     ),
 });
-
-const shouldOutput = test.macro({
-  title: (
-    _,
-    f: PropsHandler<typeof ProviderPathProps, ProviderPathProps, unknown>,
-    input
-  ) => `should successfully compute ${f.name}(${JSON.stringify(input)})`,
-  exec: (
-    t: ExecutionContext,
-    f: PropsHandler<typeof ProviderPathProps, ProviderPathProps, unknown>,
-    input: unknown,
-    expected: unknown
-  ) =>
-    pipe(
-      ProviderPathProps.decode(input),
-      E.match(
-        (errors) => t.fail(PR.failure(errors).join('\n')),
-        (event) => t.deepEqual(f(event), expected)
-      )
-    ),
-});
-
-//------------------------------------------------------------------------------
-
-test('prefixGranuleIds should prefix granule IDs with collection name', (t) => {
-  const collectionName = 'PSScene3Band';
-  const payload = {
-    granules: [
-      {
-        granuleId: 'abc',
-      },
-      {
-        granuleId: '123',
-      },
-    ],
-  };
-  const expectedPayload = {
-    granules: payload.granules.map(({ granuleId }) => ({
-      granuleId: `${collectionName}-${granuleId}`,
-    })),
-  };
-  const actualPayload = prefixGranuleIds(collectionName)(payload);
-
-  t.deepEqual(actualPayload, expectedPayload);
-  t.is(actualPayload.granules, payload.granules);
-  payload.granules.forEach((granule, i) => t.is(actualPayload.granules[i], granule));
-});
-
-//------------------------------------------------------------------------------
-// Expected decoding failures
-//------------------------------------------------------------------------------
 
 test(
   shouldFailToDecode,
@@ -165,6 +105,18 @@ test(
 //------------------------------------------------------------------------------
 // Expected decoding successes
 //------------------------------------------------------------------------------
+
+const shouldDecode = test.macro({
+  title: (_, input) => `ProviderPathInput should decode ${JSON.stringify(input)}`,
+  exec: (t: ExecutionContext, input: unknown, expected: unknown) =>
+    pipe(
+      ProviderPathInput.decode(input),
+      E.match(
+        (errors) => t.fail(PR.failure(errors).join('\n')),
+        (actual) => t.deepEqual(actual, expected)
+      )
+    ),
+});
 
 test(
   shouldDecode,
@@ -342,6 +294,27 @@ test(
 // Expected formatProviderPath outputs
 //------------------------------------------------------------------------------
 
+const shouldOutput = test.macro({
+  title: (
+    _,
+    f: DecodedEventHandler<typeof ProviderPathInput, ProviderPathInput, unknown>,
+    input
+  ) => `${f.name} should succeed with input ${JSON.stringify(input)}`,
+  exec: (
+    t: ExecutionContext,
+    f: DecodedEventHandler<typeof ProviderPathInput, ProviderPathInput, unknown>,
+    input: unknown,
+    expected: unknown
+  ) =>
+    pipe(
+      ProviderPathInput.decode(input),
+      E.match(
+        (errors) => t.fail(PR.failure(errors).join('\n')),
+        (event) => t.deepEqual(f(event), expected)
+      )
+    ),
+});
+
 test(
   shouldOutput,
   formatProviderPath,
@@ -379,7 +352,7 @@ test(
 );
 
 //------------------------------------------------------------------------------
-// Expected updateStartDate outputs
+// Expected advanceStartDate outputs
 //------------------------------------------------------------------------------
 
 test(
@@ -464,41 +437,34 @@ test(
   '2019-08-01T00:00:00.000Z'
 );
 
-const discoveredGranules = {
-  granules: [
-    {
-      granuleId: 'Bar',
-    },
-  ],
-};
+//------------------------------------------------------------------------------
+// prefixGranuleIds
+//------------------------------------------------------------------------------
 
-test('discovery should prefix granule IDs', async (t) => {
-  const name = 'Foo';
-  const actual = await discoverGranulesPrefixingIds(() =>
-    Promise.resolve(fp.cloneDeep(discoveredGranules))
-  )({
-    config: {
-      collection: {
-        name,
-        meta: { prefixGranuleIds: true },
+test('prefixGranuleIds should prefix granule IDs with collection name', (t) => {
+  const collectionName = 'PSScene3Band';
+  const granule = {
+    granuleId: 'abc',
+    files: [],
+  };
+  const expected = {
+    granules: [
+      {
+        ...granule,
+        granuleId: `${collectionName}-${granule.granuleId}`,
       },
-    },
-  });
+    ],
+  };
+  const event = {
+    config: { collection: { name: collectionName } },
+    input: { granules: [granule] },
+  };
 
-  t.deepEqual(actual, prefixGranuleIds(name)(discoveredGranules));
-});
-
-test('discovery should not prefix granule IDs', async (t) => {
-  const actual = await discoverGranulesPrefixingIds(() =>
-    Promise.resolve(fp.cloneDeep(discoveredGranules))
-  )({
-    config: {
-      collection: {
-        name: 'Foo',
-        meta: { prefixGranuleIds: true },
-      },
-    },
-  });
-
-  t.deepEqual(actual, discoveredGranules);
+  return pipe(
+    PrefixGranuleIdsInput.decode(event),
+    E.match(
+      (e) => t.fail(`Unexpected error(s): ${e}`),
+      flow(prefixGranuleIds, (actual) => t.deepEqual(actual, expected))
+    )
+  );
 });

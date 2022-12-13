@@ -5,18 +5,18 @@
  * exception.
  *
  * @example
- * const add = (x, y) => x + y;
- * const traceAdd = trace(add);
- *
- * traceAdd(1, 2); // returns 3
- * // writes bhe following:
- * // -> add(1, 2)
- * // <- 3
- *
- * traceAdd('hello', 'world'); // returns 'helloworld'
- * // writes the following:
- * // -> add("hello", "world")
- * // <- "helloworld"
+ * > const add = (x, y) => x + y
+ * undefined
+ * > const traceAdd = trace(add)
+ * undefined
+ * > traceAdd(1, 2)
+ * -> add(1, 2)
+ * <- 3
+ * 3
+ * > traceAdd('hello', 'world')
+ * -> add("hello", "world")
+ * <- "helloworld"
+ * helloworld
  *
  * @param f - function to trace
  * @returns tracing function with same signature as specified function
@@ -40,18 +40,19 @@ export const trace =
  * exception.
  *
  * @example
- * const addAsync = async (x, y) => x + y;
- * const traceAddAsync = trace(addAsync);
+ * > const addAsync = async (x, y) => x + y;
+ * undefined
+ * > const traceAddAsync = trace(addAsync);
+ * undefined
+ * > traceAddAsync(1, 2);
+ * -> addAsync(1, 2)
+ * <- 3
+ * 3  // Promise
  *
- * await traceAddAsync(1, 2); // returns 3
- * // writes bhe following:
- * // -> addAsync(1, 2)
- * // <- 3
- *
- * await traceAddAsync('hello', 'world'); // returns 'helloworld'
- * // writes the following:
- * // -> addAsync("hello", "world")
- * // <- "helloworld"
+ * > traceAddAsync('hello', 'world');
+ * -> addAsync("hello", "world")
+ * <- "helloworld"
+ * helloworld  // Promise
  *
  * @param f - async function to trace
  * @returns async tracing function with same signature as specified function
