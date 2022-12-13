@@ -144,13 +144,14 @@ is to define a [provider] in a `.json` file under
 provider's `"id"` property.
 
 In this project, we're only discovering granules in AWS S3 buckets, so this
-means that to define a provider for Planet data, for example, we might create
-the file `app/stacks/cumulus/resources/providers/planet.json` with the following
-contents:
+means that to define a provider, we must create the file
+`app/stacks/cumulus/resources/providers/<PROVIDER_ID>.json` with the following
+contents (with the convention that `<PROVIDER_ID>` is all lowercase, both for
+the filename as well as for the value of `"id"` within the file):
 
 ```json
 {
-  "id": "planet",
+  "id": "<PROVIDER_ID>",
   "protocol": "s3",
   "host": "<BUCKET_NAME>"
 }
@@ -223,6 +224,34 @@ collection.  The following section covers defining a collection.
 **REMINDER:** To run `cumulus` commands against a non-development Cumulus
 deployment, see
 [Running Against Non-Development Deployments](#running-against-non-development-deployments).
+
+In addition to creating a new provider definition, you must also add the
+provider's bucket to the list of buckets configured in Terraform, if the bucket
+is not already configured.  This requires adding the bucket definition to the
+following files:
+
+- `app/stacks/cumulus/tfvars/uat.tfvars`
+- `app/stacks/cumulus/tfvars/prod.tfvars`
+
+Within both of these files, within the `buckets` variable value, add an entry of
+the following form, where `<PROVIDER_ID>` and `<BUCKET_NAME>` are the same
+values you used within the corresponding provider's `.json` file definition, as
+described above:
+
+```hcl
+buckets = {
+  ...
+  <PROVIDER_ID> = {
+    name = "<BUCKET_NAME>"
+    type = "provider"
+  }
+}
+```
+
+**IMPORTANT:** Note that there are _no_ quotes surrounding `<PROVIDER_ID>`, but
+that there _are_ quotes surrounding `<BUCKET_NAME>`.
+
+**IMPORTANT:** When you add a new bucket definition, you must redeploy Cumulus.
 
 ### Defining a Collection
 

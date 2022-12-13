@@ -45,8 +45,12 @@ buckets = {
     name = "csdap-uat-dashboard"
     type = "dashboard"
   }
-  provider = {
+  planet = {
     name = "ss-ingest-prod-ingesteddata-uswest2"
+    type = "provider"
+  }
+  maxar = {
+    name = "csdap-maxar-delivery"
     type = "provider"
   }
 }

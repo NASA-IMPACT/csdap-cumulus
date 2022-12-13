@@ -1,0 +1,23 @@
+{
+  "name": "WV04_MSI_L1B___1",
+  "state": "DISABLED",
+  "rule": {
+    "type": "onetime"
+  },
+  "provider": "maxar",
+  "collection": {
+    "name": "WV04_MSI_L1B",
+    "version": "1"
+  },
+  "workflow": "DiscoverAndQueueGranules",
+  "meta": {
+    "discoverOnly": false,
+    "providerPathFormat": "'css/nga/WV04/1B/'yyyy/DDD",
+    "rule": {
+      "state": "DISABLED"
+    },
+    "startDate": "2017-05-04",
+    "endDate": "2017-05-05",
+    "step": "P1D"
+  }
+}
