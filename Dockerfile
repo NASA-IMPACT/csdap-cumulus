@@ -2,7 +2,7 @@
 
 # See https://terraspace.cloud/docs/install/docker/versioning/
 # See https://hub.docker.com/r/boltops/terraspace/tags?page=1&name=ubuntu
-FROM boltops/terraspace:1.1.5-ubuntu
+FROM boltops/terraspace:2.2.2-ubuntu
 
 # Replace shell with bash so we can source files within this Dockerfile
 SHELL [ "/bin/bash", "-o", "pipefail", "-c" ]

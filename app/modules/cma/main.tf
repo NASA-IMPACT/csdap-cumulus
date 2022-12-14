@@ -6,7 +6,7 @@ locals {
 
 resource "null_resource" "download_cma_zip_file" {
   triggers = {
-    bucket = var.bucket
+    bucket  = var.bucket
     version = var.cma_version
   }
 

@@ -1,9 +1,9 @@
 import * as dates from 'date-fns/fp';
 import * as E from 'fp-ts/Either';
+import * as O from 'fp-ts/Option';
 import { pipe } from 'fp-ts/function';
 import * as t from 'io-ts';
-
-export type DateFormat = { readonly DateFormat: unique symbol };
+import * as tt from 'io-ts-types';
 
 /**
  * Codec that narrows strings to those that represent [Unicode Date Format Patterns](
@@ -13,22 +13,23 @@ export type DateFormat = { readonly DateFormat: unique symbol };
  * using the string again as the date format, producing the same date as the original
  * input.
  */
-export const DateFormat = new t.Type<string, string>(
-  'DateFormat',
-  (u): u is string => typeof u === 'string',
+export const DateFormat = tt.withValidate(
+  tt.NonEmptyString,
   (u, c) =>
     pipe(
-      t.string.validate(u, c),
+      tt.NonEmptyString.validate(u, c),
       E.chain(
         E.tryCatchK(
-          unsafeValidatDateFormat,
-          (e) => [{ value: u, context: c, message: (e as Error).message }] as t.Errors
+          O.fromPredicate(unsafeValidatDateFormat),
+          (e): t.Errors => [{ value: u, context: c, message: (e as Error).message }]
         )
       ),
-      E.chain((valid) => (valid ? t.success(String(u)) : t.failure(u, c)))
+      E.chain(O.match(() => t.failure(u, c), t.success))
     ),
-  t.identity
+  'DateFormat'
 );
+
+export type DateFormat = t.TypeOf<typeof DateFormat>;
 
 const unsafeValidatDateFormat = (s: string) => {
   // Given a format string (`s`), parsing a date string should be the inverse
@@ -36,10 +37,12 @@ const unsafeValidatDateFormat = (s: string) => {
   // parsing is the same as the original input date, then we consider the
   // string (`s`) to be a DateFormat, if the string is non-empty.
 
+  if (s.length === 0) return false;
+
   const options = { useAdditionalWeekYearTokens: true };
   const epoch = dates.parseISO('1970-01-01');
   const formattedEpoch = dates.formatWithOptions(options, s)(epoch);
   const parsedEpoch = dates.parseWithOptions(options, epoch, s, formattedEpoch);
 
-  return s.length > 0 && dates.compareAsc(epoch, parsedEpoch) === 0;
+  return dates.compareAsc(epoch, parsedEpoch) === 0;
 };

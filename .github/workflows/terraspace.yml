@@ -43,7 +43,7 @@ jobs:
       TS_ENV: ${{ inputs.TS_ENV }}
     steps:
       - name: Checkout source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -84,40 +84,30 @@ jobs:
       - name: Install Terraspace
         run: bundle install
 
-      - name: Install node and node dependencies
-        # GitHub Action container already has nvm and yarn installed, so we
-        # don't need to install them.  We simply invoke them to install the
-        # versions of node and yarn specified in .nvmrc and .yarnrc,
-        # respectively.
-        if: ${{ !env.ACT }}
-        # See https://github.com/actions/virtual-environments/issues/4#issuecomment-617671978
-        shell: bash -l {0}
-        run: |
-          nvm install
-          yarn install
+      - name: Setup Node from .nvmrc
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: .nvmrc
 
-      - name: Install nvm, node/npm, yarn, and node dependencies
+      - name: Install Yarn
         if: ${{ env.ACT }}
-        env:
-          NVM_DIR: /usr/local/nvm
         run: |
-          mkdir -p "${NVM_DIR}"
-          curl --no-progress-meter -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-          # For nvm.sh, the --install option is required when .nvmrc is present,
-          # otherwise it exits with status 3 (even though it appears to work),
-          # which would cause this step to fail.
-          source "${NVM_DIR}/nvm.sh" --install
           npm install --global yarn
-          yarn install
+
+      - name: Install dependencies
+        run: |
+          yarn --non-interactive install
 
       - name: Plan Cumulus
         if: ${{ !inputs.deploy }}
         run: |
+          echo "Node version: $(node --version)"
           bundle exec terraspace logs -f &
           bundle exec terraspace all plan
 
       - name: Deploy Cumulus
         if: ${{ inputs.deploy }}
         run: |
+          echo "Node version: $(node --version)"
           bundle exec terraspace logs -f &
           bundle exec terraspace all up --yes
