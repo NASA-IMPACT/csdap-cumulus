@@ -20,9 +20,7 @@ test('should fail to decode an empty string', (t) => {
 
   t.deepEqual(
     E.mapLeft(PR.failure)(result),
-    E.left([
-      'Invalid value for type DateFormat: "": Cannot read property \'map\' of null',
-    ])
+    E.left(['Invalid value for type DateFormat: ""'])
   );
 });
 
