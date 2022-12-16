@@ -16,7 +16,7 @@ import {
 test('requireCmrFilesHandler should resolve to original event when granules list is empty', async (t) => {
   const event = { input: { granules: [] } };
 
-  t.is(await requireCmrFilesHandler(event), event);
+  t.is(await requireCmrFilesHandler(event), event.input);
 });
 
 test('requireCmrFilesHandler should resolve to original event when every granule includes a CMR file', async (t) => {
@@ -30,7 +30,7 @@ test('requireCmrFilesHandler should resolve to original event when every granule
     },
   };
 
-  t.is(await requireCmrFilesHandler(event), event);
+  t.is(await requireCmrFilesHandler(event), event.input);
 });
 
 test('requireCmrFilesHandler should reject when a single granule does not include a CMR file', async (t) => {
