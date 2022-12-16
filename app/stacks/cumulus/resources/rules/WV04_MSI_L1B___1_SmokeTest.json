@@ -12,12 +12,12 @@
   "workflow": "DiscoverAndQueueGranules",
   "meta": {
     "discoverOnly": false,
-    "providerPathFormat": "'css/nga/WV04/1B/'yyyy",
+    "providerPathFormat": "'css/nga/WV04/1B/'yyyy/DDD",
     "rule": {
       "state": "DISABLED"
     },
-    "startDate": "2017-01-01",
-    "endDate": "2019-01-01",
-    "step": "P1Y"
+    "startDate": "2017-05-05",
+    "endDate": "2017-05-06",
+    "step": "P1D"
   }
 }
