@@ -3,6 +3,7 @@ import * as CMR from '@cumulus/cmrjs';
 import * as E from 'fp-ts/Either';
 import * as J from 'fp-ts/Json';
 import * as O from 'fp-ts/Option';
+import * as P from 'fp-ts/Predicate';
 import * as RT from 'fp-ts/ReaderTask';
 import * as RTE from 'fp-ts/ReaderTaskEither';
 import * as RA from 'fp-ts/ReadonlyArray';
@@ -14,57 +15,74 @@ import * as S3 from './aws/s3';
 import { safeDecodeTo } from './io';
 import * as UMM from './umm';
 
-export const GranuleFileID = t.readonly(
+export const PreSyncGranuleFile = t.readonly(
   t.type({
-    bucket: t.string,
-    key: t.string,
+    name: t.string,
   })
 );
 
-export const GranuleFile = t.intersection([
-  GranuleFileID,
+export const PostSyncGranuleFile = t.intersection([
   t.readonly(
     t.type({
+      bucket: t.string,
+      key: t.string,
       fileName: t.string,
     })
   ),
-  t.readonly(
-    t.partial({
-      checksumType: t.string,
-      checksum: t.string,
-    })
-  ),
+  t.partial({
+    checksumType: t.string,
+    checksum: t.string,
+  }),
 ]);
 
-export const Granule = t.readonly(
+export const PreSyncGranule = t.readonly(
   t.type({
-    files: t.readonlyArray(GranuleFile),
+    files: t.readonlyArray(PreSyncGranuleFile),
   })
 );
 
-export const IngestEvent = t.readonly(
+export const PostSyncGranule = t.readonly(
+  t.type({
+    files: t.readonlyArray(PostSyncGranuleFile),
+  })
+);
+
+export const PreSyncEvent = t.readonly(
   t.type({
     input: t.readonly(
       t.type({
-        granules: t.readonlyArray(Granule),
+        granules: t.readonlyArray(PreSyncGranule),
       })
     ),
   })
 );
 
-export type GranuleFileID = t.TypeOf<typeof GranuleFileID>;
-export type GranuleFile = t.TypeOf<typeof GranuleFile>;
-export type Granule = t.TypeOf<typeof Granule>;
-export type IngestEvent = t.TypeOf<typeof IngestEvent>;
+export const PostSyncEvent = t.readonly(
+  t.type({
+    input: t.readonly(
+      t.type({
+        granules: t.readonlyArray(PostSyncGranule),
+      })
+    ),
+  })
+);
+
+export type PreSyncGranuleFile = t.TypeOf<typeof PreSyncGranuleFile>;
+export type PreSyncGranule = t.TypeOf<typeof PreSyncGranule>;
+export type PreSyncEvent = t.TypeOf<typeof PreSyncEvent>;
+
+export type PostSyncGranuleFile = t.TypeOf<typeof PostSyncGranuleFile>;
+export type PostSyncGranule = t.TypeOf<typeof PostSyncGranule>;
+export type PostSyncEvent = t.TypeOf<typeof PostSyncEvent>;
 
 /**
  *
- * @param fileId
+ * @param file
  * @returns
  */
-export const readUmmgRTE = (fileId: GranuleFileID) =>
+export const readUmmgRTE = (file: PostSyncGranuleFile) =>
   pipe(
-    S3.safeReadObject({ Bucket: fileId.bucket, Key: fileId.key }),
+    S3.safeReadObject({ Bucket: file.bucket, Key: file.key }),
     RTE.chainEitherK(J.parse),
     RTE.mapLeft(E.toError),
     RTE.chainEitherK(safeDecodeTo(UMM.G))
@@ -76,9 +94,9 @@ export const readUmmgRTE = (fileId: GranuleFileID) =>
  * @returns
  */
 export const addChecksumFrom =
-  (ummgFile: GranuleFile, ummg: UMM.G) => (file: GranuleFile) =>
+  (ummgFile: PostSyncGranuleFile, ummg: UMM.G) => (file: PostSyncGranuleFile) =>
     CMR.isCMRFile(file)
-      ? file
+      ? file // The target file is the CMR file itself, so do nothing
       : pipe(
           ummg.DataGranule.ArchiveAndDistributionInformation,
           RA.findFirst(({ Name }) => Name === file.fileName),
@@ -107,25 +125,26 @@ export const addChecksumFrom =
  * @param granule
  * @returns
  */
-export const addChecksumsFromFileRT = (granule: Granule) => (file: GranuleFile) =>
-  pipe(
-    readUmmgRTE(file),
-    RTE.match(
-      // TODO make use of IO type?
-      (e) => (console.error(e), granule),
-      (ummg) => ({
-        ...granule,
-        files: granule.files.map(addChecksumFrom(file, ummg)),
-      })
-    )
-  );
+export const addChecksumsFromFileRT =
+  (granule: PostSyncGranule) => (file: PostSyncGranuleFile) =>
+    pipe(
+      readUmmgRTE(file),
+      RTE.match(
+        // TODO make use of IO type?
+        (e) => (console.error(e), granule),
+        (ummg) => ({
+          ...granule,
+          files: granule.files.map(addChecksumFrom(file, ummg)),
+        })
+      )
+    );
 
 /**
  *
  * @param granule
  * @returns
  */
-export const addUmmgChecksumsRT = (granule: Granule) =>
+export const addUmmgChecksumsRT = (granule: PostSyncGranule) =>
   pipe(
     granule.files,
     RA.findFirst(CMR.isCMRFile),
@@ -149,11 +168,48 @@ export const addUmmgChecksumsRT = (granule: Granule) =>
  * @returns a `ReaderTask<HasS3<'getObject'>, { ..., granules: Granule[] }>`
  * @function
  */
-export const addUmmgChecksumsHandlerRT = (event: IngestEvent) =>
+export const addUmmgChecksumsHandlerRT = (event: PostSyncEvent) =>
   pipe(
     event.input.granules,
     RT.traverseArray(addUmmgChecksumsRT),
     RT.map((granules) => ({ ...event.input, granules }))
+  );
+
+const missingCmrFilesMessage = [
+  'At least 1 granule in the input list is missing a file object representing a CMR',
+  'metadata file. This indicates that either each such granule indeed has no such',
+  "file amongst all of its files within the provider's bucket (in which case, you must",
+  'populate them), or that the collection is misconfigured such that the CMR files are',
+  "not identified during discovery (either because the 'granuleIdExtraction' regular",
+  "expression is incorrect, or 'ignoreFilesConfigForDiscovery' is set to 'false' [or",
+  "not specified] and the 'files' list does not include it or it is misconfigured)",
+].join(' ');
+
+/**
+ * Returns a Promise that resolves to the specified `event`, if every granule within the
+ * `event.input.granules` array includes a CMR file in its `files` array; otherwise,
+ * returns a Promise that rejects with an error indicating the granules that are missing
+ * a CMR file.
+ *
+ * @param event - ingestion event containing a possibly empty array of granules at the
+ *    path `input.granules`
+ * @returns a Promise that resolves to the specified `event`, if every granule within
+ *    the `event.input.granules` array includes a CMR file in its `files` array;
+ *    otherwise, returns a Promise that rejects with an error indicating the granules
+ *    that are missing a CMR file
+ */
+export const requireCmrFilesHandler = (event: PreSyncEvent) =>
+  pipe(
+    event.input.granules,
+    RA.filter(({ files }) => pipe(files, RA.every(P.not(CMR.isCMRFile)))),
+    E.fromPredicate(
+      (granules) => granules.length === 0,
+      (granules) => `${missingCmrFilesMessage}: ${JSON.stringify(granules)}`
+    ),
+    E.match(
+      (message) => Promise.reject(new Error(message)),
+      () => Promise.resolve(event)
+    )
   );
 
 //------------------------------------------------------------------------------
@@ -161,7 +217,13 @@ export const addUmmgChecksumsHandlerRT = (event: IngestEvent) =>
 //------------------------------------------------------------------------------
 
 export const addUmmgChecksumsCMAHandler = pipe(
-  (event: IngestEvent) => addUmmgChecksumsHandlerRT(event)({ s3: s3() })(),
-  L.asyncHandlerFor(IngestEvent),
+  (event: PostSyncEvent) => addUmmgChecksumsHandlerRT(event)({ s3: s3() })(),
+  L.asyncHandlerFor(PostSyncEvent),
+  L.cmaAsyncHandler
+);
+
+export const requireCmrFilesCMAHandler = pipe(
+  requireCmrFilesHandler,
+  L.asyncHandlerFor(PreSyncEvent),
   L.cmaAsyncHandler
 );

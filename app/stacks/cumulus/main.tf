@@ -234,15 +234,14 @@ resource "aws_lambda_function" "advance_start_date" {
   }
 }
 
-resource "aws_lambda_function" "add_ummg_checksums" {
-  function_name = "${var.prefix}-AddUmmgChecksums"
+resource "aws_lambda_function" "require_cmr_files" {
+  function_name = "${var.prefix}-RequireCmrFiles"
   filename      = data.archive_file.lambda.output_path
   role          = module.cumulus.lambda_processing_role_arn
-  handler       = "index.addUmmgChecksumsCMAHandler"
+  handler       = "index.requireCmrFilesCMAHandler"
   runtime       = "nodejs14.x"
   timeout       = 300
   memory_size   = 256
-
 
   source_code_hash = data.archive_file.lambda.output_base64sha256
   layers           = [module.cma.lambda_layer_version_arn]
@@ -264,13 +263,34 @@ resource "aws_lambda_function" "add_ummg_checksums" {
   }
 }
 
-# resource "aws_sfn_activity" "discover_granules" {
-#   name = "${var.prefix}-DiscoverGranules"
-# }
+resource "aws_lambda_function" "add_ummg_checksums" {
+  function_name = "${var.prefix}-AddUmmgChecksums"
+  filename      = data.archive_file.lambda.output_path
+  role          = module.cumulus.lambda_processing_role_arn
+  handler       = "index.addUmmgChecksumsCMAHandler"
+  runtime       = "nodejs14.x"
+  timeout       = 300
+  memory_size   = 256
 
-# resource "aws_sfn_activity" "queue_granules" {
-#   name = "${var.prefix}-QueueGranules"
-# }
+  source_code_hash = data.archive_file.lambda.output_base64sha256
+  layers           = [module.cma.lambda_layer_version_arn]
+
+  tags = local.tags
+
+  dynamic "vpc_config" {
+    for_each = length(module.vpc.subnets.ids) == 0 ? [] : [1]
+    content {
+      subnet_ids         = module.vpc.subnets.ids
+      security_group_ids = [aws_security_group.egress_only.id]
+    }
+  }
+
+  environment {
+    variables = {
+      CUMULUS_MESSAGE_ADAPTER_DIR = "/opt/"
+    }
+  }
+}
 
 #-------------------------------------------------------------------------------
 # MODULES
@@ -355,6 +375,7 @@ module "ingest_and_publish_granule_workflow" {
   tags            = local.tags
 
   state_machine_definition = templatefile("${path.module}/templates/ingest-and-publish-granule-workflow.asl.json", {
+    require_cmr_files_task_arn : aws_lambda_function.require_cmr_files.arn,
     sync_granule_task_arn : module.cumulus.sync_granule_task.task_arn,
     add_ummg_checksums_task_arn : aws_lambda_function.add_ummg_checksums.arn,
     add_missing_file_checksums_task_arn : module.cumulus.add_missing_file_checksums_task.task_arn,

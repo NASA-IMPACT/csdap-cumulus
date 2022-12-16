@@ -6,8 +6,38 @@
       "Branches": [
         {
           "Comment": "Ingest Granule",
-          "StartAt": "SyncGranule",
+          "StartAt": "RequireCmrFiles",
           "States": {
+            "RequireCmrFiles": {
+              "Type": "Task",
+              "Resource": "${require_cmr_files_task_arn}",
+              "Parameters": {
+                "cma": {
+                  "event.$": "$",
+                  "ReplaceConfig": {
+                    "MaxSize": 16384,
+                    "Path": "$.payload",
+                    "TargetPath": "$.payload"
+                  },
+                  "task_config": {
+                    "cumulus_message": {
+                      "input": "{$.payload}",
+                      "outputs": [
+                        {
+                          "source": "{$.granules}",
+                          "destination": "{$.meta.input_granules}"
+                        },
+                        {
+                          "source": "{$}",
+                          "destination": "{$.payload}"
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              "Next": "SyncGranule"
+            },
             "SyncGranule": {
               "Parameters": {
                 "cma": {
