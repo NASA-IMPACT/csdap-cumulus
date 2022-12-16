@@ -1,5 +1,5 @@
 {
-  "name": "WV04_MSI_L1B___1",
+  "name": "WV04_MSI_L1B___1_SmokeTest",
   "state": "DISABLED",
   "rule": {
     "type": "onetime"

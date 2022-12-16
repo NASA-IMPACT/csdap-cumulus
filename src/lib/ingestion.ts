@@ -208,7 +208,7 @@ export const requireCmrFilesHandler = (event: PreSyncEvent) =>
     ),
     E.match(
       (message) => Promise.reject(new Error(message)),
-      () => Promise.resolve(event)
+      () => Promise.resolve(event.input)
     )
   );
 
