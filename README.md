@@ -64,12 +64,10 @@ deployment of Cumulus:
 make pre-deploy-setup
 ```
 
-Next, deploy all of the Terraform modules with the following commands, which
-will initialize and deploy the modules in the correct order of their
-dependencies:
+Next, deploy all of the Terraform modules with the following command, which
+will deploy the modules in the correct order of their dependencies:
 
 ```plain
-make all-init
 make all-up-yes
 ```
 
