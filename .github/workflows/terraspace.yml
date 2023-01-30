@@ -82,7 +82,7 @@ jobs:
         run: tfenv install
 
       - name: Install Terraspace
-        run: bundle install
+        run: sudo bundle install
 
       - name: Setup Node from .nvmrc
         uses: actions/setup-node@v3
@@ -111,3 +111,5 @@ jobs:
           echo "Node version: $(node --version)"
           bundle exec terraspace logs -f &
           bundle exec terraspace all up --yes
+          # Kill background logs job
+          kill $$!
