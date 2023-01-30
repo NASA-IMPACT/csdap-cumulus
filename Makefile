@@ -105,11 +105,14 @@ install:
 
 ## logs: Shows last 10 lines of all Terraspace logs
 logs:
-	$(TERRASPACE) logs
+	mkdir -p log/{init,plan,up}
+	tail log/**/*.log
 
 ## logs-follow: Tails all Terraspace logs
 logs-follow:
-	$(TERRASPACE) logs -f
+	mkdir -p log/{init,plan,up}
+	$(TERRASPACE) list --type stack | tr -d '\r' | xargs -L1 basename | xargs -I{} touch log/{init,plan,up}/{}.log
+	tail -f log/**/*.log
 
 ## nuke: DANGER! Completely annihilates your Cumulus stack (after confirmation)
 nuke:
@@ -130,7 +133,9 @@ pre-deploy-setup:
 	# Tail terraspace logs in background so we can see output from subsequent
 	# command to initialize all terraform modules.  After initialization is
 	# complete, kill the background process that follows the logs.
-	$(TERRASPACE) logs -f & $(TERRASPACE) all init; kill $$!
+	mkdir -p log/init
+	$(TERRASPACE) list --type stack | tr -d '\r' | xargs -L1 basename | xargs -I{} touch log/init/{}.log
+	tail -f log/init/*.log & $(TERRASPACE) all init; kill $$!
 	$(DOCKER_RUN) $(IMAGE) -ic "bin/ensure-buckets-exist.sh"
 	$(DOCKER_RUN) $(IMAGE) -ic "bin/copy-launchpad-pfx.sh"
 
