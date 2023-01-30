@@ -64,49 +64,6 @@ module Helpers
   end
 end
 
-class SetLambdaMemorySizes
-  def call(runner)
-    puts
-    puts "NOTE: Manually setting built-in Cumulus AWS Lambda Function memory"
-    puts "sizes as necessary, until Cumulus provides the ability to set them"
-    puts "via Terraform configuration.  This should be removed and performed"
-    puts "in the appropriate tf or tfvars file(s) when supported by Cumulus."
-    puts "(See #{__FILE__.delete_prefix(Dir.pwd).delete_prefix('/')})"
-    puts
-
-    client = Aws::Lambda::Client.new
-
-    memory_sizes = {
-      "AddMissingFileChecksums": 512,
-      "PostToCmr": 512,
-      "DiscoverGranules": 1024,
-      "QueueGranules": 1024,
-    }
-
-    memory_sizes.each do |name, size|
-      #
-      # This value is duplicated in the following places.  When making a change, you
-      # must make the appropriate change in ALL locations:
-      #
-      # - Dockerfile (CUMULUS_PREFIX)
-      # - app/stacks/cumulus/config/hooks/terraform.rb (function_name)
-      # - config/terraform/tfvars/base.tfvars (prefix)
-      #
-      function_name = "cumulus-#{Terraspace.env}-#{name}"
-
-      puts "~ #{function_name} -> #{size} MB"
-
-      client.update_function_configuration(
-        function_name: function_name,
-        memory_size: size,
-        timeout: 900,
-      )
-    end
-
-    puts
-  end
-end
-
 class EnsureSsmParametersExist
   include Helpers
 
@@ -173,5 +130,3 @@ end
 
 before("plan", execute: EnsureSsmParametersExist)
 before("apply", execute: InteractivelySetSsmParameters)
-
-after("apply", execute: SetLambdaMemorySizes)

@@ -88,10 +88,6 @@ clean-cache:
 clean-logs:
 	$(TERRASPACE) clean logs
 
-## copy-launchpad-pfx: Copy launchpad.pfx file to expected location
-copy-launchpad-pfx:
-	$(DOCKER_RUN) $(IMAGE) -ic "bin/copy-launchpad-pfx.sh"
-
 ## create-test-data: Creates data for use with discovery/ingestion smoke test
 create-test-data:
 	$(DOCKER_RUN) $(IMAGE) -ic "bin/create-test-data.sh"
@@ -99,10 +95,6 @@ create-test-data:
 ## docker: Builds Docker image for running Terraspace/Terraform
 docker: Dockerfile .dockerignore .terraform-version Gemfile Gemfile.lock
 	$(DOCKER_BUILD)
-
-## ensure-buckets-exist
-ensure-buckets-exist:
-	$(DOCKER_RUN) $(IMAGE) -ic "bin/ensure-buckets-exist.sh"
 
 ## init-STACK: Runs `terraform init` for specified STACK
 init-%:
@@ -113,11 +105,14 @@ install:
 
 ## logs: Shows last 10 lines of all Terraspace logs
 logs:
-	$(TERRASPACE) logs
+	mkdir -p log/{init,plan,up}
+	tail log/**/*.log
 
 ## logs-follow: Tails all Terraspace logs
 logs-follow:
-	$(TERRASPACE) logs -f
+	mkdir -p log/{init,plan,up}
+	$(TERRASPACE) list --type stack | tr -d '\r' | xargs -L1 basename | xargs -I{} touch log/{init,plan,up}/{}.log
+	tail -f log/**/*.log
 
 ## nuke: DANGER! Completely annihilates your Cumulus stack (after confirmation)
 nuke:
@@ -134,7 +129,15 @@ plan-%:
 	$(TERRASPACE) plan $*
 
 ## pre-deploy-setup: Setup resources prior to initial deployment (idempotent)
-pre-deploy-setup: ensure-buckets-exist copy-launchpad-pfx
+pre-deploy-setup:
+	# Tail terraspace logs in background so we can see output from subsequent
+	# command to initialize all terraform modules.  After initialization is
+	# complete, kill the background process that follows the logs.
+	mkdir -p log/init
+	$(TERRASPACE) list --type stack | tr -d '\r' | xargs -L1 basename | xargs -I{} touch log/init/{}.log
+	tail -f log/init/*.log & $(TERRASPACE) all init; kill $$!
+	$(DOCKER_RUN) $(IMAGE) -ic "bin/ensure-buckets-exist.sh"
+	$(DOCKER_RUN) $(IMAGE) -ic "bin/copy-launchpad-pfx.sh"
 
 ## terraform-doctor-STACK: Fixes "duplicate resource" errors for specified STACK
 terraform-doctor-%: install

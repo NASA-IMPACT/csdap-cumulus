@@ -1,11 +1,6 @@
 aws_region = "<%= expansion(':REGION') %>"
 
-#
-# This value is duplicated in the following places.  When making a change, you
-# must make the appropriate change in ALL locations:
-#
-# - Dockerfile (CUMULUS_PREFIX)
-# - app/stacks/cumulus/config/hooks/terraform.rb (function_name)
-# - config/terraform/tfvars/base.tfvars (prefix)
-#
+# The argument to the `expansion` function is duplicated in `Dockerfile` as the
+# value of the `CUMULUS_PREFIX` environment variable.  If you change the value
+# here, you must also make the corresponding change there.
 prefix = "<%= expansion('cumulus-:ENV') %>"

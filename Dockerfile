@@ -92,13 +92,8 @@ RUN : \
 # hadolint ignore=SC2016
 RUN : \
   && echo 'export PS1="(${TS_ENV:-WARNING! TS_ENV is undefined!}):\w \$ "' >> ~/.bashrc \
-  #
-  # This value is duplicated in the following places.  When making a change, you
-  # must make the appropriate change in ALL locations:
-  #
-  # - Dockerfile (CUMULUS_PREFIX)
-  # - app/stacks/cumulus/config/hooks/terraform.rb (function_name)
-  # - config/terraform/tfvars/base.tfvars (prefix)
-  #
+  # The value of `CUMULUS_PREFIX` is duplicated in the file
+  # `config/terraform/tfvars/base.tfvars`.  If you change the value here, you
+  # must also make the corresponding change there.
   && echo 'export CUMULUS_PREFIX="cumulus-${TS_ENV}"' >> ~/.bashrc \
   && :

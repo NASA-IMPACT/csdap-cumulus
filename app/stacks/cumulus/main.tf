@@ -24,6 +24,7 @@ locals {
   elasticsearch_security_group_id = jsondecode("<%= json_output('data-persistence.elasticsearch_security_group_id') %>")
 
   lambda_timeouts = {
+    add_missing_file_checksums_task_timeout              = 900
     discover_granules_task_timeout                       = 900
     discover_pdrs_task_timeout                           = 600
     hyrax_metadata_update_tasks_timeout                  = 600
@@ -37,6 +38,11 @@ locals {
     queue_workflow_task_timeout                          = 600
     sync_granule_task_timeout                            = 900
     update_granules_cmr_metadata_file_links_task_timeout = 600
+  }
+
+  lambda_memory_sizes = {
+    discover_granules_task_memory_size = 3008
+    queue_granules_task_memory_size    = 3008
   }
 
   rds_security_group         = jsondecode("<%= json_output('rds-cluster.security_group_id') %>")
@@ -470,7 +476,8 @@ module "cumulus" {
 
   tags = local.tags
 
-  lambda_timeouts = local.lambda_timeouts
+  lambda_timeouts     = local.lambda_timeouts
+  lambda_memory_sizes = local.lambda_memory_sizes
 
   throttled_queues = [
     {
