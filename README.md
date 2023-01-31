@@ -5,6 +5,14 @@ vendors, such as Planet and Maxar) into the Earthdata Cloud. In conjunction with
 such ingestion, granule metadata (in UMM-G format) is published to the NASA CMR
 (Content Metadata Repository) for discovery.
 
+- [Prerequisites](#prerequisites)
+- [Infrastructure Management](#infrastructure-management)
+  - [Docker for Development](#docker-for-development)
+  - [Initial Cumulus Deployment](#initial-cumulus-deployment)
+  - [Secondary Cumulus Deployment](#secondary-cumulus-deployment)
+  - [Cumulus Smoke Test](#cumulus-smoke-test)
+  - [Destroying a Deployment](#destroying-a-deployment)
+
 ## Prerequisites
 
 The following steps are **required** prerequisites for deploying Cumulus using
@@ -43,29 +51,47 @@ development and deployment.
 ### Docker for Development
 
 To avoid having to install Terraform, Terraspace, and other tools locally, we
-use a Docker container to package all of our tooling requirements.  Therefore,
-before you can deploy Cumulus, you must first build the Docker image, as
-follows:
+use a Docker container to package all of our tooling requirements.  Further,
+`make` is used for easily running `docker run` commands on your behalf and also
+ensuring that the Docker image is built prior to running any `docker run`
+commands.
+
+Therefore, there should be no need to directly build the Docker image, but to do
+so, you can run the following command, but this should generally be unnecessary:
 
 ```plain
 make docker
 ```
 
-Further, it is good practice to run the command above whenever you switch
-branches, or pull the latest code on any branch, in case changes were made to
-any files that affect the Docker image.
+Further, if you need to open a bash shell in a Docker container using the image,
+you can use the following command:
 
-### Deploying Cumulus
+```plain
+make bash
+```
 
-Once the Docker image is built, perform some setup required prior to your first
-deployment of Cumulus:
+To see all of the available targets in `Makefile`, run `make` without any
+arguments:
+
+```plain
+make
+```
+
+This will output a list of targets with short descriptions.
+
+### Initial Cumulus Deployment
+
+Prior to your first deployment of Cumulus, you must perform some setup.  Run the
+following command to set things up, which will take a bit of time (perhaps 10-15
+minutes):
 
 ```plain
 make pre-deploy-setup
 ```
 
-Next, deploy all of the Terraform modules with the following command, which
-will deploy the modules in the correct order of their dependencies:
+Once the setup is complete, deploy all of the Terraform modules with the
+following command, which will deploy the modules in the correct order of their
+dependencies:
 
 ```plain
 make all-up-yes
@@ -105,29 +131,52 @@ not yet fully ready.  Typically, by the time you rerun the command, the required
 resource is ready.  See [Deploying Cumulus Troubleshooting] for more
 information.
 
+### Secondary Cumulus Deployment
+
 After your initial, successful deployment, one of the listed deployment outputs
-will be `cumulus_distribution_api_uri`.  To locate this output, look at the file
-`log/up/cumulus.log`.  The output should appear near the end of the file, and
-the line should look similar to the following:
+will be `cumulus_distribution_api_uri`.  To locate this output value, run the
+following command:
 
 ```plain
-[... terraspace up cumulus]: cumulus_distribution_api_uri = <URI>
+make output-cumulus
 ```
 
-Add the following line to your `.env` file, where `<URI>` is the value of that
-output.  Note that if you copied your `.env` file from `.env.example`, you
-should already have a line at the bottom of the file that you can uncomment and
-paste the value of `<URI>` there:
+You should see the output similar to the following:
 
 ```plain
-TF_VAR_cumulus_distribution_url=<URI>
+$ make output-cumulus
+Building .terraspace-cache/us-west-2/${TS_ENV}/stacks/cumulus
+Current directory: .terraspace-cache/us-west-2/${TS_ENV}/stacks/cumulus
+=> terraform output
+archive_api_redirect_uri = https://***.execute-api.us-west-2.amazonaws.com:8000/dev/token
+archive_api_uri = https://***.execute-api.us-west-2.amazonaws.com:8000/dev/
+cumulus_distribution_api_redirect_uri = https://***.execute-api.us-west-2.amazonaws.com/dev/login
+cumulus_distribution_api_uri = https://***.execute-api.us-west-2.amazonaws.com/dev/
+report_executions_sns_topic_arn = arn:aws:sns:us-west-2:***:cumulus-${TS_ENV}-report-executions-topic
+report_granules_sns_topic_arn = arn:aws:sns:us-west-2:***:cumulus-${TS_ENV}-report-granules-topic
+report_pdrs_sns_topic_arn = arn:aws:sns:us-west-2:***:cumulus-${TS_ENV}-report-pdrs-topic
+stepfunction_event_reporter_queue_url = https://sqs.us-west-2.amazonaws.com/***/cumulus-${TS_ENV}-sfEventSqsToDbRecordsInputQueue
 ```
+
+Add (or uncomment) the following line to your `.env` file (which should already
+be commented out at the bottom of the file, if you originally copied your `.env`
+file from `.env.example`):
+
+```plain
+TF_VAR_cumulus_distribution_url=
+```
+
+Set the value of this variable to the value of the
+`cumulus_distribution_api_uri` output given in the output from the command
+above.
 
 Then, to apply the value, redploy the `cumulus` module, as follows:
 
 ```plain
 make up-cumulus-yes
 ```
+
+### Cumulus Smoke Test
 
 Finally, populate your development deployment with some data that will allow you
 to perform a small smoke test to verify that your deployment is operating

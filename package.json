@@ -1,10 +1,10 @@
 {
   "name": "csdap-cumulus",
   "version": "1.0.0",
-  "description": "CSDAP Cumulus",
+  "description": "CSDA Cumulus",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
-  "repository": "https://github.com/chuckwondo/csdap-cumulus",
+  "repository": "https://github.com/NASA-IMPACT/csdap-cumulus",
   "license": "MIT",
   "keywords": [],
   "private": true,

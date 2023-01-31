@@ -1,30 +1,24 @@
 #!/usr/bin/env bash
 
+# Make sure launchpad.pfx file is removed locally even if an error occurs.
+trap 'rm -f "${_tmpfile}"' EXIT
+
 set -euo pipefail
 
-_src_bucket=csdap-uat-internal
-_src_key=cumulus-uat/crypto/launchpad.pfx
-_src_etag=$(
-  aws s3api head-object \
-    --bucket "${_src_bucket}" \
-    --key "${_src_key}" \
-    --query ETag \
-    --output text
-)
+# Decode Cumulus Launchpad PFX secret binary key from base64 encoding and write
+# it to a temporary file, so we can upload it to S3.
+
+_tmpfile=/tmp/launchpad.pfx
+
+aws secretsmanager get-secret-value \
+  --secret-id cumulus-launchpad-pfx \
+  --output text \
+  --query SecretBinary |
+  base64 -d >"${_tmpfile}"
+
+# Upload Cumulus Launchpad PFX file to S3 location expected by Cumulus.
 
 _dest_bucket=csdap-${CUMULUS_PREFIX}-internal
 _dest_key=${CUMULUS_PREFIX}/crypto/launchpad.pfx
-_dest_etag=$(
-  aws s3api head-object \
-    --bucket "${_dest_bucket}" \
-    --key "${_dest_key}" \
-    --query ETag \
-    --output text 2>&1
-)
 
-if [[ "${_dest_etag}" != "${_src_etag}" ]]; then
-  aws s3api copy-object \
-    --copy-source "${_src_bucket}/${_src_key}" \
-    --bucket "${_dest_bucket}" \
-    --key "${_dest_key}"
-fi
+aws s3 cp "${_tmpfile}" "s3://${_dest_bucket}/${_dest_key}"
