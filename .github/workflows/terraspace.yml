@@ -104,6 +104,8 @@ jobs:
           echo "Node version: $(node --version)"
           bundle exec terraspace logs -f &
           bundle exec terraspace all plan
+          # Kill background logs job
+          kill $!
 
       - name: Deploy Cumulus
         if: ${{ inputs.deploy }}
@@ -112,4 +114,4 @@ jobs:
           bundle exec terraspace logs -f &
           bundle exec terraspace all up --yes
           # Kill background logs job
-          kill $$!
+          kill $!
