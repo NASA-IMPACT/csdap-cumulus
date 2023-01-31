@@ -4,6 +4,7 @@ on:
     branches:
       - main
     paths:
+      - '.github/workflows/**'
       - 'app/**'
       - '!app/stacks/cumulus/resources/**'
       - 'config/**'
@@ -19,6 +20,7 @@ on:
     branches:
       - main
     paths:
+      - '.github/workflows/**'
       - 'app/**'
       - '!app/stacks/cumulus/resources/**'
       - 'config/**'
