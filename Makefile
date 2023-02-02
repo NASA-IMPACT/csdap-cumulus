@@ -134,6 +134,7 @@ plan-cumulus: install
 
 ## plan-STACK: Runs `terraform plan` for specified STACK
 plan-%: install
+	$(eval DOCKER_RUN_OPTS := --interactive)
 	$(TERRASPACE) plan $*
 
 ## pre-deploy-setup: Setup resources prior to initial deployment (idempotent)
@@ -170,6 +171,7 @@ up-cumulus: install
 
 ## up-STACK: Deploys specified STACK, prompting for approval
 up-%: install
+	$(eval DOCKER_RUN_OPTS := --interactive)
 	$(TERRASPACE) up $*
 
 ## validate-STACK: Runs `terraform validate` for specified STACK
