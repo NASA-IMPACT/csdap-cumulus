@@ -1,7 +1,7 @@
 module Terraspace::Project::EnvHelper
   ##
-  # Returns +true+ if the current AWS account is an "old" account (that is, not
-  # a CBA account); +false+ otherwise.
+  # Returns +true+ if the current AWS account is a CBA (Consolidated Business
+  # Account) account; +false+ otherwise.
 
   def in_cba?
     account = expansion(':ACCOUNT')
@@ -10,6 +10,14 @@ module Terraspace::Project::EnvHelper
     # putting full account IDs in the source code, for extra security.)
     %w{8451 7469 5982}.none? { |suffix| account.end_with? suffix }
   end
+
+  ##
+  # Returns +true+ if the current deployment environment represents a sandbox;
+  # +false+ otherwise.  A sandbox is any deployment to the CBA sandbox AWS
+  # account, or any deployment to the non-CBA ("old") UAT AWS account that is
+  # a "development" deployment (i.e., not the official UAT deployment).
+  # Conversely, any deployment that is *not* a SIT, UAT, or Prod (OPS)
+  # deployment is a sandbox deployment.
 
   def in_sandbox?
     %w{uat sit prod ops}.none?{ |env_part|

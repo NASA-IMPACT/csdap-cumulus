@@ -340,9 +340,16 @@ module "cumulus_distribution" {
   deploy_to_ngap            = true
   lambda_subnet_ids         = module.vpc.subnets.ids
 
-  oauth_client_id       = "<% if in_sandbox? then '' else unquoted(data.aws_ssm_parameter.csdap_client_id.value) end %>"
-  oauth_client_password = "<% if in_sandbox? then '' else unquoted(data.aws_ssm_parameter.csdap_client_password.value) end %>"
-  oauth_host_url        = "<% if in_sandbox? then '' else unquoted(data.aws_ssm_parameter.csdap_host_url.value) end %>"
+  # <% if in_cba? && in_sandbox? %>
+  # Only CBA sandbox deployments set these to empty values.
+  oauth_client_id       = ""
+  oauth_client_password = ""
+  oauth_host_url        = ""
+  # <% else %>
+  oauth_client_id       = data.aws_ssm_parameter.csdap_client_id.value
+  oauth_client_password = data.aws_ssm_parameter.csdap_client_password.value
+  oauth_host_url        = data.aws_ssm_parameter.csdap_host_url.value
+  # <% end %>
   oauth_provider        = "cognito"
 
   permissions_boundary_arn = local.permissions_boundary_arn
@@ -421,7 +428,7 @@ module "cumulus" {
   urs_client_id       = data.aws_ssm_parameter.urs_client_id.value
   urs_client_password = data.aws_ssm_parameter.urs_client_password.value
 
-  # <% if !in_sandbox? then %>
+  # <% if !(in_cba? && in_sandbox?) then %>
   metrics_es_host     = data.aws_ssm_parameter.metrics_es_host.value
   metrics_es_username = data.aws_ssm_parameter.metrics_es_username.value
   metrics_es_password = data.aws_ssm_parameter.metrics_es_password.value
@@ -470,7 +477,7 @@ module "cumulus" {
   private_archive_api_gateway = var.private_archive_api_gateway
   api_gateway_stage           = var.api_gateway_stage
 
-  # <% if !in_sandbox? then %>
+  # <% if !(in_cba? && in_sandbox?) then %>
   log_destination_arn = data.aws_ssm_parameter.log_destination_arn.value
   # <% end %>
   additional_log_groups_to_elk = var.additional_log_groups_to_elk
