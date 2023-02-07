@@ -20,9 +20,9 @@ function die() {
 }
 
 function main() {
-  [[ ${#} == 0 ]] && die "No profiles specified"
-  [[ ${#} == 1 ]] && die "Destination profile not specified"
-  [[ ${#} != 2 ]] && die "Too many arguments specified"
+  [[ ${#} -eq 0 ]] && die "No profiles specified"
+  [[ ${#} -eq 1 ]] && die "Destination profile not specified"
+  [[ ${#} -gt 2 ]] && die "Too many arguments specified"
 
   declare src_aws_profile=${1}
   declare dst_aws_profile=${2}
