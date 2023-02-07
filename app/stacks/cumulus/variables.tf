@@ -3,8 +3,15 @@
 #-------------------------------------------------------------------------------
 
 variable "buckets" {
-  type    = map(object({ name = string, type = string }))
-  default = {}
+  type = map(object({ name = string, type = string }))
+}
+
+variable "cmr_environment" {
+  type = string
+  validation {
+    condition     = length(regexall("^(?:UAT|OPS)$", var.cmr_environment)) == 1
+    error_message = "ERROR: Valid types are \"UAT\" and \"OPS\"!"
+  }
 }
 
 variable "system_bucket" {
@@ -198,5 +205,4 @@ variable "tags" {
 variable "urs_url" {
   description = "The URL of the Earthdata login (URS) site"
   type        = string
-  default     = "https://uat.urs.earthdata.nasa.gov"
 }

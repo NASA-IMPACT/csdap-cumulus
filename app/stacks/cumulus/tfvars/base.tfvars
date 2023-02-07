@@ -13,31 +13,47 @@
 #<% depends_on("data-persistence") %>
 #<% depends_on("rds-cluster") %>
 
-system_bucket = "<%= expansion('csdap-cumulus-:ENV-internal') %>"
+cmr_environment = "UAT"
+urs_url         = "https://uat.urs.earthdata.nasa.gov"
+
+system_bucket = "<%= bucket('internal') %>"
 
 buckets = {
   internal = {
-    name = "<%= expansion('csdap-cumulus-:ENV-internal') %>"
+    name = "<%= bucket('internal') %>"
     type = "internal"
   }
   private = {
-    name = "<%= expansion('csdap-cumulus-:ENV-private') %>"
+    name = "<%= bucket('private') %>"
     type = "private"
   }
   protected = {
-    name = "<%= expansion('csdap-cumulus-:ENV-protected') %>"
+    name = "<%= bucket('protected') %>"
     type = "protected"
   }
   public = {
-    name = "<%= expansion('csdap-cumulus-:ENV-public') %>"
+    name = "<%= bucket('public') %>"
     type = "public"
   }
   dashboard = {
-    name = "<%= expansion('csdap-cumulus-:ENV-dashboard') %>"
+    name = "<%= bucket('dashboard') %>"
     type = "dashboard"
   }
+  #----<% if in_sandbox? then %>
+  # Sandbox provider bucket
   provider = {
-    name = "<%= expansion('csdap-cumulus-:ENV-provider') %>"
+    name = "<%= bucket('provider') %>"
     type = "provider"
   }
+  #-----<% else %>
+  # Non-sandbox provider buckets
+  planet = {
+    name = "ss-ingest-prod-ingesteddata-uswest2"
+    type = "provider"
+  }
+  maxar = {
+    name = "csdap-maxar-delivery"
+    type = "provider"
+  }
+  #-----<% end %>
 }
