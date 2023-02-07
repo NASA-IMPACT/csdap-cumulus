@@ -15,53 +15,50 @@
 #
 
 # ------------------------------------------------------------------------------
-# SHARED (used by all stacks within same AWS account)
+# STACK-INDEPENDENT
 # ------------------------------------------------------------------------------
-
-data("aws_ssm_parameter", "csdap_host_url",
-  "//": "CSDAP Cognito Host URL",
-  name: "/shared/cumulus/csdap-host-url"
-)
-
-data("aws_ssm_parameter", "csdap_client_id",
-  "//": "CSDAP Cognito Client ID",
-  name: "/shared/cumulus/csdap-client-id"
-)
-
-data("aws_ssm_parameter", "csdap_client_password",
-  "//": "CSDAP Cognito Client Password",
-  name: "/shared/cumulus/csdap-client-password"
-)
-
-data("aws_ssm_parameter", "cmr_environment",
-  "//": "CMR Environment (SIT, UAT, or OPS)",
-  name: "/shared/cumulus/cmr-environment"
-)
 
 data("aws_ssm_parameter", "launchpad_passphrase",
   "//": "Launchpad Passphrase",
   name: "/shared/cumulus/launchpad-passphrase"
 )
 
-data("aws_ssm_parameter", "log_destination_arn",
-  "//": "ESDIS Metrics CloudWatch Logs Destination ARN",
-  name: "/shared/cumulus/log-destination-arn"
-)
+if !in_sandbox? then
+  data("aws_ssm_parameter", "csdap_host_url",
+    "//": "CSDAP Cognito Host URL",
+    name: "/shared/cumulus/csdap-host-url"
+  )
 
-data("aws_ssm_parameter", "metrics_es_host",
-  "//": "ESDIS Metrics Elasticsearch Host",
-  name: "/shared/cumulus/metrics-es-host"
-)
+  data("aws_ssm_parameter", "csdap_client_id",
+    "//": "CSDAP Cognito Client ID",
+    name: "/shared/cumulus/csdap-client-id"
+  )
 
-data("aws_ssm_parameter", "metrics_es_username",
-  "//": "ESDIS Metrics Elasticsearch Username",
-  name: "/shared/cumulus/metrics-es-username"
-)
+  data("aws_ssm_parameter", "csdap_client_password",
+    "//": "CSDAP Cognito Client Password",
+    name: "/shared/cumulus/csdap-client-password"
+  )
 
-data("aws_ssm_parameter", "metrics_es_password",
-  "//": "ESDIS Metrics Elasticsearch Password",
-  name: "/shared/cumulus/metrics-es-password"
-)
+  data("aws_ssm_parameter", "log_destination_arn",
+    "//": "ESDIS Metrics CloudWatch Logs Destination ARN",
+    name: "/shared/cumulus/log-destination-arn"
+  )
+
+  data("aws_ssm_parameter", "metrics_es_host",
+    "//": "ESDIS Metrics Elasticsearch Host",
+    name: "/shared/cumulus/metrics-es-host"
+  )
+
+  data("aws_ssm_parameter", "metrics_es_username",
+    "//": "ESDIS Metrics Elasticsearch Username",
+    name: "/shared/cumulus/metrics-es-username"
+  )
+
+  data("aws_ssm_parameter", "metrics_es_password",
+    "//": "ESDIS Metrics Elasticsearch Password",
+    name: "/shared/cumulus/metrics-es-password"
+  )
+end
 
 # ------------------------------------------------------------------------------
 # STACK-SPECIFIC (not shared across stacks)
