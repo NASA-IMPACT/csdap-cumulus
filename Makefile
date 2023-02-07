@@ -43,6 +43,10 @@ help: Makefile
 	@echo "  where STACK is one of the following:\n$(STACKS)"
 	@echo
 
+## all-init: Initializes all modules (in dependency order)
+all-init: logs-init install
+	tail -f log/init/*.log & $(TERRASPACE) all init; kill $$!
+
 ## all-up: Deploys all modules (in dependency order), prompting for approval
 all-up: logs-init install
 	$(eval DOCKER_RUN_OPTS := --interactive)
