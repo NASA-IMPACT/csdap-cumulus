@@ -43,15 +43,14 @@ help: Makefile
 	@echo "  where STACK is one of the following:\n$(STACKS)"
 	@echo
 
+## all-up: Deploys all modules (in dependency order), prompting for approval
+all-up: logs-init install
+	$(eval DOCKER_RUN_OPTS := --interactive)
+	tail -f log/up/*.log & $(TERRASPACE) all up; kill $$!
+
 ## all-up-yes: Deploys all modules (in dependency order) with automatic approval
-all-up-yes: install
-	$(TERRASPACE) all up --yes
-
-## all-graph: Draws module dependency graph in text format
-all-graph: docker
-	$(TERRASPACE) all graph --format text
-
-all-up: install
+all-up-yes: logs-init install
+	tail -f log/up/*.log & $(TERRASPACE) all up --yes; kill $$!
 
 ## all-SUBCOMMAND: Runs Terraspace SUBCOMMAND across all stacks (make all-help for list of SUBCOMMANDs)
 all-%: install
@@ -68,8 +67,6 @@ bash-%: install
 ## build: Runs Terraspace to build all stacks
 build: install
 	$(TERRASPACE) build
-
-build-cumulus: install
 
 ## build-STACK: Runs `terraspace build` for specified STACK
 build-%: install
@@ -117,10 +114,15 @@ logs:
 	tail log/**/*.log
 
 ## logs-follow: Tails all Terraspace logs
-logs-follow: docker
+logs-follow: logs-init
+	tail -f log/**/*.log
+
+logs-init: docker
+	# Make sure all log/init/*.log files exist so we can tail them.  Oddly,
+	# terraspace appends a carriage return ('\r' or ^M) to each stack name, so we
+	# have to delete the trailing carriage returns before further piping.
 	mkdir -p log/{init,plan,up}
 	$(TERRASPACE) list --type stack | tr -d '\r' | xargs -L1 basename | xargs -I{} touch log/{init,plan,up}/{}.log
-	tail -f log/**/*.log
 
 ## nuke: DANGER! Completely annihilates your Cumulus stack (after confirmation)
 nuke: docker
@@ -138,15 +140,14 @@ plan-%: install
 	$(TERRASPACE) plan $*
 
 ## pre-deploy-setup: Setup resources prior to initial deployment (idempotent)
-pre-deploy-setup: docker
-	# Tail terraspace logs in background so we can see output from subsequent
+pre-deploy-setup: logs-init
+	# Tail terraspace logs in background so we can see output from "all init"
 	# command to initialize all terraform modules.  After initialization is
-	# complete, kill the background process that follows the logs.
-	mkdir -p log/init
-	$(TERRASPACE) list --type stack | tr -d '\r' | xargs -L1 basename | xargs -I{} touch log/init/{}.log
+	# complete, kill background process that's following the logs.
 	tail -f log/init/*.log & $(TERRASPACE) all init; kill $$!
-	$(DOCKER_RUN) $(IMAGE) -ic "bin/ensure-buckets-exist.sh"
-	$(DOCKER_RUN) $(IMAGE) -ic "bin/copy-launchpad-pfx.sh"
+
+	# Ensure buckets exist, grab the name of the "internal" bucket, and copy launchpad.pfx there.
+	$(DOCKER_RUN) $(IMAGE) -ic "bin/ensure-buckets-exist.sh 2>/dev/null | grep internal | xargs bin/copy-launchpad-pfx.sh"
 
 ## terraform-doctor-STACK: Fixes "duplicate resource" errors for specified STACK
 terraform-doctor-%: docker
@@ -161,18 +162,14 @@ unlock-%: docker
 	stack_id=$*; stack=$${stack_id%%_*} id=$${stack_id##*_}; \
 	$(TERRASPACE) force_unlock $${stack} $${id}
 
-up-cumulus-yes: install
-
 ## up-STACK-yes: Deploys specified STACK with automatic approval
-up-%-yes: install
-	$(TERRASPACE) up $* --yes
-
-up-cumulus: install
+up-%-yes: logs-init install
+	$(TERRASPACE) up $* --yes | tee -a log/up/$*.log
 
 ## up-STACK: Deploys specified STACK, prompting for approval
-up-%: install
+up-%: logs-init install
 	$(eval DOCKER_RUN_OPTS := --interactive)
-	$(TERRASPACE) up $*
+	$(TERRASPACE) up $* | tee -a log/up/$*.log
 
 ## validate-STACK: Runs `terraform validate` for specified STACK
 validate-%: docker

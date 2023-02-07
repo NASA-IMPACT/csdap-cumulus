@@ -3,23 +3,17 @@
 #
 # Wrapper script for Terraform Doctor, which is a convenient means of fixing
 # "duplicate resource" errors that occur during execution of the `make all-up`
-# command.
+# or `make up-STACK` commands.
 #
-# NOTE: Running `make up-MODULE` to deploy a specific module will NOT write to
-# the Terraspace logs, but `make all-up` does write to the logs, and thus is
-# required, if you want to make use of Terraform Doctor, without having to do
-# any manual work of wrangling error messages.
-#
-# Recommended usage (after running `make all-up` and getting "duplicate
-# resource" errors):
+# Recommended usage (after running `make all-up` or `make up-STACK` and getting
+# "duplicate resource" errors):
 #
 #   terraform-doctor.sh MODULE | bash
 #
 # where MODULE is the name of the module for which errors were produced.
 #
 # For example, to fix "duplicate resource" errors that occurred during
-# deployment of the `cumulus` module (as part of running `make all-up`), run
-# the following:
+# deployment of the `cumulus` module, run the following:
 #
 #   terraform-doctor.sh cumulus | bash
 #
