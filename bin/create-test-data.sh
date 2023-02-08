@@ -24,9 +24,8 @@ cumulus rules upsert --data "app/stacks/cumulus/resources/rules/${_rule}.json" >
 echo "Done"
 
 # Add sample granule files
-_s3_prefix_url="s3://${_provider_bucket}/storage-ss-ingest-prod-ingesteddata-uswest2/planet/"
-echo -n "Uploading sample '${_collection_id}' granule files to ${_s3_prefix_url} ... "
-aws s3 cp --recursive "app/stacks/cumulus/resources/granules/${_collection_name}" "${_s3_prefix_url}" >/dev/null
+echo -n "Uploading sample granule files to bucket ${_provider_bucket} ... "
+aws s3 sync app/stacks/cumulus/resources/granules "${_provider_bucket}" --delete
 echo "Done"
 
 echo
