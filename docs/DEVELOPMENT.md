@@ -1,8 +1,72 @@
 # Development
 
+- [Smoke Testing](#smoke-testing)
 - [Upgrading Cumulus](#upgrading-cumulus)
   - [Determining the Upgrade Path](#determining-the-upgrade-path)
   - [Upgrading to the Next Version in the Upgrade Path](#upgrading-to-the-next-version-in-the-upgrade-path)
+
+## Smoke Testing
+
+At the moment, we don't have any automated tests, so we have to manually perform
+smoke testing to verify correct operation of our discovery and ingestion
+workflows.
+
+Before you can perform any tests, you must add data management items
+(providers, collections, and rules) to Cumulus and create test data:
+
+```plain
+make create-data-management-items
+make create-test-data
+```
+
+Once you do that, you can run a smoke test by first opening a terminal in a
+Docker container:
+
+```plain
+make bash
+```
+
+List the names of the "smoke test" rules so you can choose one to run:
+
+```plain
+cumulus rules list | jq -r .[].name | grep --color=never SmokeTest
+```
+
+Enable one (or more) of the listed rules (where `NAME` is one of the names listed
+by the previous command):
+
+```plain
+cumulus rules enable --name NAME
+```
+
+Run a rule to trigger discovery and ingestion:
+
+```plain
+cumulus rules run --name NAME
+```
+
+Follow the logs for discovery to confirm discovery of the uploaded sample
+granule files (NOTE: it may take a minute or so before you see any logging
+output):
+
+```plain
+aws logs tail --follow /aws/lambda/${CUMULUS_PREFIX}-DiscoverGranules
+```
+
+Follow the logs for ingestion to confirm CMR validation of the metadata (NOTE:
+either kill the previous command with Ctrl-C, or open another terminal window
+and start another Docker container by running `make bash`):
+
+```plain
+aws logs tail --follow /aws/lambda/${CUMULUS_PREFIX}-PostToCmr
+```
+
+If you see no output from either of the `aws logs` commands after a few minutes,
+then you may need to log into the AWS Management Console and check for errors in
+one or both of the following Step Functions:
+
+- ${CUMULUS_PREFIX}-DiscoverAndQueueGranules
+- ${CUMULUS_PREFIX}-IngestAndPublishGranule
 
 ## Upgrading Cumulus
 

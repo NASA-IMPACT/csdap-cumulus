@@ -200,8 +200,9 @@ account in order to obtain the account ID and supply the IDs to the owner of any
 bucket to which you wish to apply the above policy:
 
 - `csdap-cumulus-uat-7469`
-- `csdap-cumulus-sit-8451`
 - `csdap-cumulus-prod-5982`
+- `csda-cumulus-uat-1686` (CBA)
+- `csda-cumulus-prod-5047` (CBA)
 
 If the permissions are not specified, then attempting to discover and ingest a
 collection from the provider will fail with an appropriate "access denied"
@@ -227,31 +228,25 @@ deployment, see
 
 In addition to creating a new provider definition, you must also add the
 provider's bucket to the list of buckets configured in Terraform, if the bucket
-is not already configured.  This requires adding the bucket definition to the
-following files:
-
-- `app/stacks/cumulus/tfvars/uat.tfvars`
-- `app/stacks/cumulus/tfvars/prod.tfvars`
-
-Within both of these files, within the `buckets` variable value, add an entry of
-the following form, where `<PROVIDER_ID>` and `<BUCKET_NAME>` are the same
-values you used within the corresponding provider's `.json` file definition, as
-described above:
+is not already configured.  This requires adding the bucket definition to
+`app/stacks/cumulus/tfvars/base.tfvars`, **within the existing `buckets`
+variable**, in the section at the bottom for **non-sandbox provider buckets**:
 
 ```hcl
-buckets = {
-  ...
-  <PROVIDER_ID> = {
-    name = "<BUCKET_NAME>"
-    type = "provider"
-  }
+<PROVIDER_ID> = {
+  name = "<BUCKET_NAME>"
+  type = "provider"
 }
 ```
+
+where `<PROVIDER_ID>` and `<BUCKET_NAME>` are the same values you used within
+the corresponding provider's `.json` file definition, as described earlier.
 
 **IMPORTANT:** Note that there are _no_ quotes surrounding `<PROVIDER_ID>`, but
 that there _are_ quotes surrounding `<BUCKET_NAME>`.
 
-**IMPORTANT:** When you add a new bucket definition, you must redeploy Cumulus.
+**IMPORTANT:** When you add a new bucket definition, **you must redeploy
+Cumulus**.
 
 ### Defining a Collection
 
@@ -421,16 +416,16 @@ work around a severe scalability limitation in the core Cumulus implementation.
 
 Within the `"meta"` section shown in the JSON definition template above:
 
-- `<START_DATE>` is an [ISO 8601 Date] (or combined date and time), which should
-  end with a `Z` to indicate UTC time
-- `<END_DATE>` is an [ISO 8601 Date] (the date range _excludes_ this date),
-  which should end with a `Z` to indicate UTC time
+- `<START_DATE>` is an [ISO 8601 Combined date and time representation], which
+  should end with a `Z` to indicate UTC time (e.g., 2017-08-01T00:00:00Z).
+- `<END_DATE>` is an [ISO 8601 Combined date and time representation] (the date
+  range _excludes_ this date), which should end with a `Z` to indicate UTC time.
 - the `"step"` property value is an [ISO 8601 Duration], and should generally be
   set to `"P1D"` (representing a duration of 1 day) to avoid crashing the
   `DiscoverGranules` task for collections that may include large numbers of
   granule files in any given month.  For very small collections (perhaps a max
   of 10K per month), this could be set to `"P1M"`, representing a duration of 1
-  month).
+  month, but only if the file naming convention supports such resolution.
 - `<DATE_FORMAT_PATTERN>` is a [date format pattern] that is used to format the
   dates produced by starting with `<START_DATE>` and incrementing the date by
   the `"step"` value until the `<END_DATE>` is reached.  Each formatted result
@@ -447,8 +442,8 @@ Within the `"meta"` section shown in the JSON definition template above:
   the literal part, and `yyyyMMdd` represents the 4-digit year (`yyyy`, _not_
   `YYYY`), 2-digit month (`MM`) and 2-digit day of the month (`dd`).  This
   should have the same granularity as the `"step"` duration.  For example, if
-  `"step"` is set to 1 day (`"P1D"`), this date format must be down to the day
-  resolution.
+  `"step"` is set to 1 day (`"P1D"`), this date format must also have a
+  resolution of 1 day.
 
 Once a rule `.json` file is created, you can add it to the Cumulus database (or
 update it) with the following command (from within the Docker container):
@@ -765,7 +760,7 @@ cumulus rules run --name my_rule
   https://nasa.github.io/cumulus/docs/data-cookbooks/setup#rules
 [How to specify a file location in a bucket]:
   https://nasa.github.io/cumulus/docs/workflows/workflow-configuration-how-to#how-to-specify-a-file-location-in-a-bucket
-[ISO 8601 Date]:
-  https://en.wikipedia.org/wiki/ISO_8601#Dates
+[ISO 8601 Combined date and time representation]:
+  https://en.wikipedia.org/wiki/ISO_8601#Combined_date_and_time_representations
 [ISO 8601 Duration]:
   https://en.wikipedia.org/wiki/ISO_8601#Durations

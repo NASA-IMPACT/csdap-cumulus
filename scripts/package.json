@@ -8,6 +8,7 @@
     "clean:build": "rm -rf build/*",
     "clean:dependencies": "rm -rf node_modules/* node_modules/.bin node_modules/.cache node_modules/.yarn-integrity",
     "clean:all": "yarn clean:build && yarn clean:dependencies",
+    "generate-test-granule-files": "yarn build && cd .. && node scripts/build/generate-test-granule-files.js",
     "rerun-step-function": "yarn build && cd .. && node scripts/build/rerun-step-function.js",
     "terraform-doctor": "yarn build && cd .. && node scripts/build/terraform-doctor.js"
   },
