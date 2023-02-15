@@ -9,8 +9,7 @@ locals {
     base             = "<%= expansion('csdap-cumulus-:ENV') %>",
   })
 
-  cmr_environment = data.aws_ssm_parameter.cmr_environment.value
-  cmr_provider    = "CSDA"
+  cmr_provider = "CSDA"
 
   dynamo_tables = jsondecode("<%= json_output('data-persistence.dynamo_tables') %>")
 
@@ -336,19 +335,28 @@ module "cumulus_distribution" {
   bucketname_prefix         = ""
   buckets                   = var.buckets
   cmr_acl_based_credentials = true
-  cmr_environment           = local.cmr_environment
+  cmr_environment           = var.cmr_environment
   cmr_provider              = local.cmr_provider
   deploy_to_ngap            = true
   lambda_subnet_ids         = module.vpc.subnets.ids
-  oauth_client_id           = data.aws_ssm_parameter.csdap_client_id.value
-  oauth_client_password     = data.aws_ssm_parameter.csdap_client_password.value
-  oauth_host_url            = data.aws_ssm_parameter.csdap_host_url.value
-  oauth_provider            = "cognito"
-  permissions_boundary_arn  = local.permissions_boundary_arn
-  prefix                    = var.prefix
-  system_bucket             = var.system_bucket
-  tags                      = local.tags
-  vpc_id                    = module.vpc.vpc_id
+
+  # <% if in_cba? && in_sandbox? %>
+  # Only CBA sandbox deployments set these to empty values.
+  oauth_client_id       = ""
+  oauth_client_password = ""
+  oauth_host_url        = ""
+  # <% else %>
+  oauth_client_id       = data.aws_ssm_parameter.csdap_client_id.value
+  oauth_client_password = data.aws_ssm_parameter.csdap_client_password.value
+  oauth_host_url        = data.aws_ssm_parameter.csdap_host_url.value
+  # <% end %>
+  oauth_provider        = "cognito"
+
+  permissions_boundary_arn = local.permissions_boundary_arn
+  prefix                   = var.prefix
+  system_bucket            = var.system_bucket
+  tags                     = local.tags
+  vpc_id                   = module.vpc.vpc_id
 }
 
 module "discover_granules_workflow" {
@@ -420,12 +428,14 @@ module "cumulus" {
   urs_client_id       = data.aws_ssm_parameter.urs_client_id.value
   urs_client_password = data.aws_ssm_parameter.urs_client_password.value
 
+  # <% if !(in_cba? && in_sandbox?) then %>
   metrics_es_host     = data.aws_ssm_parameter.metrics_es_host.value
   metrics_es_username = data.aws_ssm_parameter.metrics_es_username.value
   metrics_es_password = data.aws_ssm_parameter.metrics_es_password.value
+  # <% end %>
 
   cmr_client_id      = "<%= expansion('csdap-cumulus-:ENV') %>"
-  cmr_environment    = local.cmr_environment
+  cmr_environment    = var.cmr_environment
   cmr_oauth_provider = "launchpad"
   cmr_provider       = local.cmr_provider
   # Cumulus bug: since we are using Launchpad for CMR authentication, not EDL,
@@ -467,7 +477,9 @@ module "cumulus" {
   private_archive_api_gateway = var.private_archive_api_gateway
   api_gateway_stage           = var.api_gateway_stage
 
-  log_destination_arn          = data.aws_ssm_parameter.log_destination_arn.value
+  # <% if !(in_cba? && in_sandbox?) then %>
+  log_destination_arn = data.aws_ssm_parameter.log_destination_arn.value
+  # <% end %>
   additional_log_groups_to_elk = var.additional_log_groups_to_elk
 
   tea_external_api_endpoint                   = var.cumulus_distribution_url

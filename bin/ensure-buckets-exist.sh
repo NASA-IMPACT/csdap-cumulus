@@ -33,9 +33,11 @@ function create_bucket() {
   local _bucket=${1}
   local _region=${2}
 
+  # Redirect stdout to stderr so that it doesn't interfere with piping, because
+  # farther below, we write bucket names to stdout for piping purposes.
   aws s3api create-bucket --bucket "${_bucket}" \
     --region "${_region}" \
-    --create-bucket-configuration LocationConstraint="${_region}" 2>&1
+    --create-bucket-configuration LocationConstraint="${_region}" 1>&2
 }
 
 function main() {
@@ -52,6 +54,11 @@ function main() {
     if ! bucket_exists "${_bucket}"; then
       create_bucket "${_bucket}" "${AWS_REGION}"
     fi
+
+    # Echo bucket, regardless of whether or not it was newly created, so that
+    # we always output the name of every bucket, no matter what, unless an
+    # error occurs.
+    echo "${_bucket}"
   done
 }
 

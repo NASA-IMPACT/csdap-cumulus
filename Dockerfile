@@ -103,9 +103,13 @@ RUN : \
 # changes in the wrong environment.
 # hadolint ignore=SC2016
 RUN : \
-  && echo 'export PS1="(${TS_ENV:-WARNING! TS_ENV is undefined!}):\w \$ "' >> ~/.bashrc \
-  # The value of `CUMULUS_PREFIX` is duplicated in the file
+  && echo 'export PS1="(${AWS_PROFILE:-[ERROR: AWS_PROFILE is not defined]}:${TS_ENV:-[ERROR: TS_ENV is undefined]}):\w \$ "' >> ~/.bashrc \
+  #-----------------------------------------------------------------------------
+  # IMPORTANT
+  #-----------------------------------------------------------------------------
+  # The value that `CUMULUS_PREFIX` is set to is duplicated in the file
   # `config/terraform/tfvars/base.tfvars`.  If you change the value here, you
   # must also make the corresponding change there.
   && echo 'export CUMULUS_PREFIX="cumulus-${TS_ENV}"' >> ~/.bashrc \
+  #-----------------------------------------------------------------------------
   && :
