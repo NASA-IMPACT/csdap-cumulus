@@ -16,8 +16,8 @@
     "rule": {
       "state": "DISABLED"
     },
-    "startDate": "2017-01-01",
-    "endDate": "2019-01-01",
+    "startDate": "2017-01-01T00:00:00Z",
+    "endDate": "2019-01-01T00:00:00Z",
     "step": "P1Y"
   }
 }
