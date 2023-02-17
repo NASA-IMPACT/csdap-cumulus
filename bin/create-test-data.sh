@@ -14,8 +14,7 @@ provider_bucket="$(
     grep '"name" = ' |
     sed -E 's/.+ = "(.+)"/\1/'
 )"
-echo "done"
-echo "Provider bucket: ${provider_bucket}"
+echo "${provider_bucket}"
 
 echo -n "Generating dummy granule files based on cmr.json files..."
 files=$(YARN_SILENT=1 yarn generate-test-granule-files)

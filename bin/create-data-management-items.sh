@@ -36,10 +36,16 @@ function sync_providers() {
 
   mkdir -p "${_tmpdir}/${_resources_path}/providers"
 
-  find "${_resources_path}/providers" -type f -name '*.json' -print0 |
-    xargs -0 -I{} sh -c 'jq .host=\"${1}\" "${2}" >"${3}"' -- "${_provider_bucket}" {} "${_tmpdir}/{}"
+  if [[ ${TS_ENV} =~ ^(sit|uat|ops|prod)$ ]]; then
+    sync_items "${_resources_path}" "providers"
+  else
+    # We're dealing with a dev/sandbox environment, so we must set all provider
+    # hosts to the sole provider bucket.
+    find "${_resources_path}/providers" -type f -name '*.json' -print0 |
+      xargs -0 -I{} sh -c 'jq .host=\"${1}\" "${2}" >"${3}"' -- "${_provider_bucket}" {} "${_tmpdir}/{}"
 
-  sync_items "${_tmpdir}/${_resources_path}" "providers"
+    sync_items "${_tmpdir}/${_resources_path}" "providers"
+  fi
 }
 
 function main() {
