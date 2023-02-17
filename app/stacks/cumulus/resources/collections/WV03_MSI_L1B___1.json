@@ -1,0 +1,42 @@
+{
+  "name": "WV03_MSI_L1B",
+  "version": "1",
+  "duplicateHandling": "replace",
+  "granuleId": ".*",
+  "granuleIdExtraction": "^(WV03_.+-M1BS-.+_P\\d{3}).+(?<!rename)$",
+  "sampleFileName": "WV03_20140824082814_10400100012AD900_14AUG24082814-M1BS-504548417070_01_P001-BROWSE.jpg",
+  "url_path": "{cmrMetadata.CollectionReference.ShortName}___{cmrMetadata.CollectionReference.Version}/{dateFormat(cmrMetadata.TemporalExtent.SingleDateTime, YYYY)}/{dateFormat(cmrMetadata.TemporalExtent.SingleDateTime, DDD)}/{cmrMetadata.GranuleUR}",
+  "ignoreFilesConfigForDiscovery": false,
+  "files": [
+    {
+      "regex": "^(WV03_.+_P\\d{3})-BROWSE[.]jpg$",
+      "sampleFileName": "WV03_20140824082814_10400100012AD900_14AUG24082814-M1BS-504548417070_01_P001-BROWSE.jpg",
+      "bucket": "protected",
+      "reportToEms": true
+    },
+    {
+      "regex": "^(WV03_.+_P\\d{3})-cmr[.]json$",
+      "sampleFileName": "WV03_20140824082814_10400100012AD900_14AUG24082814-M1BS-504548417070_01_P001-cmr.json",
+      "bucket": "protected",
+      "reportToEms": true
+    },
+    {
+      "regex": "^(WV03_.+_P\\d{3})[.]tar$",
+      "sampleFileName": "WV03_20140824082814_10400100012AD900_14AUG24082814-M1BS-504548417070_01_P001.tar",
+      "bucket": "protected",
+      "reportToEms": true
+    },
+    {
+      "regex": "^(WV03_.+_P\\d{3})[.]ntf$",
+      "sampleFileName": "WV03_20140824082814_10400100012AD900_14AUG24082814-M1BS-504548417070_01_P001.ntf",
+      "bucket": "protected",
+      "reportToEms": true
+    },
+    {
+      "regex": "^(WV03_.+_P\\d{3})[.]xml$",
+      "sampleFileName": "WV03_20140824082814_10400100012AD900_14AUG24082814-M1BS-504548417070_01_P001.xml",
+      "bucket": "protected",
+      "reportToEms": true
+    }
+  ]
+}
