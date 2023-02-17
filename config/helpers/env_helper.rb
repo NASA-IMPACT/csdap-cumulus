@@ -21,7 +21,7 @@ module Terraspace::Project::EnvHelper
 
   def in_sandbox?
     %w{uat sit prod ops}.none?{ |env_part|
-      Terraspace.env.downcase.include? env_part
+      Terraspace.env.downcase == env_part
     }
   end
 
