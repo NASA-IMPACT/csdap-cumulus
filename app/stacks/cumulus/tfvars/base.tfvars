@@ -1,7 +1,8 @@
 # Although main.tf uses the Terraspace `output` helper function to obtain
 # outputs from module dependencies, the dependencies on the modules are
 # not recognized by Terraspace unless the `output` or `depends_on` helper
-# function is used in a tfvars file.
+# function is used in a tfvars file.  See
+# https://terraspace.cloud/docs/dependencies/tfvars/considerations/#dependency-must-be-defined-in-tfvars
 #
 # While we could use the `output` helper function in this file, that would
 # require defining new variables, so we simply use `depends_on` instead.
