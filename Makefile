@@ -97,6 +97,10 @@ console-%: docker
 	$(eval DOCKER_RUN_OPTS := --interactive)
 	$(TERRASPACE) console $*
 
+## create-data-management-items: Creates/updates providers, collections, and rules
+create-data-management-items: docker
+	$(DOCKER_RUN) $(IMAGE) -ic "bin/create-data-management-items.sh"
+
 ## create-test-data: Creates data for use with discovery/ingestion smoke test
 create-test-data: docker
 	$(DOCKER_RUN) $(IMAGE) -ic "bin/create-test-data.sh"
