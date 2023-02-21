@@ -87,6 +87,8 @@ RUN : \
   && ln -s "$(which cumulus)" /usr/local/bin/cumulus \
   && :
 
+WORKDIR /work
+
 # Install node dependencies
 COPY package.json yarn.lock ./
 # hadolint ignore=SC1091

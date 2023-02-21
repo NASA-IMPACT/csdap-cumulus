@@ -1,8 +1,25 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+set -Eeuo pipefail
+trap 'retry $? $LINENO' ERR
 
 _confirmation_phrase="destroy ${TS_ENV}"
+_attempts=${1:-1}
+
+retry() {
+  echo
+  echo -n "ERROR ${1} on line ${2}.  "
+
+  if [[ ${_attempts} -ge 10 ]]; then
+    echo "Giving up after ${_attempts} attempts."
+    exit "${1}"
+  else
+    echo "Retrying..."
+    echo
+    "${BASH_SOURCE[0]}" $((_attempts + 1)) <<<"${_confirmation_phrase}"
+    exit 0
+  fi
+}
 
 echo ""
 echo ">>> DANGER! <<<"

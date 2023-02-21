@@ -134,7 +134,7 @@ logs-init: docker
 
 ## nuke: DANGER! Completely annihilates your Cumulus stack (after confirmation)
 nuke: docker
-	$(DOCKER_RUN) $(IMAGE) -ic "bin/nuke.sh"
+	$(DOCKER_RUN) -i $(IMAGE) -ic "bin/nuke.sh"
 
 ## output-STACK: Runs `terraform output` for specified STACK
 output-%: docker
