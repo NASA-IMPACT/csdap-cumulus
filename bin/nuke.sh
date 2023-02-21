@@ -1,8 +1,25 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+set -Eeuo pipefail
+trap 'retry $? $LINENO' ERR
 
 _confirmation_phrase="destroy ${TS_ENV}"
+_attempts=${1:-1}
+
+retry() {
+  echo
+  echo -n "ERROR ${1} on line ${2}.  "
+
+  if [[ ${_attempts} -ge 10 ]]; then
+    echo "Giving up after ${_attempts} attempts."
+    exit "${1}"
+  else
+    echo "Retrying..."
+    echo
+    "${BASH_SOURCE[0]}" $((_attempts + 1)) <<<"${_confirmation_phrase}"
+    exit 0
+  fi
+}
 
 echo ""
 echo ">>> DANGER! <<<"
@@ -47,7 +64,7 @@ if [[ -n "${_dynamo_db_tables}" ]]; then
   done
 fi
 
-_rds_cluster_id=$(
+_rds_cluster_ids=$(
   aws rds describe-db-clusters \
     --query "DBClusters[?contains(DBClusterIdentifier, '${CUMULUS_PREFIX}')].DBClusterIdentifier" \
     --output text
@@ -56,15 +73,17 @@ _rds_cluster_id=$(
 # If the RDS Cluster exists, destroy the data-persistence module as well as the
 # cluster.  This check also allows this script to be re-run without issue in the
 # event that something went wrong.
-if [[ -n "${_rds_cluster_id}" ]]; then
+if [[ -n "${_rds_cluster_ids}" ]]; then
   terraspace down data-persistence -y
 
-  AWS_PAGER="" aws rds modify-db-cluster \
-    --no-deletion-protection \
-    --db-cluster-identifier "${_rds_cluster_id}"
-  AWS_PAGER="" aws rds delete-db-cluster \
-    --skip-final-snapshot \
-    --db-cluster-identifier "${_rds_cluster_id}"
+  for _rds_cluster_id in ${_rds_cluster_ids}; do
+    AWS_PAGER="" aws rds modify-db-cluster \
+      --no-deletion-protection \
+      --db-cluster-identifier "${_rds_cluster_id}"
+    AWS_PAGER="" aws rds delete-db-cluster \
+      --skip-final-snapshot \
+      --db-cluster-identifier "${_rds_cluster_id}"
+  done
 fi
 
 terraspace down rds-cluster -y

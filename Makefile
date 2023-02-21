@@ -129,12 +129,13 @@ logs-init: docker
 	# Make sure all log/init/*.log files exist so we can tail them.  Oddly,
 	# terraspace appends a carriage return ('\r' or ^M) to each stack name, so we
 	# have to delete the trailing carriage returns before further piping.
+	rm -rf log
 	mkdir -p log/{init,plan,up}
 	$(TERRASPACE) list --type stack | tr -d '\r' | xargs -L1 basename | xargs -I{} touch log/{init,plan,up}/{}.log
 
 ## nuke: DANGER! Completely annihilates your Cumulus stack (after confirmation)
 nuke: docker
-	$(DOCKER_RUN) $(IMAGE) -ic "bin/nuke.sh"
+	$(DOCKER_RUN) -i $(IMAGE) -ic "bin/nuke.sh"
 
 ## output-STACK: Runs `terraform output` for specified STACK
 output-%: docker

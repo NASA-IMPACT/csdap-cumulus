@@ -626,34 +626,111 @@ additional resource (not managed by Terraform).  If you do not plan to redeploy
 Cumulus after destroying the managed resources, as described in the previous
 section, then you should destroy the unmanaged resources as well.
 
-There are several buckets that should be destroyed.  To see the list of buckets
-related to your deployment, run the following:
+The following commands should be run within the Docker container, so first open
+a bash session in the container:
 
 ```sh
-aws s3 ls | grep ${CUMULUS_PREFIX}
+make bash
 ```
 
-To delete a bucket, run the following, where `<NAME>` is a name from the buckets
-listed from the previous command:
-
-```sh
-aws s3api delete-bucket --bucket <NAME>
-```
-
-There are also several SSM Parameters that must be cleaned up.  To list them,
+There are several **SSM Parameters** that must be cleaned up.  To delete them,
 run the following:
 
 ```sh
 aws ssm describe-parameters \
   --parameter-filters "Key=Name,Option=Contains,Values=/${TS_ENV}/" \
-  --query Parameters[].Name
+  --query Parameters[].Name \
+  --output text |
+  tr '\t' '\n' |
+  xargs -L1 -t aws ssm delete-parameter --name
 ```
 
-For each name in the list, run the following command to delete the parameter,
-where `<NAME>` is a name from the output of the previous command:
+There are many **CloudWatch log groups** that must be cleaned up:
 
 ```sh
-aws ssm delete-parameter --name <NAME>
+aws logs describe-log-groups \
+  --log-group-name-pattern="${CUMULUS_PREFIX}" \
+  --output text \
+  --query logGroups[].logGroupName |
+  tr '\t' '\n' |
+  xargs -L1 -t aws logs delete-log-group --log-group-name
+```
+
+There are a couple of **API Gateway REST APIs** that must be cleaned up:
+
+```sh
+aws apigateway get-rest-apis \
+  --output text \
+  --query "items[?contains(name, '${CUMULUS_PREFIX}')].id" |
+  tr '\t' '\n' |
+  xargs -L1 -t aws apigateway delete-rest-api --rest-api-id
+```
+
+There are several **buckets** that should be destroyed.  To see the list of
+buckets related to your deployment, run the following:
+
+```sh
+aws s3api list-buckets \
+  --output text \
+  --query "Buckets[?contains(Name, '${CUMULUS_PREFIX}')].Name" |
+  tr '\t' '\n'
+```
+
+To empty and delete a bucket, you can run the following command, where `<NAME>`
+is a name from the buckets listed from the previous command:
+
+```sh
+aws s3 rb s3://<NAME> --force
+```
+
+However, if the list of buckets from above definitely includes _only your
+buckets_ (which it should), you can empty and delete _all but one_ of your
+buckets more quickly by running the following:
+
+```sh
+aws s3api list-buckets \
+  --output text \
+  --query "Buckets[?contains(Name, '${CUMULUS_PREFIX}')].Name" |
+  tr '\t' '\n' |
+  xargs -t -I{} aws s3 rb s3://{} --force
+```
+
+The final bucket (your tfstate bucket) has versioning enabled (which the other
+buckets did not), so you must run this command to empty the bucket first:
+
+```sh
+aws s3api list-buckets \
+  --output text \
+  --query "Buckets[?contains(Name, '${CUMULUS_PREFIX}')].Name" |
+  xargs -t -I{} sh -c 'aws s3api delete-objects --no-paginate --bucket "${1}" --delete "$(aws s3api list-object-versions --bucket "${1}" --output=json --query="{Objects: Versions[].{Key:Key,VersionId:VersionId}}")"' -- {}
+```
+
+Then, delete the bucket lifecycle configuration to allow yourself to delete the
+"delete markers" that AWS created:
+
+```sh
+aws s3api list-buckets \
+  --output text \
+  --query "Buckets[?contains(Name, '${CUMULUS_PREFIX}')].Name" |
+  xargs -t aws s3api delete-bucket-lifecycle --bucket
+```
+
+Now you can delete the delete markers in the bucket:
+
+```sh
+aws s3api list-buckets \
+  --output text \
+  --query "Buckets[?contains(Name, '${CUMULUS_PREFIX}')].Name" |
+  xargs -t -I{} sh -c 'aws s3api delete-objects --no-paginate --bucket "${1}" --delete "$(aws s3api list-object-versions --bucket "${1}" --output=json --query="{Objects: DeleteMarkers[].{Key:Key,VersionId:VersionId}}")"' -- {}
+```
+
+Finally, you can delete the bucket itself:
+
+```sh
+aws s3api list-buckets \
+  --output text \
+  --query "Buckets[?contains(Name, '${CUMULUS_PREFIX}')].Name" |
+  xargs -t -I{} aws s3 rb s3://{}
 ```
 
 Again, if you encounter any errors during any of these steps, refer to the
