@@ -129,6 +129,7 @@ logs-init: docker
 	# Make sure all log/init/*.log files exist so we can tail them.  Oddly,
 	# terraspace appends a carriage return ('\r' or ^M) to each stack name, so we
 	# have to delete the trailing carriage returns before further piping.
+	rm -rf log
 	mkdir -p log/{init,plan,up}
 	$(TERRASPACE) list --type stack | tr -d '\r' | xargs -L1 basename | xargs -I{} touch log/{init,plan,up}/{}.log
 
