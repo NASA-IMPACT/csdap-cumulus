@@ -2,6 +2,7 @@
 
 - [Deployment](#deployment)
   - [Execution Role Does Not Have Permissions](#execution-role-does-not-have-permissions)
+  - [Missing Map Element: AutoscalingGroupName](#missing-map-element-autoscalinggroupname)
   - [Duplicate Resources](#duplicate-resources)
 - [Destroying a Deployment](#destroying-a-deployment)
   - [Error Reading Secrets Manager Secret Policy](#error-reading-secrets-manager-secret-policy)
@@ -34,6 +35,72 @@ The fix for this problem is simple: **Rerun your deployment command**, and by
 the time Terraform again attempts to perform the previously failing operation,
 it will succeed.  If it fails again, rerun the deployment again, until you no
 longer see such permissions errors.
+
+### Missing Map Element: AutoscalingGroupName
+
+The following error can occur on a rare occasion:
+
+```plain
+Error: Missing map element
+
+  on .terraform/modules/cumulus/tf-modules/cumulus/ecs_cluster.tf line 317,
+  in resource "aws_autoscaling_policy" "ecs_instance_autoscaling_group_scale_out":
+ 317:   autoscaling_group_name  = aws_cloudformation_stack.ecs_instance_autoscaling_group.outputs.AutoscalingGroupName
+    |----------------
+    | aws_cloudformation_stack.ecs_instance_autoscaling_group.outputs is empty map of string
+
+This map does not have an element with the key "AutoscalingGroupName".
+```
+
+This is due to some other error -- likely not shown in the output -- that caused
+the creation of the CloudFormation stack for the Cumulus ECS cluster to fail.
+Unfortunately, failure to create this CloudFormation stack does not cause the
+entire deployment to fail.  Thus, not only is the root cause hidden, but the
+error above is simply a consequence of continuing with the deployment after the
+failure to create the CloudFormation stack.
+
+To find the root cause, you need to look through the events related to the ECS
+CloudFormation stack, which is named
+`"${CUMULUS_PREFIX}-CumulusECSCluster-autoscaling-group"`.  You may either use
+the AWS Console in a browser or use the AWS CLI.  In the AWS Console, navigate
+to the CloudFormation stacks, select the ECS cluster stack, and click the Events
+tab to see the list of events.  You should find a failure event and the status
+reason should describe the error.
+
+Alternatively, you can use the AWS CLI:
+
+```plain
+make bash
+```
+
+Then, list the CloudFormation stack events:
+
+```plain
+aws cloudformation describe-stack-events \
+  --stack-name "${CUMULUS_PREFIX}-CumulusECSCluster-autoscaling-group"
+```
+
+This output might be a bit harder to sift through than using the AWS Console,
+but should show you the same information.
+
+Once you **locate the root cause and correct it**, you must also **delete the
+stack** to force Terraform to create it again.  You can either delete the stack
+via the AWS Console, or use the AWS CLI:
+
+```plain
+aws cloudformation delete-stack \
+  --stack-name "${CUMULUS_PREFIX}-CumulusECSCluster-autoscaling-group"
+```
+
+Redeploying the `cumulus` module should then recreate the stack:
+
+```plain
+make up-cumulus-yes
+```
+
+However, if you did not correctly resolve the root cause of the failure to
+create the stack, or a different error causes the stack creation to fail, you
+will once again see the error above.
 
 ### Duplicate Resources
 

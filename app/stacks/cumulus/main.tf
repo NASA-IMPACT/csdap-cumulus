@@ -340,15 +340,15 @@ module "cumulus_distribution" {
   deploy_to_ngap            = true
   lambda_subnet_ids         = module.vpc.subnets.ids
 
-  # <% if in_cba? && in_sandbox? %>
+  # <% if !(in_cba? && in_sandbox?) then %>
+  oauth_client_id       = data.aws_ssm_parameter.csdap_client_id.value == "TBD" ? "" : data.aws_ssm_parameter.csdap_client_id.value
+  oauth_client_password = data.aws_ssm_parameter.csdap_client_password.value == "TBD" ? "" : data.aws_ssm_parameter.csdap_client_password.value
+  oauth_host_url        = data.aws_ssm_parameter.csdap_host_url.value == "TBD" ? "" : data.aws_ssm_parameter.csdap_host_url.value
+  # <% else %>
   # Only CBA sandbox deployments set these to empty values.
   oauth_client_id       = ""
   oauth_client_password = ""
   oauth_host_url        = ""
-  # <% else %>
-  oauth_client_id       = data.aws_ssm_parameter.csdap_client_id.value
-  oauth_client_password = data.aws_ssm_parameter.csdap_client_password.value
-  oauth_host_url        = data.aws_ssm_parameter.csdap_host_url.value
   # <% end %>
   oauth_provider        = "cognito"
 
@@ -429,9 +429,9 @@ module "cumulus" {
   urs_client_password = data.aws_ssm_parameter.urs_client_password.value
 
   # <% if !(in_cba? && in_sandbox?) then %>
-  metrics_es_host     = data.aws_ssm_parameter.metrics_es_host.value
-  metrics_es_username = data.aws_ssm_parameter.metrics_es_username.value
-  metrics_es_password = data.aws_ssm_parameter.metrics_es_password.value
+  metrics_es_host     = data.aws_ssm_parameter.metrics_es_host.value == "TBD" ? null : data.aws_ssm_parameter.metrics_es_host.value
+  metrics_es_username = data.aws_ssm_parameter.metrics_es_username.value == "TBD" ? null : data.aws_ssm_parameter.metrics_es_username.value
+  metrics_es_password = data.aws_ssm_parameter.metrics_es_password.value == "TBD" ? null : data.aws_ssm_parameter.metrics_es_password.value
   # <% end %>
 
   cmr_client_id      = "<%= expansion('csdap-cumulus-:ENV') %>"
@@ -478,7 +478,7 @@ module "cumulus" {
   api_gateway_stage           = var.api_gateway_stage
 
   # <% if !(in_cba? && in_sandbox?) then %>
-  log_destination_arn = data.aws_ssm_parameter.log_destination_arn.value
+  log_destination_arn = data.aws_ssm_parameter.log_destination_arn.value == "TBD" ? null : data.aws_ssm_parameter.log_destination_arn.value
   # <% end %>
   additional_log_groups_to_elk = var.additional_log_groups_to_elk
 
