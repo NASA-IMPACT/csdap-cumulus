@@ -27,20 +27,21 @@ function sync_providers() {
   local _provider_bucket
   local _tmpdir
 
-  echo -n "Determining provider bucket..."
-  _provider_bucket=$(find_provider_bucket)
-  echo "${_provider_bucket}"
-  _tmpdir=$(mktemp --directory)
-  # shellcheck disable=SC2064
-  trap "rm -rf \"${_tmpdir}\"" EXIT
-
-  mkdir -p "${_tmpdir}/${_resources_path}/providers"
-
   if [[ ${TS_ENV} =~ ^(sit|uat|ops|prod)$ ]]; then
     sync_items "${_resources_path}" "providers"
   else
+    echo -n "Determining provider bucket..."
+    _provider_bucket=$(find_provider_bucket)
+    echo "${_provider_bucket}"
+    _tmpdir=$(mktemp --directory)
+    # shellcheck disable=SC2064
+    trap "rm -rf \"${_tmpdir}\"" EXIT
+
+    mkdir -p "${_tmpdir}/${_resources_path}/providers"
+
     # We're dealing with a dev/sandbox environment, so we must set all provider
     # hosts to the sole provider bucket.
+    # shellcheck disable=SC2016
     find "${_resources_path}/providers" -type f -name '*.json' -print0 |
       xargs -0 -I{} sh -c 'jq .host=\"${1}\" "${2}" >"${3}"' -- "${_provider_bucket}" {} "${_tmpdir}/{}"
 

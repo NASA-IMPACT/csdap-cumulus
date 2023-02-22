@@ -173,6 +173,7 @@ unlock-%: docker
 
 ## up-STACK-yes: Deploys specified STACK with automatic approval
 up-%-yes: logs-init install
+	$(eval DOCKER_RUN_OPTS := --interactive)
 	$(TERRASPACE) up $* --yes | tee -a log/up/$*.log
 
 ## up-STACK: Deploys specified STACK, prompting for approval

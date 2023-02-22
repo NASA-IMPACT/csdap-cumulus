@@ -23,7 +23,7 @@ data("aws_ssm_parameter", "launchpad_passphrase",
   name: "/shared/cumulus/launchpad-passphrase"
 )
 
-if !in_cba? then
+if !(in_cba? && in_sandbox?) then
   data("aws_ssm_parameter", "csdap_host_url",
     "//": "CSDAP Cognito Host URL",
     name: "/shared/cumulus/csdap-host-url"
