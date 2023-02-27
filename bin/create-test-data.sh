@@ -8,11 +8,9 @@ declare output
 
 echo -n "Determining provider bucket..."
 provider_bucket="$(
-  echo "var.buckets" |
+  echo 'var.buckets["provider"]["name"]' |
     terraspace console cumulus 2>/dev/null |
-    grep -B1 '"type" = "provider"' |
-    grep '"name" = ' |
-    sed -E 's/.+ = "(.+)"/\1/'
+    grep "${CUMULUS_PREFIX}"
 )"
 echo "${provider_bucket}"
 
