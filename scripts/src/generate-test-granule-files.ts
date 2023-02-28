@@ -102,7 +102,7 @@ function syncGranule(granule: Granule): string | undefined {
 
   // If the UMM-G metadata changed (due to one or more updated infos), rewrite it.
   if (fp.isEqual(ummgP, ummg)) return undefined;
-  fs.writeFileSync(ummgPath, JSON.stringify(ummgP));
+  fs.writeFileSync(ummgPath, JSON.stringify(ummgP, null, 2));
   return ummgPath;
 }
 

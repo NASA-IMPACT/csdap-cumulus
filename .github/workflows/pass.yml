@@ -1,0 +1,23 @@
+name: Cumulus
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+    branches:
+      - main
+    paths:
+      - 'app/stacks/cumulus/resources/**'
+      - 'bin/**'
+      - 'docs/**'
+      - 'scripts/**'
+      - '.actrc'
+      - '.dockerignore'
+      - '.editorconfig'
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - run: 'echo "No build required"'
