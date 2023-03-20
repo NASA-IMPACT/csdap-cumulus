@@ -54,6 +54,7 @@ const findGranules: (
   dir: string
 ) => Result.Result<readonly string[], readonly Granule[]> = fp.pipe(
   readdirSyncRec,
+  fp.filter((filepath) => path.basename(filepath) !== '.DS_Store'),
   fp.groupBy(path.dirname),
   fp.toPairs,
   fp.map(([dir, filePaths]) => makeGranule(dir, filePaths)),
@@ -87,18 +88,13 @@ function makeGranule(
 }
 
 function syncGranule(granule: Granule): string | undefined {
-  const { ummg, ummgPath, infoPaths } = granule;
+  const { ummg, ummgPath } = granule;
   const dir = path.dirname(ummgPath);
   const infos = ummg.DataGranule.ArchiveAndDistributionInformation.filter(
     fp.prop('Checksum')
   );
   const infosP = infos.map((info) => syncInfo(path.join(dir, info.Name), info));
   const ummgP = fp.set('DataGranule.ArchiveAndDistributionInformation', infosP, ummg);
-
-  // Delete unexpected info files
-  const expectedInfoPaths = infos.map((info) => path.join(dir, info.Name));
-  const unexpectedInfoPaths = fp.difference(infoPaths, expectedInfoPaths);
-  fp.forEach(fs.rmSync, unexpectedInfoPaths);
 
   // If the UMM-G metadata changed (due to one or more updated infos), rewrite it.
   if (fp.isEqual(ummgP, ummg)) return undefined;
@@ -107,24 +103,27 @@ function syncGranule(granule: Granule): string | undefined {
 }
 
 function syncInfo(infoPath: string, info: Info) {
+  // If a file exists, assume its metadata is correct and return immediately.
+  if (fs.existsSync(infoPath)) return info;
+
+  // The file at `infoPath` does not exist, so we need to create it.
+  // We're just creating a dummy text file, as Cumulus doesn't care about the
+  // specific contents of any file, other than the `*cmr.json` file, which we
+  // don't pass into this function.
+
   const algorithm = info.Checksum.Algorithm;
   const hash = crypto.createHash(algorithm.replace('-', ''));
-  const expectedContents = 'Hello Cumulus!\n';
-  const expectedSize = Buffer.byteLength(expectedContents, 'utf-8');
-  const expectedChecksum = hash.update(expectedContents).digest('hex');
-  const actualContents = fs.existsSync(infoPath)
-    ? fs.readFileSync(infoPath, 'utf-8')
-    : '';
+  const contents = 'Hello Cumulus!\n';
+  const checksum = hash.update(contents).digest('hex');
 
-  if (actualContents !== expectedContents)
-    fs.writeFileSync(infoPath, expectedContents, 'utf-8');
+  fs.writeFileSync(infoPath, contents, 'utf-8');
 
   return {
     ...info,
-    SizeInBytes: expectedSize,
+    SizeInBytes: Buffer.byteLength(contents, 'utf-8'),
     Checksum: {
       Algorithm: algorithm,
-      Value: expectedChecksum,
+      Value: checksum,
     },
   };
 }
