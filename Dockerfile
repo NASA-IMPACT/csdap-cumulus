@@ -71,6 +71,7 @@ RUN : \
   # causes Docker image build failure.
   && source "${NVM_DIR}/nvm.sh" --install \
   && npm install -g yarn@1.22.19 \
+  && npm install -g hygen@6.2.11 \
   && :
 
 # Install Cumulus CLI (see https://github.com/NASA-IMPACT/cumulus-cli)
