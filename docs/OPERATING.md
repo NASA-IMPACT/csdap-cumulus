@@ -364,6 +364,17 @@ Similarly to providers and collections, rule definitions should be placed in the
 `<RULE_NAME>.json`, where `<RULE_NAME>` is the value of the `"name"` property in
 the rule definition.
 
+Due to the Cumulus discovery scalability issue described in
+[DISCOVERY.md](./DISCOVERY.md), we make use of `hygen` for generating rule
+definitions, as we typically need to generate one rule definition per year per
+collection. To generate a rule definition, run `make bash` to enter a Docker
+terminal session, then run `hygen rule new` and follow the prompts.
+After running `hygen`, it will output a command line version of what was
+just entered. This can be used to repeat the process easily by changing
+only what is needed.
+Here is an example of using command line parameters to make a rule:
+`hygen rule new --provider maxar --collectionName WV03_MSI_L1B --collectionVersion 4 --providerPathFormat "'css/nga/WV03/1B/'yyyy/DDD" --year 2015`
+
 The following is the recommended structure of a rule definition for this
 project (with details below):
 
