@@ -5,7 +5,7 @@ message: >
   --provider <%= provider %>
   --collection-name <%= collectionName %>
   --collection-version <%= collectionVersion %>
-  --provider-path-format <%- providerPathFormat %>
+  --provider-path-format "<%- providerPathFormat %>"
   --year <%= year %>
 ---
 {
