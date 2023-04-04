@@ -9,32 +9,44 @@
   "ignoreFilesConfigForDiscovery": false,
   "files": [
     {
+      "regex": "^(WV03_.+_P\\d{3})-thumb[.]jpg$",
+      "sampleFileName": "WV03_20140824082814_10400100012AD900_14AUG24082814-M1BS-504548417070_01_P001-thumb.jpg",
+      "type": "browse",
+      "bucket": "public",
+      "reportToEms": true
+    },
+    {
       "regex": "^(WV03_.+_P\\d{3})-BROWSE[.]jpg$",
       "sampleFileName": "WV03_20140824082814_10400100012AD900_14AUG24082814-M1BS-504548417070_01_P001-BROWSE.jpg",
+      "type": "data",
       "bucket": "protected",
       "reportToEms": true
     },
     {
       "regex": "^(WV03_.+_P\\d{3})-cmr[.]json$",
       "sampleFileName": "WV03_20140824082814_10400100012AD900_14AUG24082814-M1BS-504548417070_01_P001-cmr.json",
+      "type": "metadata",
       "bucket": "protected",
       "reportToEms": true
     },
     {
       "regex": "^(WV03_.+_P\\d{3})[.]tar$",
       "sampleFileName": "WV03_20140824082814_10400100012AD900_14AUG24082814-M1BS-504548417070_01_P001.tar",
+      "type": "data",
       "bucket": "protected",
       "reportToEms": true
     },
     {
       "regex": "^(WV03_.+_P\\d{3})[.]ntf$",
       "sampleFileName": "WV03_20140824082814_10400100012AD900_14AUG24082814-M1BS-504548417070_01_P001.ntf",
+      "type": "data",
       "bucket": "protected",
       "reportToEms": true
     },
     {
       "regex": "^(WV03_.+_P\\d{3})[.]xml$",
       "sampleFileName": "WV03_20140824082814_10400100012AD900_14AUG24082814-M1BS-504548417070_01_P001.xml",
+      "type": "data",
       "bucket": "protected",
       "reportToEms": true
     }
