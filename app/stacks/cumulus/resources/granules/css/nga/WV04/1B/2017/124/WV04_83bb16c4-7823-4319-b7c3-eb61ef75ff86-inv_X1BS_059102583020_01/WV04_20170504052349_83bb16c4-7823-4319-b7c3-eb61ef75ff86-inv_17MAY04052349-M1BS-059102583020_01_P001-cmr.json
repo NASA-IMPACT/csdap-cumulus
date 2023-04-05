@@ -20,12 +20,12 @@
     "ArchiveAndDistributionInformation": [
       {
         "Name": "WV04_20170504052349_83bb16c4-7823-4319-b7c3-eb61ef75ff86-inv_17MAY04052349-M1BS-059102583020_01_P001-BROWSE.jpg",
-        "SizeInBytes": 15,
+        "SizeInBytes": 150782,
         "FormatType": "Native",
         "Format": "JPEG",
         "Checksum": {
-          "Algorithm": "SHA-256",
-          "Value": "614386865b5e2e6deef338a31e4edf13fc2f05a8564abb666b8becf5bc8b22bc"
+          "Value": "03bcd7046be3a31c22149599520ce8fec0f11a58d3fefb62749635bc07467cb2",
+          "Algorithm": "SHA-256"
         },
         "MimeType": "image/jpeg"
       },
@@ -128,7 +128,16 @@
       "Description": "Browse Imagery",
       "Format": "JPEG",
       "MimeType": "image/jpeg",
-      "Size": 150782,
+      "Size": 150782.0,
+      "SizeUnit": "NA"
+    },
+    {
+      "URL": "https://csdap-maxar-delivery.s3.us-west-2.amazonaws.com/WV04_20170504052349_83bb16c4-7823-4319-b7c3-eb61ef75ff86-inv_17MAY04052349-M1BS-059102583020_01_P001-thumb.jpg",
+      "Type": "GET RELATED VISUALIZATION",
+      "Description": "Browse Imagery",
+      "Format": "JPEG",
+      "MimeType": "image/jpeg",
+      "Size": 150782.0,
       "SizeUnit": "NA"
     },
     {
@@ -137,7 +146,7 @@
       "Description": "Compressed granule",
       "Format": "TAR",
       "MimeType": "application/tar",
-      "Size": 2682880,
+      "Size": 2682880.0,
       "SizeUnit": "NA"
     },
     {
@@ -146,7 +155,7 @@
       "Description": "Imagery",
       "Format": "GEOTIFF",
       "MimeType": "image/tiff",
-      "Size": 1215762640,
+      "Size": 1215762640.0,
       "SizeUnit": "NA"
     },
     {
@@ -155,7 +164,7 @@
       "Description": "Metadata file",
       "Format": "XML",
       "MimeType": "application/xml",
-      "Size": 1227436,
+      "Size": 1227436.0,
       "SizeUnit": "NA"
     }
   ],

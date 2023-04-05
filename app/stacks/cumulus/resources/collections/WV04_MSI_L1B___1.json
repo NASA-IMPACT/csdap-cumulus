@@ -9,32 +9,44 @@
   "ignoreFilesConfigForDiscovery": false,
   "files": [
     {
+      "regex": "^(WV04_.+_P\\d{3})-thumb[.]jpg$",
+      "sampleFileName": "WV04_20170504052256_f9ca790e-2502-46a6-9918-205faa15cd4c-inv_17MAY04052256-M1BS-059097041070_01_P001-thumb.jpg",
+      "type": "browse",
+      "bucket": "public",
+      "reportToEms": true
+    },
+    {
       "regex": "^(WV04_.+_P\\d{3})-BROWSE[.]jpg$",
       "sampleFileName": "WV04_20170504052256_f9ca790e-2502-46a6-9918-205faa15cd4c-inv_17MAY04052256-M1BS-059097041070_01_P001-BROWSE.jpg",
+      "type": "data",
       "bucket": "protected",
       "reportToEms": true
     },
     {
       "regex": "^(WV04_.+_P\\d{3})-cmr[.]json$",
       "sampleFileName": "WV04_20170504052256_f9ca790e-2502-46a6-9918-205faa15cd4c-inv_17MAY04052256-M1BS-059097041070_01_P001-cmr.json",
+      "type": "metadata",
       "bucket": "protected",
       "reportToEms": true
     },
     {
       "regex": "^(WV04_.+_P\\d{3})[.]tar$",
       "sampleFileName": "WV04_20170504052256_f9ca790e-2502-46a6-9918-205faa15cd4c-inv_17MAY04052256-M1BS-059097041070_01_P001.tar",
+      "type": "data",
       "bucket": "protected",
       "reportToEms": true
     },
     {
       "regex": "^(WV04_.+_P\\d{3})[.]tif$",
       "sampleFileName": "WV04_20170504052256_f9ca790e-2502-46a6-9918-205faa15cd4c-inv_17MAY04052256-M1BS-059097041070_01_P001.tif",
+      "type": "data",
       "bucket": "protected",
       "reportToEms": true
     },
     {
       "regex": "^(WV04_.+_P\\d{3})[.]xml$",
       "sampleFileName": "WV04_20170504052256_f9ca790e-2502-46a6-9918-205faa15cd4c-inv_17MAY04052256-M1BS-059097041070_01_P001.xml",
+      "type": "data",
       "bucket": "protected",
       "reportToEms": true
     }

@@ -40,8 +40,21 @@ locals {
   }
 
   lambda_memory_sizes = {
-    discover_granules_task_memory_size = 3008
-    queue_granules_task_memory_size    = 3008
+    add_missing_file_checksums_task_memory_size    = 3008
+    discover_granules_task_memory_size             = 3008
+    discover_pdrs_task_memory_size                 = 3008
+    hyrax_metadata_updates_task_memory_size        = 3008
+    lzards_backup_task_memory_size                 = 3008
+    move_granules_task_memory_size                 = 3008
+    parse_pdr_task_memory_size                     = 3008
+    pdr_status_check_task_memory_size              = 3008
+    post_to_cmr_task_memory_size                   = 3008
+    queue_granules_task_memory_size                = 3008
+    queue_pdrs_task_memory_size                    = 3008
+    queue_workflow_task_memory_size                = 3008
+    sync_granule_task_memory_size                  = 3008
+    update_cmr_access_constraints_task_memory_size = 3008
+    update_granules_cmr_task_memory_size           = 3008
   }
 
   rds_security_group         = jsondecode("<%= json_output('rds-cluster.security_group_id') %>")
@@ -159,7 +172,7 @@ resource "aws_lambda_function" "prefix_granule_ids" {
   handler       = "index.prefixGranuleIdsCMAHandler"
   runtime       = "nodejs14.x"
   timeout       = lookup(local.lambda_timeouts, "discover_granules_task_timeout", 300)
-  memory_size   = 512
+  memory_size   = 3008
 
   source_code_hash = data.archive_file.lambda.output_base64sha256
   layers           = [module.cma.lambda_layer_version_arn]
@@ -190,6 +203,7 @@ resource "aws_lambda_function" "format_provider_path" {
   handler       = "index.formatProviderPathCMAHandler"
   runtime       = "nodejs14.x"
   timeout       = 300
+  memory_size   = 3008
 
   source_code_hash = data.archive_file.lambda.output_base64sha256
   layers           = [module.cma.lambda_layer_version_arn]
@@ -218,6 +232,7 @@ resource "aws_lambda_function" "advance_start_date" {
   handler       = "index.advanceStartDateCMAHandler"
   runtime       = "nodejs14.x"
   timeout       = 300
+  memory_size   = 3008
 
   source_code_hash = data.archive_file.lambda.output_base64sha256
   layers           = [module.cma.lambda_layer_version_arn]
@@ -246,7 +261,7 @@ resource "aws_lambda_function" "require_cmr_files" {
   handler       = "index.requireCmrFilesCMAHandler"
   runtime       = "nodejs14.x"
   timeout       = 300
-  memory_size   = 256
+  memory_size   = 3008
 
   source_code_hash = data.archive_file.lambda.output_base64sha256
   layers           = [module.cma.lambda_layer_version_arn]
@@ -275,7 +290,7 @@ resource "aws_lambda_function" "add_ummg_checksums" {
   handler       = "index.addUmmgChecksumsCMAHandler"
   runtime       = "nodejs14.x"
   timeout       = 300
-  memory_size   = 256
+  memory_size   = 3008
 
   source_code_hash = data.archive_file.lambda.output_base64sha256
   layers           = [module.cma.lambda_layer_version_arn]
@@ -350,7 +365,7 @@ module "cumulus_distribution" {
   oauth_client_password = ""
   oauth_host_url        = ""
   # <% end %>
-  oauth_provider        = "cognito"
+  oauth_provider = "cognito"
 
   permissions_boundary_arn = local.permissions_boundary_arn
   prefix                   = var.prefix

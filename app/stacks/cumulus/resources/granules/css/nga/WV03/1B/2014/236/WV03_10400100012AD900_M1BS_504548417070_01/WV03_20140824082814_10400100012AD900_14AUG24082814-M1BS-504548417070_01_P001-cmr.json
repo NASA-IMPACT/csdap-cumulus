@@ -20,7 +20,7 @@
     "ArchiveAndDistributionInformation": [
       {
         "Name": "WV03_20140824082814_10400100012AD900_14AUG24082814-M1BS-504548417070_01_P001-BROWSE.jpg",
-        "SizeInBytes": 15,
+        "SizeInBytes": 277083,
         "FormatType": "Native",
         "Format": "JPEG",
         "Checksum": {
@@ -132,6 +132,15 @@
       "SizeUnit": "NA"
     },
     {
+      "URL": "https://csdap-maxar-delivery.s3.us-west-2.amazonaws.com/WV03_20140824082814_10400100012AD900_14AUG24082814-M1BS-504548417070_01_P001-thumb.jpg",
+      "Type": "GET RELATED VISUALIZATION",
+      "Description": "Browse Imagery",
+      "Format": "JPEG",
+      "MimeType": "image/jpeg",
+      "Size": 277083,
+      "SizeUnit": "NA"
+    },
+    {
       "URL": "https://csdap-maxar-delivery.s3.us-west-2.amazonaws.com/WV03_20140824082814_10400100012AD900_14AUG24082814-M1BS-504548417070_01_P001.tar",
       "Type": "GET DATA",
       "Description": "Compressed granule",
@@ -161,9 +170,9 @@
   ],
   "CloudCover": 0,
   "MetadataSpecification": {
-    "URL": "https://cdn.earthdata.nasa.gov/umm/granule/v1.6",
+    "URL": "https://cdn.earthdata.nasa.gov/umm/granule/v1.6.4",
     "Name": "UMM-G",
-    "Version": "1.6"
+    "Version": "1.6.4"
   },
   "AdditionalAttributes": [
     {
