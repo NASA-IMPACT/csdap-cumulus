@@ -14,6 +14,10 @@ defaults:
   run:
     shell: bash
 
+permissions:
+  id-token: write  # required for requesting the JWT
+  contents: read  # required for actions/checkout
+
 env:
   AWS_REGION: us-west-2
   TF_IN_AUTOMATION: 1
@@ -48,8 +52,8 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME_ARN }}
+          role-session-name: ${{ github.actor }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Update packages list
