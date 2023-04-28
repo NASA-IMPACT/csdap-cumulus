@@ -14,6 +14,9 @@ message: >
   "granuleIdExtraction": "TBD__EXAMPLE__^(WV02_.+-M1BS-.+_P\\d{3}).+$",
   "sampleFileName": "<%= sampleFilenamePrefix %>-BROWSE.jpg",
   "url_path": "{cmrMetadata.CollectionReference.ShortName}___{cmrMetadata.CollectionReference.Version}/{dateFormat(cmrMetadata.TemporalExtent.SingleDateTime, YYYY)}/{dateFormat(cmrMetadata.TemporalExtent.SingleDateTime, DDD)}/{cmrMetadata.GranuleUR}",
+  "meta": {
+    "preferredQueueBatchSize": 5
+  }
   "ignoreFilesConfigForDiscovery": false,
   "files": [
     {
