@@ -15,6 +15,6 @@ module.exports = [
   {
     type: 'input',
     name: 'sampleFilenamePrefix',
-    message: "Sample Filename Prefix"
+    message: "Sample filename prefix:"
   }
 ]
