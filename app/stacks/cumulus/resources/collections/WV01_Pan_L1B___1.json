@@ -1,0 +1,51 @@
+{
+  "name": "WV01_Pan_L1B",
+  "version": "1",
+  "duplicateHandling": "replace",
+  "granuleId": ".*",
+  "granuleIdExtraction": "^(WV01_.+-P1BS-.+_P\\d{3}).+$",
+  "sampleFileName": "WV01_20071231044012_1020010001E9B500_07DEC31044012-P1BS-505051421030_01_P024-BROWSE.jpg",
+  "url_path": "{cmrMetadata.CollectionReference.ShortName}___{cmrMetadata.CollectionReference.Version}/{dateFormat(cmrMetadata.TemporalExtent.SingleDateTime, YYYY)}/{dateFormat(cmrMetadata.TemporalExtent.SingleDateTime, DDD)}/{cmrMetadata.GranuleUR}",
+  "meta": {
+    "preferredQueueBatchSize": 5
+  },
+  "ignoreFilesConfigForDiscovery": false,
+  "files": [
+    {
+      "regex": ".*-thumb[.]jpg$",
+      "sampleFileName": "WV01_20071231044012_1020010001E9B500_07DEC31044012-P1BS-505051421030_01_P024-thumb.jpg",
+      "type": "browse",
+      "bucket": "public"
+    },
+    {
+      "regex": ".*-BROWSE[.]jpg$",
+      "sampleFileName": "WV01_20071231044012_1020010001E9B500_07DEC31044012-P1BS-505051421030_01_P024-BROWSE.jpg",
+      "type": "data",
+      "bucket": "protected"
+    },
+    {
+      "regex": ".*-cmr[.]json$",
+      "sampleFileName": "WV01_20071231044012_1020010001E9B500_07DEC31044012-P1BS-505051421030_01_P024-cmr.json",
+      "type": "metadata",
+      "bucket": "protected"
+    },
+    {
+      "regex": ".*[.]tar$",
+      "sampleFileName": "WV01_20071231044012_1020010001E9B500_07DEC31044012-P1BS-505051421030_01_P024.tar",
+      "type": "data",
+      "bucket": "protected"
+    },
+    {
+      "regex": ".*[.]ntf$",
+      "sampleFileName": "WV01_20071231044012_1020010001E9B500_07DEC31044012-P1BS-505051421030_01_P024.ntf",
+      "type": "data",
+      "bucket": "protected"
+    },
+    {
+      "regex": ".*[.]xml$",
+      "sampleFileName": "WV01_20071231044012_1020010001E9B500_07DEC31044012-P1BS-505051421030_01_P024.xml",
+      "type": "data",
+      "bucket": "protected"
+    }
+  ]
+}

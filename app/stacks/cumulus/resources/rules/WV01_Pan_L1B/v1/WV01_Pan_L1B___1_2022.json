@@ -1,0 +1,24 @@
+{
+  "name": "WV01_Pan_L1B___1_2022",
+  "state": "DISABLED",
+  "rule": {
+    "type": "onetime"
+  },
+  "provider": "maxar",
+  "collection": {
+    "name": "WV01_Pan_L1B",
+    "version": "1"
+  },
+  "workflow": "DiscoverAndQueueGranules",
+  "meta": {
+    "discoverOnly": false,
+    "providerPathFormat": "'css/nga/WV01/1B/'yyyy/DDD",
+    "rule": {
+      "state": "DISABLED"
+    },
+    "startDate": "2022-01-01T00:00:00Z",
+    "endDate": "2023-01-01T00:00:00Z",
+    "step": "P1D"
+  }
+}
+
