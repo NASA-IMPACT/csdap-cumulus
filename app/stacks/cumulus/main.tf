@@ -439,9 +439,10 @@ module "cumulus" {
   rds_security_group         = local.rds_security_group
   rds_user_access_secret_arn = local.rds_user_access_secret_arn
 
-  urs_url             = var.urs_url
-  urs_client_id       = data.aws_ssm_parameter.urs_client_id.value
-  urs_client_password = data.aws_ssm_parameter.urs_client_password.value
+  # These are no longer used, but are required by the module, so we simply set
+  # them to empty strings.
+  urs_client_id       = ""
+  urs_client_password = ""
 
   # <% if !(in_cba? && in_sandbox?) then %>
   metrics_es_host     = data.aws_ssm_parameter.metrics_es_host.value == "TBD" ? null : data.aws_ssm_parameter.metrics_es_host.value

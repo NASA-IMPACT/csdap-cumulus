@@ -15,7 +15,6 @@
 #<% depends_on("rds-cluster") %>
 
 cmr_environment = "UAT"
-urs_url         = "https://uat.urs.earthdata.nasa.gov"
 
 system_bucket = "<%= bucket('internal') %>"
 
