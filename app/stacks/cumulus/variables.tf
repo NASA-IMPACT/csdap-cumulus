@@ -201,8 +201,3 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
-
-variable "urs_url" {
-  description = "The URL of the Earthdata login (URS) site"
-  type        = string
-}

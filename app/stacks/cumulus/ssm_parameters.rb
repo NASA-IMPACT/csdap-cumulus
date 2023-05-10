@@ -59,17 +59,3 @@ if !(in_cba? && in_sandbox?) then
     name: "/shared/cumulus/metrics-es-password"
   )
 end
-
-# ------------------------------------------------------------------------------
-# STACK-SPECIFIC (not shared across stacks)
-# ------------------------------------------------------------------------------
-
-data("aws_ssm_parameter", "urs_client_id",
-  "//": "Earthdata Login (EDL) Application Client ID",
-  name: expansion("/:ENV/cumulus/urs-client-id")
-)
-
-data("aws_ssm_parameter", "urs_client_password",
-  "//": "Earthdata Login (EDL) Application Password",
-  name: expansion("/:ENV/cumulus/urs-client-password")
-)
