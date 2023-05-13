@@ -4,7 +4,7 @@
   "duplicateHandling": "replace",
   "granuleId": ".*",
   "granuleIdExtraction": "^(WV04_.+-P1BS-.+_P\\d{3}).+$",
-  "sampleFileName": "TODO__UPDATE_FROM_SAMPLE__   WV01_20071231044012_1020010001E9B500_07DEC31044012-P1BS-505051421030_01_P024-BROWSE.jpg",
+  "sampleFileName": "WV04_20170505053805_594e4035-a94b-4da5-a5a2-9593702d7739-inv_17MAY05053805-P1BS-059102583030_01_P001-BROWSE.jpg",
   "url_path": "{cmrMetadata.CollectionReference.ShortName}___{cmrMetadata.CollectionReference.Version}/{dateFormat(cmrMetadata.TemporalExtent.SingleDateTime, YYYY)}/{dateFormat(cmrMetadata.TemporalExtent.SingleDateTime, DDD)}/{cmrMetadata.GranuleUR}",
   "meta": {
     "preferredQueueBatchSize": 5
@@ -12,42 +12,38 @@
   "ignoreFilesConfigForDiscovery": false,
   "files": [
     {
-TODO - VERIFY THIS IS A REAL FILE IN THE FINAL SAMPLE GRANULE
-      "regex": ".*-thumb[.]jpg$",
-      "sampleFileName": "WV01_20071231044012_1020010001E9B500_07DEC31044012-P1BS-505051421030_01_P024-thumb.jpg",
+      "regex": ".*[.]rename$",
+      "sampleFileName": "WV04_20170505053805_594e4035-a94b-4da5-a5a2-9593702d7739-inv_17MAY05053805-P1BS-059102583030_01_P001.rename",
       "type": "browse",
       "bucket": "public"
     },
     {
       "regex": ".*-BROWSE[.]jpg$",
-      "sampleFileName": "WV01_20071231044012_1020010001E9B500_07DEC31044012-P1BS-505051421030_01_P024-BROWSE.jpg",
+      "sampleFileName": "WV04_20170505053805_594e4035-a94b-4da5-a5a2-9593702d7739-inv_17MAY05053805-P1BS-059102583030_01_P001-BROWSE.jpg",
       "type": "data",
       "bucket": "protected"
     },
     {
       "regex": ".*-cmr[.]json$",
-      "sampleFileName": "WV01_20071231044012_1020010001E9B500_07DEC31044012-P1BS-505051421030_01_P024-cmr.json",
+      "sampleFileName": "WV04_20170505053805_594e4035-a94b-4da5-a5a2-9593702d7739-inv_17MAY05053805-P1BS-059102583030_01_P001-cmr.json",
       "type": "metadata",
       "bucket": "protected"
     },
-TODO - Check for  'RENAME' FILE IN THE SAMPLE GRANULE,
-TODO - Check for  'TIF', FILE IN THE SAMPLE GRANULE,
     {
       "regex": ".*[.]tar$",
-      "sampleFileName": "WV01_20071231044012_1020010001E9B500_07DEC31044012-P1BS-505051421030_01_P024.tar",
+      "sampleFileName": "WV04_20170505053805_594e4035-a94b-4da5-a5a2-9593702d7739-inv_17MAY05053805-P1BS-059102583030_01_P001.tar",
       "type": "data",
       "bucket": "protected"
     },
     {
-TODO - VERIFY THIS IS A REAL FILE IN THE FINAL SAMPLE GRANULE
-      "regex": ".*[.]ntf$",
-      "sampleFileName": "WV01_20071231044012_1020010001E9B500_07DEC31044012-P1BS-505051421030_01_P024.ntf",
+      "regex": ".*[.]tif$",
+      "sampleFileName": "WV04_20170505053805_594e4035-a94b-4da5-a5a2-9593702d7739-inv_17MAY05053805-P1BS-059102583030_01_P001.tif",
       "type": "data",
       "bucket": "protected"
     },
     {
       "regex": ".*[.]xml$",
-      "sampleFileName": "WV01_20071231044012_1020010001E9B500_07DEC31044012-P1BS-505051421030_01_P024.xml",
+      "sampleFileName": "WV04_20170505053805_594e4035-a94b-4da5-a5a2-9593702d7739-inv_17MAY05053805-P1BS-059102583030_01_P001.xml",
       "type": "data",
       "bucket": "protected"
     }
