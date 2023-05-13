@@ -1,5 +1,5 @@
 {
-  "name": "WV04_Pan_L1B___1_2017",
+  "name": "WV04_Pan_L1B___1_SmokeTest",
   "state": "DISABLED",
   "rule": {
     "type": "onetime"
@@ -16,9 +16,8 @@
     "rule": {
       "state": "DISABLED"
     },
-    "startDate": "2017-01-01T00:00:00Z",
-    "endDate": "2018-01-01T00:00:00Z",
+    "startDate": "2017-05-05T00:00:00Z",
+    "endDate": "2017-05-06T00:00:00Z",
     "step": "P1D"
   }
 }
-

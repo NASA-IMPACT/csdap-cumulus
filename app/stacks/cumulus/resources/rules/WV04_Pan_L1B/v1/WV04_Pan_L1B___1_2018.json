@@ -12,7 +12,7 @@
   "workflow": "DiscoverAndQueueGranules",
   "meta": {
     "discoverOnly": false,
-    "providerPathFormat": "'css/nga/WV01/1B/'yyyy/DDD",
+    "providerPathFormat": "'css/nga/WV04/1B/'yyyy/DDD",
     "rule": {
       "state": "DISABLED"
     },
