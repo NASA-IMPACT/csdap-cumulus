@@ -123,6 +123,15 @@
     ],
     "RelatedUrls": [
         {
+            "URL": "https://csdap-maxar-delivery.s3.us-west-2.amazonaws.com/WV04_20170505053805_594e4035-a94b-4da5-a5a2-9593702d7739-inv_17MAY05053805-P1BS-059102583030_01_P001-thumb.jpg",
+            "Type": "GET RELATED VISUALIZATION",
+            "Description": "Browse Imagery",
+            "Format": "JPEG",
+            "MimeType": "image/jpeg",
+            "Size": 142286.0,
+            "SizeUnit": "NA"
+        },
+        {
             "URL": "https://csdap-maxar-delivery.s3.us-west-2.amazonaws.com/WV04_20170505053805_594e4035-a94b-4da5-a5a2-9593702d7739-inv_17MAY05053805-P1BS-059102583030_01_P001-BROWSE.jpg",
             "Type": "GET DATA",
             "Description": "Browse Imagery",
