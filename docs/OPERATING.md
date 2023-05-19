@@ -12,6 +12,7 @@
   - [Triggering Discovery and Ingestion](#triggering-discovery-and-ingestion)
   - [Viewing CloudWatch Logs](#viewing-cloudwatch-logs)
   - [Performing Discovery without Ingestion](#performing-discovery-without-ingestion)
+- [Updating CMR Metadata (Self Discovery)](#updating-cmr-metadata-self-discovery)
 - [Destroying a Deployment](#destroying-a-deployment)
   - [Destroying Managed Resources](#destroying-managed-resources)
   - [Destroying Unmanaged Resources](#destroying-unmanaged-resources)
@@ -604,6 +605,90 @@ Instead, you must now _explicitly_ set the value to `false` to _disable_
   }
 }
 ```
+
+## Updating CMR Metadata (Self Discovery)
+
+For cases where we need to update CMR metadata files for granules we have
+already ingested, we can perform "self discovery."  This simply means that we
+can leverage existing rules (or create new ones, if necessary) to "discover"
+granule files from our own buckets, where we have already ingested the granule
+files.
+
+For example, before we obtained custom (friendly) domain names to use for our
+UAT and Prod distribution URLs, we were using CloudFront URLs, and setting the
+value of the `cumulus_distribution_url` Terraform variable for each environment
+to a CloudFront URL.  Unfortunately, an issue occurred in the Earthdata Cloud
+(EDC) infrastructure that caused our Prod CloudFront Distribution to be blown
+away, thus requiring us to update the value of the `cumulus_distribution_url`
+for Prod to a different URL.
+
+This also meant that we had to update the links in the CMR metadata files that
+we had already published up to that point in time, which was over 4 million CMR
+files!
+
+However, instead of setting the value of `cumulus_distribution_url` to the new
+CloudFront URL that EDC created for us, we took the opportunity to request
+custom domain names (for UAT and Prod) that sit in front of the CloudFront
+Distributions, so that we could update the links in the 4 million CMR metadata
+files to use the new custom domain names.  This not only means that the
+distribution URLs are now friendlier (i.e., no "random" CloudFront domain
+names), but also, if such an issue ever occurs again, we do not have to update
+the CMR again.  We would simply make a request to point the custom domain to a
+different CloudFront URL.
+
+Now, perhaps the only reason we might have to update the CMR files again is if
+we were to change the custom domain names.  If such a situation were to arise
+again, where we would need to update the links in the CMR files again, here is
+what we did to minimize the effort:
+
+1. Added the `"ingestedPathFormat"` meta property to every rule, which is the
+   corollary of the `"providerPathFormat"` meta property.  This should be set
+   similarly to `"providerPathFormat"`, but use the path that corresponds to the
+   location of granule files ingested into the protected bucket.
+1. Modified the `"DiscoverAndQueueGranules"` workflow by adding the
+   `"SelfDiscovery?"` state (step), which compares the provider host value (at
+   the path `$.meta.provider.host`) to the protected bucket name (at the path
+   `$.meta.buckets.protected.name`) in order to determine whether or not "self
+   discovery" is occurring.  If the two values are equal, then "self discovery"
+   is under way, and the value of `$.meta.ingestedPathFormat` is substituted in
+   place of `$.meta.providerPathFormat` so that discovery uses the appropriate
+   path within the protected bucket.
+
+In order to cause "self discovery" to occur, take the following steps (which are
+applicable to either UAT or Prod):
+
+1. Copy thumbnails from the public bucket to the protected bucket:
+   - In UAT, there are relatively few files, so this can be achieved either via
+     the AWS Console or the AWS CLI.
+   - In Prod, this must be done by first creating an S3 inventory of the public
+     bucket, and then running an S3 Batch copy using the generated inventory to
+     copy the files to the protected bucket.
+1. Update the `host` value for the relevant provider(s).  For example, to update
+   the `planet` provider in UAT:
+
+   ```plain
+   DOTENV=.env.uat make bash
+   cumulus providers replace --data \
+     '{"id":"planet", "protocol":"s3", "host":"'csda-${CUMULUS_PREFIX}-protected-7894'"}'
+   ```
+
+1. Run the relevant rule(s)
+1. Restore the `host` value for the relevant provider(s).  For example, to
+   restore the `planet` provider in UAT:
+
+   ```plain
+   DOTENV=.env.uat make bash
+   cumulus providers replace --data app/stacks/cumulus/resources/providers/planet.json
+   ```
+
+1. Optionally, delete the thumbnails from the protected bucket.  However, there
+   is no straightforward and efficient way to bulk delete very large numbers of
+   S3 objects with keys matching a pattern.  Although it is possible to use the
+   `aws s3 rm` command with an `--include` pattern, this is likely to be
+   extremely inefficient for deleting millions of thumbnails from the Production
+   protected bucket (but perhaps not).  **IMPORTANT:** If attempting to use
+   `aws s3 rm` with an `--include` pattern, also use the `--dryrun` option to
+   first check that you _won't_ delete files _other_ than the thumbnails.
 
 ## Destroying a Deployment
 

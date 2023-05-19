@@ -6,6 +6,7 @@ message: >
   --collection-name <%= collectionName %>
   --collection-version <%= collectionVersion %>
   --provider-path-format "<%- providerPathFormat %>"
+  --ingested-path-format "<%- ingestedPathFormat %>"
   --year <%= year %>
 ---
 {
@@ -23,6 +24,7 @@ message: >
   "meta": {
     "discoverOnly": false,
     "providerPathFormat": "<%- providerPathFormat %>",
+    "ingestedPathFormat": "<%- ingestedPathFormat %>",
     "rule": {
       "state": "DISABLED"
     },
@@ -31,4 +33,3 @@ message: >
     "step": "P1D"
   }
 }
-
