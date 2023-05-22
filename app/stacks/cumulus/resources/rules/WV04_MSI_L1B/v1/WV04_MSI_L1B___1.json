@@ -13,7 +13,7 @@
   "meta": {
     "discoverOnly": false,
     "providerPathFormat": "'css/nga/WV04/1B/'yyyy",
-    "ingestedPathFormat": "'WV04_MSI_L1B___1/'yyyy/DDD",
+    "ingestedPathFormat": "'WV04_MSI_L1B___1/'yyyy",
     "rule": {
       "state": "DISABLED"
     },
