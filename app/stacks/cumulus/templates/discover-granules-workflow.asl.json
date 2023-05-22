@@ -27,8 +27,27 @@
       "Type": "Parallel",
       "Branches": [
         {
-          "StartAt": "FormatProviderPath",
+          "StartAt": "SelfDiscovery?",
           "States": {
+            "SelfDiscovery?": {
+              "Comment": "Are we discovering granules from our own bucket?",
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Variable": "$.meta.provider.host",
+                  "StringEqualsPath": "$.meta.buckets.protected.name",
+                  "Next": "UseIngestedPathFormat"
+                }
+              ],
+              "Default": "FormatProviderPath"
+            },
+            "UseIngestedPathFormat": {
+              "Comment": "Use the ingested path format for self-discovered granules",
+              "Type": "Pass",
+              "InputPath": "$.meta.ingestedPathFormat",
+              "ResultPath": "$.meta.providerPathFormat",
+              "Next": "FormatProviderPath"
+            },
             "FormatProviderPath": {
               "Parameters": {
                 "cma": {

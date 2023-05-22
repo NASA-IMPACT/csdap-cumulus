@@ -3,7 +3,7 @@
 cumulus_distribution_url = "https://9l290b9tv4.execute-api.us-west-2.amazonaws.com/dev/"
 # <% else %>
 # Trailing slash is required
-cumulus_distribution_url = "https://d7yzp0aemakw8.cloudfront.net/"
+cumulus_distribution_url = "https://data.csda.uat.earthdata.nasa.gov/"
 # <% end %>
 
 s3_replicator_target_bucket = "esdis-metrics-inbound-uat-csdap-distribution"

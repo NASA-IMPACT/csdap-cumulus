@@ -1,4 +1,4 @@
-name: Cumulus
+name: Non-Infrastructure Changes
 on:
   pull_request:
     types:
@@ -17,7 +17,7 @@ on:
       - '.editorconfig'
 
 jobs:
-  build:
+  succeed-uat:
     runs-on: ubuntu-20.04
     environment: uat
     steps:
