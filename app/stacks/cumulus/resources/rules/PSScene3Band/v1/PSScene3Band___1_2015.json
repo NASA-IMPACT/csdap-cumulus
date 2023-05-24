@@ -12,7 +12,7 @@
   },
   "meta": {
     "providerPathFormat": "'storage-ss-ingest-prod-ingesteddata-uswest2/planet/PSScene3Band-'yyyy",
-    "ingestedPathFormat": "'planet/PSScene3Band/'yyyyMMdd_HH",
+    "ingestedPathFormat": "'planet/PSScene3Band/'yyyy",
     "startDate": "2015-01-01T00:00:00Z",
     "endDate": "2016-01-01T00:00:00Z",
     "step": "P1Y",

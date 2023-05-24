@@ -1,5 +1,5 @@
 {
-  "name": "PSScene3Band___1_2017",
+  "name": "PSScene3Band___1_2019_H1",
   "state": "DISABLED",
   "provider": "planet",
   "collection": {
@@ -13,8 +13,8 @@
   "meta": {
     "providerPathFormat": "'storage-ss-ingest-prod-ingesteddata-uswest2/planet/PSScene3Band-'yyyyMMdd",
     "ingestedPathFormat": "'planet/PSScene3Band/'yyyyMMdd",
-    "startDate": "2017-01-01T00:00:00Z",
-    "endDate": "2018-01-01T00:00:00Z",
+    "startDate": "2019-01-01T00:00:00Z",
+    "endDate": "2019-07-01T00:00:00Z",
     "step": "P1D",
     "rule": {
       "state": "DISABLED"
