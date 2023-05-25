@@ -1,0 +1,23 @@
+{
+  "name": "PSScene3Band___1_2019_Q4",
+  "state": "DISABLED",
+  "provider": "planet",
+  "collection": {
+    "name": "PSScene3Band",
+    "version": "1"
+  },
+  "workflow": "DiscoverAndQueueGranules",
+  "rule": {
+    "type": "onetime"
+  },
+  "meta": {
+    "providerPathFormat": "'storage-ss-ingest-prod-ingesteddata-uswest2/planet/PSScene3Band-'yyyyMMdd",
+    "ingestedPathFormat": "'planet/PSScene3Band/'yyyyMMdd",
+    "startDate": "2019-10-01T00:00:00Z",
+    "endDate": "2020-01-01T00:00:00Z",
+    "step": "P1D",
+    "rule": {
+      "state": "DISABLED"
+    }
+  }
+}
