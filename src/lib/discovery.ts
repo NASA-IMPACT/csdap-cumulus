@@ -9,11 +9,10 @@ import * as L from './aws/lambda';
 import * as $t from './io';
 import { traceAsync } from './logging';
 
-const Granule = t.readonly(
-  t.type({
-    granuleId: t.string,
-  })
-);
+const Granule = t.type({
+  granuleId: t.string,
+});
+
 const GranulesPayload = t.readonly(
   t.type({
     granules: t.array(Granule),
@@ -121,12 +120,13 @@ export const prefixGranuleIds = (args: PrefixGranuleIdsInput) => {
 
   console.info(`Prefixing granuleIds for ${granules.length} granules with '${prefix}'`);
 
-  return {
-    granules: granules.map((granule: Granule) => ({
-      ...granule,
-      granuleId: `${prefix}${granule.granuleId}`,
-    })),
-  };
+  // eslint-disable-next-line functional/no-return-void
+  granules.forEach((granule: Granule) => {
+    // eslint-disable-next-line functional/immutable-data
+    granule.granuleId = `${prefix}${granule.granuleId}`;
+  });
+
+  return { granules };
 };
 
 //------------------------------------------------------------------------------
