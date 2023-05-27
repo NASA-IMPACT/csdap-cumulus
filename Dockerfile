@@ -10,6 +10,7 @@ SHELL [ "/bin/bash", "-o", "pipefail", "-c" ]
 RUN : \
   && apt-get update -y \
   && apt-get install -y --no-install-recommends \
+  bc=1.07.1-3build1 \
   # Ruby requires g++ following to build gem native extensions
   g++=4:11.2.0-1ubuntu1 \
   make=4.3-4.1build1 \
