@@ -321,7 +321,7 @@ test(
   {
     config: {
       providerPathFormat: "'css/nga/WV04/1B/'yyyy/DDD",
-      startDate: '2017-05-04',
+      startDate: '2017-05-04T00:00:00Z',
     },
   },
   'css/nga/WV04/1B/2017/124'
@@ -332,8 +332,20 @@ test(
   formatProviderPath,
   {
     config: {
+      providerPathFormat: "'css/nga/WV04/1B/'yyyy/D/",
+      startDate: '2017-01-04T00:00:00Z',
+    },
+  },
+  'css/nga/WV04/1B/2017/4/'
+);
+
+test(
+  shouldOutput,
+  formatProviderPath,
+  {
+    config: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM_dd",
-      startDate: '2018-08',
+      startDate: '2018-08-01T00:00:00Z',
     },
   },
   'planet/PSScene3Band-201808_01'
@@ -345,7 +357,7 @@ test(
   {
     config: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
-      startDate: '2018-08',
+      startDate: '2018-08-01T00:00:00Z',
     },
   },
   'planet/PSScene3Band-201808'
@@ -361,7 +373,7 @@ test(
   {
     config: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
-      startDate: '2018-08',
+      startDate: '2018-08-01T00:00:00Z',
     },
   },
   null
@@ -373,8 +385,8 @@ test(
   {
     config: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
-      startDate: '2018-08',
-      endDate: '2021-09',
+      startDate: '2018-08-01T00:00:00Z',
+      endDate: '2021-09-01T00:00:00Z',
       step: null,
     },
   },
@@ -387,7 +399,7 @@ test(
   {
     config: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
-      startDate: '2018-08',
+      startDate: '2018-08-01T00:00:00Z',
       endDate: null,
       step: 'P1M',
     },
@@ -401,8 +413,8 @@ test(
   {
     config: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
-      startDate: '2018-09',
-      endDate: '2020-01',
+      startDate: '2018-09-01T00:00:00Z',
+      endDate: '2020-01-01T00:00:00Z',
       step: 'P1M',
     },
   },
@@ -415,8 +427,8 @@ test(
   {
     config: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
-      startDate: '2018-08',
-      endDate: '2018-09', // endDate is exclusive
+      startDate: '2018-08-01T00:00:00Z',
+      endDate: '2018-09-01T00:00:00Z', // endDate is exclusive
       step: 'P1M',
     },
   },
@@ -429,8 +441,8 @@ test(
   {
     config: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
-      startDate: '2018-08',
-      endDate: '2020-01',
+      startDate: '2018-08-01T00:00:00Z',
+      endDate: '2020-01-01T00:00:00Z',
       step: 'P1Y',
     },
   },

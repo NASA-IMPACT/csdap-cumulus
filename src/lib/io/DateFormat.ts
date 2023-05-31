@@ -39,7 +39,10 @@ const unsafeValidatDateFormat = (s: string) => {
 
   if (s.length === 0) return false;
 
-  const options = { useAdditionalWeekYearTokens: true };
+  const options = {
+    useAdditionalWeekYearTokens: true,
+    useAdditionalDayOfYearTokens: true,
+  };
   const epoch = dates.parseISO('1970-01-01');
   const formattedEpoch = dates.formatWithOptions(options, s)(epoch);
   const parsedEpoch = dates.parseWithOptions(options, epoch, s, formattedEpoch);
