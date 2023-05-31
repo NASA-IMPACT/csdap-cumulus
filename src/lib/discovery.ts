@@ -1,5 +1,4 @@
 import * as dates from 'date-fns';
-import * as tz from 'date-fns-tz';
 import * as O from 'fp-ts/Option';
 import { constant, pipe } from 'fp-ts/function';
 import * as t from 'io-ts';
@@ -80,7 +79,10 @@ export type ProviderPathInput = t.TypeOf<typeof ProviderPathInput>;
  */
 export const formatProviderPath = (args: ProviderPathInput): string => {
   const { providerPathFormat, startDate } = args.config;
-  return tz.formatInTimeZone(startDate, 'Z', providerPathFormat);
+  return dates.format(startDate, providerPathFormat, {
+    useAdditionalDayOfYearTokens: true,
+    useAdditionalWeekYearTokens: true,
+  });
 };
 
 /**
