@@ -312,6 +312,45 @@ resource "aws_lambda_function" "add_ummg_checksums" {
   }
 }
 
+
+resource "aws_sfn_activity" "queue_granules" {
+  name = "${var.prefix}-QueueGranules"
+}
+
+module "queue_granules_service" {
+  source = "https://github.com/nasa/cumulus/releases/download/<%= cumulus_version %>/terraform-aws-cumulus-ecs-service.zip"
+
+  prefix = var.prefix
+  name   = "QueueGranules"
+
+  cluster_arn   = module.cumulus.ecs_cluster_arn
+  desired_count = 1
+  image         = local.ecs_task_image
+
+  cpu                = local.ecs_task_cpu
+  memory_reservation = local.ecs_task_memory_reservation
+
+  environment = {
+    AWS_DEFAULT_REGION = data.aws_region.current.name
+  }
+  command = [
+    "cumulus-ecs-task",
+    "--activityArn",
+    aws_sfn_activity.queue_granules.id,
+    "--lambdaArn",
+    module.cumulus.queue_granules_task.task_arn
+  ]
+  alarms = {
+    MemoryUtilizationHigh = {
+      comparison_operator = "GreaterThanThreshold"
+      evaluation_periods  = 1
+      metric_name         = "MemoryUtilization"
+      statistic           = "SampleCount"
+      threshold           = 75
+    }
+  }
+}
+
 #-------------------------------------------------------------------------------
 # MODULES
 #-------------------------------------------------------------------------------
@@ -388,7 +427,7 @@ module "discover_granules_workflow" {
     format_provider_path_task_arn : aws_lambda_function.format_provider_path.arn,
     discover_granules_task_arn : module.cumulus.discover_granules_task.task_arn,
     prefix_granule_ids_task_arn : aws_lambda_function.prefix_granule_ids.arn,
-    queue_granules_task_arn : module.cumulus.queue_granules_task.task_arn,
+    queue_granules_task_arn : aws_sfn_activity.queue_granules.id,
     advance_start_date_task_arn : aws_lambda_function.advance_start_date.arn,
     background_job_queue_url : aws_sqs_queue.background_job_queue.id
   })
