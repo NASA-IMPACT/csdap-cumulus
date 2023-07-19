@@ -36,6 +36,6 @@ echo "- ${_}"
 # from the rest of the Cumulus dependencies.
 
 for _filename in package.json scripts/package.json; do
-  perl -i -pe "s/(\@cumulus\/(?!cumulus-message-adapter-js).+\"\s*:\s*)\"([^~]?[0-9]+(?:\.[0-9]+){2})\"/\$1\"${_version}\"/" "${_filename}"
+  perl -i -pe "s/(\@cumulus\/(?!cumulus-message-adapter-js)[^\/]+\"\s*:\s*)\"([^~]?[0-9]+(?:\.[0-9]+){2})\"/\$1\"${_version}\"/" "${_filename}"
   echo "- ${_}"
 done
