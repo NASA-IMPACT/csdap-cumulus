@@ -313,6 +313,7 @@ resource "aws_lambda_function" "add_ummg_checksums" {
 }
 
 
+
 # aws_sfn_activity means AWS Step Functions Activity
 resource "aws_sfn_activity" "prefix_granule_ids" {
   name = "${var.prefix}-PrefixGranuleIds"
@@ -351,6 +352,7 @@ module "prefix_granule_ids_service" {
     }
   }
 }
+
 
 
 resource "aws_sfn_activity" "queue_granules" {
