@@ -313,6 +313,46 @@ resource "aws_lambda_function" "add_ummg_checksums" {
 }
 
 
+# aws_sfn_activity means AWS Step Functions Activity
+resource "aws_sfn_activity" "prefix_granule_ids" {
+  name = "${var.prefix}-PrefixGranuleIds"
+}
+
+module "prefix_granule_ids_service" {
+  source = "https://github.com/nasa/cumulus/releases/download/<%= cumulus_version %>/terraform-aws-cumulus-ecs-service.zip"
+
+  prefix = var.prefix
+  name   = "PrefixGranuleIds"
+
+  cluster_arn   = module.cumulus.ecs_cluster_arn
+  desired_count = 1
+  image         = local.ecs_task_image
+
+  cpu                = local.ecs_task_cpu
+  memory_reservation = local.ecs_task_memory_reservation
+
+  environment = {
+    AWS_DEFAULT_REGION = data.aws_region.current.name
+  }
+  command = [
+    "cumulus-ecs-task",
+    "--activityArn",
+    aws_sfn_activity.prefix_granule_ids.id,
+    "--lambdaArn",
+    aws_lambda_function.prefix_granule_ids.arn
+  ]
+  alarms = {
+    MemoryUtilizationHigh = {
+      comparison_operator = "GreaterThanThreshold"
+      evaluation_periods  = 1
+      metric_name         = "MemoryUtilization"
+      statistic           = "SampleCount"
+      threshold           = 75
+    }
+  }
+}
+
+
 resource "aws_sfn_activity" "queue_granules" {
   name = "${var.prefix}-QueueGranules"
 }
@@ -426,7 +466,7 @@ module "discover_granules_workflow" {
     ingest_granule_workflow_name : module.ingest_and_publish_granule_workflow.name,
     format_provider_path_task_arn : aws_lambda_function.format_provider_path.arn,
     discover_granules_task_arn : module.cumulus.discover_granules_task.task_arn,
-    prefix_granule_ids_task_arn : aws_lambda_function.prefix_granule_ids.arn,
+    prefix_granule_ids_task_arn : aws_sfn_activity.prefix_granule_ids.id,
     queue_granules_task_arn : aws_sfn_activity.queue_granules.id,
     advance_start_date_task_arn : aws_lambda_function.advance_start_date.arn,
     background_job_queue_url : aws_sqs_queue.background_job_queue.id
