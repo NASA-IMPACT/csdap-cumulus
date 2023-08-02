@@ -7,7 +7,7 @@
   "sampleFileName": "WV01_20071231044012_1020010001E9B500_07DEC31044012-P1BS-505051421030_01_P024-BROWSE.jpg",
   "url_path": "{cmrMetadata.CollectionReference.ShortName}___{cmrMetadata.CollectionReference.Version}/{dateFormat(cmrMetadata.TemporalExtent.SingleDateTime, YYYY)}/{dateFormat(cmrMetadata.TemporalExtent.SingleDateTime, DDDD)}/{cmrMetadata.GranuleUR}",
   "meta": {
-    "preferredQueueBatchSize": 5
+    "preferredQueueBatchSize": 1
   },
   "ignoreFilesConfigForDiscovery": false,
   "files": [
