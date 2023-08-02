@@ -47,3 +47,28 @@ resource "aws_iam_role_policy" "lambda_api_gateway_access_dashboard_bucket" {
   role   = data.aws_iam_role.api_gateway_role.id
   policy = data.aws_iam_policy_document.lambda_api_access_dashboard_bucket.json
 }
+
+resource "aws_iam_role" "api_gateway_to_cloudwatch_logs" {
+  name = "${var.prefix}-ApiGatewayToCloudWatchLogs"
+  permissions_boundary = local.permissions_boundary_arn
+  assume_role_policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "",
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "apigateway.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole"
+        }
+    ]
+  })
+}
+
+resource "aws_iam_policy_attachment" "api_gateway_to_cloudwatch_logs" {
+  name = "${var.prefix}-ApiGatewayToCloudWatchLogs"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+  roles       = [aws_iam_role.ApiGatewayToCloudWatchLogs.name]
+}
+
