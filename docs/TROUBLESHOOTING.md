@@ -1,6 +1,9 @@
 # Troubleshooting
 
 - [Deployment](#deployment)
+  - [Aws::STS::Errors::InvalidClientTokenId: The security token included in the request is invalid](#awsstserrorsinvalidclienttokenid-the-security-token-included-in-the-request-is-invalid)
+  - [Error describing SSM parameter: ParameterNotFound](#error-describing-ssm-parameter-parameternotfound)
+  - [Running "up" Command Stopped](#running-up-command-stopped)
   - [Execution Role Does Not Have Permissions](#execution-role-does-not-have-permissions)
   - [Missing Map Element: AutoscalingGroupName](#missing-map-element-autoscalinggroupname)
   - [Duplicate Resources](#duplicate-resources)
@@ -14,6 +17,91 @@
   - [Error Deleting RDS Cluster (Cannot delete protected Cluster)](#error-deleting-rds-cluster-cannot-delete-protected-cluster)
 
 ## Deployment
+
+### Aws::STS::Errors::InvalidClientTokenId: The security token included in the request is invalid
+
+If you see output similar to the following when running an "up" or "plan"
+command, it means that your AWS long-term credentials have expired.  Generate
+new credentials and update your relevant AWS profile configuration.
+
+```plain
+Aws::STS::Errors::InvalidClientTokenId: The security token included in the request is invalid.
+Error evaluating ERB template around line 4 of: /work/config/terraform/backend.tf:
+1 terraform {
+2   backend "s3" {
+3     region         = "<%= expansion(':REGION') %>"
+4     bucket         = "<%= bucket('tfstate') %>"
+5     key            = "<%= expansion(':ENV/:MOD_NAME/terraform.tfstate') %>"
+6     encrypt        = true
+7     dynamodb_table = "<%= expansion('cumulus-:ENV-tfstate-locks') %>"
+8   }
+9 }
+
+Original backtrace (last 8 lines):
+/opt/terraspace/embedded/lib/ruby/gems/3.0.0/gems/aws-sdk-core-3.168.4/lib/seahorse/client/plugins/raise_response_errors.rb:17:in `call'
+
+... (many lines of a stack trace) ...
+
+/opt/terraspace/embedded/bin/bundle:23:in `load'
+/opt/terraspace/embedded/bin/bundle:23:in `<main>'
+make: *** [plan-cumulus] Error 1
+```
+
+### Error describing SSM parameter: ParameterNotFound
+
+If deployment failed with an error of the following form:
+
+```plain
+Error describing SSM parameter (<NAME>): ParameterNotFound
+```
+
+see the file `app/stacks/cumulus/ssm_parameters.tf` for a list of the required
+SSM parameters, including descriptions of their purpose and an example AWS CLI
+command for populating values.
+
+### Running "up" Command Stopped
+
+When running any of the following "up" commands to deploy one or more Terraform
+modules, the command may unexpectedly stop running:
+
+- `make up-<MODULE>`
+- `make up-<MODULE>-yes`
+- `make all-up`
+- `make all-up-yes`
+
+When the command stops unexpectedly, you may see output similar to the
+following:
+
+```plain
+...
+
+Plan: X to add, Y to change, Z to destroy.
+
+Do you want to perform these actions?
+  Terraform will perform the actions described above.
+  Only 'yes' will be accepted to approve.
+  Enter a value:
+[1]+  Stopped                 terraspace up cumulus
+```
+
+When this occurs, this means that the command was unexpectedly stopped, as if by
+pressing Ctrl-Z.  It is a mystery as to why this occurs (perhaps due to some
+interaction with the Docker container), but you can resume the process by
+running the following command, which simply restores the process to the
+foreground (fg):
+
+```plain
+fg
+```
+
+Further, if you did _not_ use one of the `*-yes` versions of the commands listed
+above, you will see `Only 'yes' will be accepted to approve.` in the output just
+prior to the command being stopped.  In this case, after running `fg`, the
+process will still appear to be hanging because it is waiting for input.  You
+must type `yes` and press Enter/Return for the deployment to continue.
+
+If you wait too long to supply input, Terraspace will timeout and you must rerun
+your original command.
 
 ### Execution Role Does Not Have Permissions
 

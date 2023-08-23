@@ -49,6 +49,11 @@ variable "archive_api_url" {
   default     = null
 }
 
+variable "csdap_host_url" {
+  type    = string
+  default = "N/A"
+}
+
 variable "cumulus_distribution_url" {
   type    = string
   default = null
@@ -149,16 +154,6 @@ variable "metrics_es_password" {
 variable "metrics_es_username" {
   type    = string
   default = null
-}
-
-variable "oauth_provider" {
-  type    = string
-  default = "earthdata"
-}
-
-variable "oauth_user_group" {
-  type    = string
-  default = "N/A"
 }
 
 variable "private_archive_api_gateway" {

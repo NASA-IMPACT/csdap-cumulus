@@ -64,12 +64,8 @@ locals {
 }
 
 #-------------------------------------------------------------------------------
-# DATA
+# DATA (other than SSM Parameters -- see ssm_parameters.tf)
 #-------------------------------------------------------------------------------
-
-data "aws_ssm_parameter" "ecs_image_id" {
-  name = "image_id_ecs_amz2"
-}
 
 data "external" "lambda_archive_exploded" {
   program = [
@@ -85,10 +81,50 @@ data "archive_file" "lambda" {
   output_path = "${data.external.lambda_archive_exploded.result.dir}/../lambda.zip"
 }
 
+# <% if !in_sandbox? then %>
+data "aws_iam_policy_document" "allow_s3_access_logging" {
+  statement {
+    sid    = "AllowS3AccessLogging"
+    effect = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["logging.s3.amazonaws.com"]
+    }
+    actions = [
+      "s3:PutObject",
+      "s3:PutObjectAcl"
+    ]
+    resources = ["arn:aws:s3:::${var.system_bucket}/*"]
+  }
+}
+# <% end %>
+
 #-------------------------------------------------------------------------------
 # RESOURCES
 #-------------------------------------------------------------------------------
 
+# <% if !in_sandbox? then %>
+resource "null_resource" "allow_s3_access_logging" {
+  triggers = {
+    buckets = var.system_bucket
+  }
+
+  # Since we do not have Terraform configured to manage our buckets, we cannot
+  # ask Terraform to put any policies on the buckets, so we're calling out to
+  # the AWS CLI to put the desired policy on our "system" (internal) bucket to
+  # allow S3 access logs to be written to it.
+  provisioner "local-exec" {
+    interpreter = ["bash", "-c"]
+    command     = <<-COMMAND
+      aws s3api put-bucket-policy \
+        --bucket ${var.system_bucket} \
+        --policy '${data.aws_iam_policy_document.allow_s3_access_logging.json}'
+    COMMAND
+  }
+}
+# <% end %>
+
+# <% if !in_sandbox? then %>
 resource "null_resource" "put_bucket_logging" {
   for_each = toset(concat(local.protected_bucket_names, local.public_bucket_names))
 
@@ -96,9 +132,13 @@ resource "null_resource" "put_bucket_logging" {
     buckets = join(" ", values(var.buckets)[*].name)
   }
 
+  # Since we do not have Terraform configured to manage our buckets, we cannot
+  # ask Terraform to configure access logging, so we're calling out to the AWS
+  # CLI to configure our "protected" and "public" buckets to write access logs
+  # to our "system" (internal) bucket.
   provisioner "local-exec" {
     interpreter = ["bash", "-c"]
-    command     = <<-EOT
+    command     = <<-COMMAND
       aws s3api put-bucket-logging --bucket ${each.key} --bucket-logging-status '
         {
           "LoggingEnabled": {
@@ -107,9 +147,31 @@ resource "null_resource" "put_bucket_logging" {
           }
         }
       '
-    EOT
+    COMMAND
   }
 }
+# <% end %>
+
+# <% if !in_sandbox? then %>
+resource "null_resource" "allow_sns_subscriptions_from_metrics" {
+  for_each = toset(["collections", "executions", "granules", "pdrs"])
+
+  triggers = {
+    metrics_aws_account_id = data.aws_ssm_parameter.metrics_aws_account_id.value
+  }
+
+  provisioner "local-exec" {
+    interpreter = ["bash", "-c"]
+    command     = <<-COMMAND
+      aws sns add-permission \
+        --topic-arn arn:aws:sns:${var.aws_region}:${local.aws_account_id}:${var.prefix}-report-${each.value}-topic \
+        --label subscribe_from_metrics \
+        --action Subscribe \
+        --aws-account-id ${data.aws_ssm_parameter.metrics_aws_account_id.value} || true
+    COMMAND
+  }
+}
+# <% end %>
 
 resource "random_string" "token_secret" {
   length  = 32
@@ -434,17 +496,10 @@ module "cumulus_distribution" {
   deploy_to_ngap            = true
   lambda_subnet_ids         = module.vpc.subnets.ids
 
-  # <% if !(in_cba? && in_sandbox?) then %>
-  oauth_client_id       = data.aws_ssm_parameter.csdap_client_id.value == "TBD" ? "" : data.aws_ssm_parameter.csdap_client_id.value
-  oauth_client_password = data.aws_ssm_parameter.csdap_client_password.value == "TBD" ? "" : data.aws_ssm_parameter.csdap_client_password.value
-  oauth_host_url        = data.aws_ssm_parameter.csdap_host_url.value == "TBD" ? "" : data.aws_ssm_parameter.csdap_host_url.value
-  # <% else %>
-  # Only CBA sandbox deployments set these to empty values.
-  oauth_client_id       = ""
-  oauth_client_password = ""
-  oauth_host_url        = ""
-  # <% end %>
-  oauth_provider = "cognito"
+  oauth_client_id       = data.aws_ssm_parameter.csdap_client_id.value
+  oauth_client_password = data.aws_ssm_parameter.csdap_client_password.value
+  oauth_host_url        = var.csdap_host_url
+  oauth_provider        = "cognito"
 
   permissions_boundary_arn = local.permissions_boundary_arn
   prefix                   = var.prefix
@@ -523,10 +578,10 @@ module "cumulus" {
   urs_client_id       = ""
   urs_client_password = ""
 
-  # <% if !(in_cba? && in_sandbox?) then %>
-  metrics_es_host     = data.aws_ssm_parameter.metrics_es_host.value == "TBD" ? null : data.aws_ssm_parameter.metrics_es_host.value
-  metrics_es_username = data.aws_ssm_parameter.metrics_es_username.value == "TBD" ? null : data.aws_ssm_parameter.metrics_es_username.value
-  metrics_es_password = data.aws_ssm_parameter.metrics_es_password.value == "TBD" ? null : data.aws_ssm_parameter.metrics_es_password.value
+  # <% if !in_sandbox? then %>
+  metrics_es_host     = var.metrics_es_host
+  metrics_es_username = data.aws_ssm_parameter.metrics_es_username.value
+  metrics_es_password = data.aws_ssm_parameter.metrics_es_password.value
   # <% end %>
 
   cmr_client_id      = "<%= expansion('csdap-cumulus-:ENV') %>"
@@ -543,8 +598,8 @@ module "cumulus" {
   launchpad_certificate = "launchpad.pfx"
   launchpad_passphrase  = data.aws_ssm_parameter.launchpad_passphrase.value
 
-  oauth_provider   = var.oauth_provider
-  oauth_user_group = var.oauth_user_group
+  oauth_provider   = "earthdata"
+  oauth_user_group = "N/A"
 
   saml_entity_id                  = var.saml_entity_id
   saml_assertion_consumer_service = var.saml_assertion_consumer_service
@@ -572,8 +627,8 @@ module "cumulus" {
   private_archive_api_gateway = var.private_archive_api_gateway
   api_gateway_stage           = var.api_gateway_stage
 
-  # <% if !(in_cba? && in_sandbox?) then %>
-  log_destination_arn = data.aws_ssm_parameter.log_destination_arn.value == "TBD" ? null : data.aws_ssm_parameter.log_destination_arn.value
+  # <% if !in_sandbox? then %>
+  log_destination_arn = data.aws_ssm_parameter.log_destination_arn.value
   # <% end %>
   additional_log_groups_to_elk = var.additional_log_groups_to_elk
 
