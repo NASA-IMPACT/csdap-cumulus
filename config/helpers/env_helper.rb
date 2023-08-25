@@ -5,9 +5,9 @@ module Terraspace::Project::EnvHelper
 
   def in_cba?
     account = expansion(':ACCOUNT')
-    # Does the current AWS account ID end with one of the account ID suffixes
-    # of the "old" (non-CBA) accounts?  (Suffixes are used simply to avoid
-    # putting full account IDs in the source code, for extra security.)
+    # Does the current AWS account ID *not* end with one of the account ID
+    # suffixes of the "old" (non-CBA) accounts?  (Suffixes are used simply to
+    # avoid putting full account IDs in the source code, for extra security.)
     %w{8451 7469 5982}.none? { |suffix| account.end_with? suffix }
   end
 
