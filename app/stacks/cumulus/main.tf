@@ -59,6 +59,7 @@ locals {
 
   rds_security_group         = jsondecode("<%= json_output('rds-cluster.security_group_id') %>")
   rds_user_access_secret_arn = jsondecode("<%= json_output('rds-cluster.user_credentials_secret_arn') %>")
+  rds_endpoint               = jsondecode("<%= json_output('rds-cluster.rds_endpoint') %>")
 
   tags = merge(var.tags, { Deployment = var.prefix })
 }

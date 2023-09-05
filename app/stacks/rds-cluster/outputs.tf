@@ -17,3 +17,4 @@ output "security_group_id" {
 output "user_credentials_secret_arn" {
   value = module.rds_cluster.user_credentials_secret_arn
 }
+

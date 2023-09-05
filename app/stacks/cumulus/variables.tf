@@ -196,3 +196,27 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+# ORCA Variables
+variable "db_admin_password" {
+
+}
+
+variable "db_user_password" {
+
+}
+variable "dlq_subscription_email" {
+  default = "pic8690@gmail.com"
+}
+
+# TODO
+# https://nasa.github.io/cumulus-orca/docs/developer/deployment-guide/deployment-s3-bucket/
+variable "orca_default_bucket" {
+  default = "TODO__NEED_BUCKET_NAME_CONVENTION" # TODO - Go to Disaster Recovery Account
+}
+variable "orca_reports_bucket_name" {
+  default = ""
+}
+variable "rds_security_group_id" {
+  default = ""
+}
