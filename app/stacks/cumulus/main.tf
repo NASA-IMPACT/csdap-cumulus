@@ -496,6 +496,8 @@ module "cumulus_distribution" {
   deploy_to_ngap            = true
   lambda_subnet_ids         = module.vpc.subnets.ids
 
+  deploy_s3_credentials_endpoint = false
+
   oauth_client_id       = data.aws_ssm_parameter.csdap_client_id.value
   oauth_client_password = data.aws_ssm_parameter.csdap_client_password.value
   oauth_host_url        = var.csdap_host_url
