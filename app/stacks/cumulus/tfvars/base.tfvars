@@ -19,6 +19,10 @@ cmr_environment = "UAT"
 system_bucket = "<%= bucket('internal') %>"
 
 buckets = {
+  orca_default = {
+    name = "csda-cumulus-cba-uat-orca-archive"
+    type = "orca"
+  }
   internal = {
     name = "<%= bucket('internal') %>"
     type = "internal"

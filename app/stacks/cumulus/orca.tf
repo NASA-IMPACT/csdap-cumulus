@@ -32,7 +32,9 @@ module "orca" {
   dlq_subscription_email   = var.dlq_subscription_email
   orca_default_bucket      = var.orca_default_bucket
   orca_reports_bucket_name = var.orca_reports_bucket_name
-  rds_security_group_id    = var.rds_security_group_id
+  rds_security_group_id    = local.rds_security_group
+
+  
 
   ## OPTIONAL
   # db_admin_username                                    = "postgres"
