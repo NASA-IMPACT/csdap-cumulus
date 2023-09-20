@@ -12,8 +12,8 @@ module "orca" {
   ## --------------------------
   ## REQUIRED
   buckets                  = var.buckets
-  lambda_subnet_ids        = var.lambda_subnet_ids
-  permissions_boundary_arn = var.permissions_boundary_arn
+  lambda_subnet_ids        = module.vpc.subnets.ids
+  permissions_boundary_arn = local.permissions_boundary_arn
   prefix                   = var.prefix
   system_bucket            = var.system_bucket
   vpc_id                   = module.vpc.vpc_id
@@ -33,8 +33,11 @@ module "orca" {
   orca_default_bucket      = var.orca_default_bucket
   orca_reports_bucket_name = var.orca_reports_bucket_name
   rds_security_group_id    = local.rds_security_group
+  s3_access_key            = var.s3_access_key
+  s3_secret_key            = var.s3_secret_key
 
-  
+
+
 
   ## OPTIONAL
   # db_admin_username                                    = "postgres"

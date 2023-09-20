@@ -198,13 +198,13 @@ variable "tags" {
 }
 
 # ORCA Variables
-variable "db_admin_password" {
+#variable "db_admin_password" {
+#
+#}
 
-}
-
-variable "db_user_password" {
-
-}
+#variable "db_user_password" {
+#
+#}
 variable "dlq_subscription_email" {
   default = "pic8690@gmail.com"
 }
@@ -217,3 +217,14 @@ variable "orca_default_bucket" {
 variable "orca_reports_bucket_name" {
   default = "csda-cumulus-cba-uat-orca-reports"
 }
+
+variable "s3_access_key" {
+  default = "Axxx"
+}
+variable "s3_secret_key" {
+  default = "Axxx"
+}
+
+
+
+

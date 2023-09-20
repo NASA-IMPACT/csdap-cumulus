@@ -26,9 +26,9 @@ s3_replicator_target_bucket = "esdis-metrics-inbound-uat-csdap-distribution"
 s3_replicator_target_prefix = "input/s3_access/csdapuat"
 
 # Orca Integration
-db_admin_password = ""   # TODO - Maybe Needs to be done in SSM
-db_user_password = ""
-dlq_subscription_email = ""
-orca_default_bucket = ""
-orca_reports_bucket_name = ""
-rds_security_group_id = ""
+#db_admin_password = ""   # TODO - Maybe Needs to be done in SSM
+#db_user_password = ""
+#dlq_subscription_email = ""
+#orca_default_bucket = ""
+#orca_reports_bucket_name = ""
+#rds_security_group_id = ""
