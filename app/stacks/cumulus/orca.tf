@@ -33,8 +33,8 @@ module "orca" {
   orca_default_bucket      = var.orca_default_bucket
   orca_reports_bucket_name = var.orca_reports_bucket_name
   rds_security_group_id    = local.rds_security_group
-  s3_access_key            = var.s3_access_key
-  s3_secret_key            = var.s3_secret_key
+  s3_access_key            = data.aws_ssm_parameter.s3_access_key.value
+  s3_secret_key            = data.aws_ssm_parameter.s3_secret_key.value
 
 
 
