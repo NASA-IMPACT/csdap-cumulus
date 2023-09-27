@@ -61,6 +61,11 @@ locals {
   rds_user_access_secret_arn = jsondecode("<%= json_output('rds-cluster.user_credentials_secret_arn') %>")
   rds_endpoint               = jsondecode("<%= json_output('rds-cluster.rds_endpoint') %>")
 
+  # For these two lines, I am trying to give the cumulus module access to the password from the RDS module so it can make the connection
+  #rds_cluster_db_admin_password_1               = jsondecode("<%= json_output('rds-cluster.rds_cluster_db_admin_password') %>")
+  #rds_cluster_rds_user_password_1               = jsondecode("<%= json_output('rds-cluster.rds_cluster_rds_user_password') %>")
+
+
   tags = merge(var.tags, { Deployment = var.prefix })
 }
 

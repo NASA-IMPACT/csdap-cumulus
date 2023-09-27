@@ -26,15 +26,18 @@ module "orca" {
   ## ORCA Variables
   ## --------------------------
   ## REQUIRED
-  db_admin_password        = random_password.db_password.result
+  #
+  # These two don't work unless I hardcode the password!!!!!  (db_admin_password, and db_user_password)
+  db_admin_password        = random_password.db_password.result # Note, this does not work - it will generate a password that is different from the actual one generated in the rds_cluster (which I cannot seem to access.. If I could access that password programmatically then this will get passed the PW error correctly.. I tested this by hard coding the password in and that worked.
   db_host_endpoint         = local.rds_endpoint
-  db_user_password         = random_password.db_password.result
+  db_user_password         = random_password.db_password.result # Note, this does not work - it will generate a password that is different from the actual one generated in the rds_cluster (which I cannot seem to access.. If I could access that password programmatically then this will get passed the PW error correctly.. I tested this by hard coding the password in and that worked.
   dlq_subscription_email   = var.dlq_subscription_email
   orca_default_bucket      = var.orca_default_bucket
   orca_reports_bucket_name = var.orca_reports_bucket_name
   rds_security_group_id    = local.rds_security_group
   s3_access_key            = data.aws_ssm_parameter.s3_access_key.value
   s3_secret_key            = data.aws_ssm_parameter.s3_secret_key.value
+  db_admin_username                                    = "postgres"
 
 
 
