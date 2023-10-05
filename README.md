@@ -38,6 +38,36 @@ this repository:
   used within the Docker container to properly configure the AWS CLI and
   Terraform.
 
+If you also wish to contribute changes, you should also do the following:
+
+- **Install pre-commit**
+
+  If you don't already have `pre-commit` installed on your development machine,
+  please [install pre-commit].
+
+- **Install the pre-commit hooks**
+
+  Once `pre-commit` is installed, install the pre-commit hooks defined in the
+  `.pre-commit-config.yaml` file by running the following command:
+
+  ```plain
+  pre-commit install --install-hooks
+  ```
+
+  This will cause the configured hooks to run whenever you run `git commit`.  If
+  any hooks fail, the commit is aborted, requiring you to fix the problem(s)
+  that caused the hook(s) to fail.  Often, hooks automatically fix problems
+  (such as file formatting), and thus you may simply need to `git add` the
+  automatically fixed files and run `git commit` again.
+
+  Further, you can run `pre-commit` hooks _without_ running `git commit` if you
+  wish to, which can be handy when you want to perform actions such as file
+  formatting prior to adding files to git:
+
+  ```plain
+  pre-commit run -a
+  ```
+
 ## Infrastructure Management
 
 This section assumes that you have completed all prerequisite steps as detailed
@@ -195,6 +225,8 @@ See [Destroying a Deployment](docs/OPERATING.md#destroying-a-deployment) in
 
 [Deploying Cumulus Troubleshooting]:
    https://nasa.github.io/cumulus/docs/troubleshooting/troubleshooting-deployment#deploying-cumulus
+[Install pre-commit]:
+  https://pre-commit.com/#install
 [Terraform]:
    https://www.terraform.io/
 [Terraspace]:

@@ -156,6 +156,10 @@ variable "metrics_es_username" {
   default = null
 }
 
+variable "orca_dlq_subscription_email" {
+  type = string
+}
+
 variable "private_archive_api_gateway" {
   type    = bool
   default = true
@@ -196,39 +200,3 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
-
-# ORCA Variables
-#variable "db_admin_password" {
-#
-#}
-
-#variable "db_user_password" {
-#
-#}
-variable "dlq_subscription_email" {
-  default = "pic8690@gmail.com"
-}
-
-# TODO
-# https://nasa.github.io/cumulus-orca/docs/developer/deployment-guide/deployment-s3-bucket/
-variable "orca_default_bucket" {
-  default = "csda-cumulus-cba-uat-orca-archive" # TODO - Go to Disaster Recovery Account
-}
-variable "orca_reports_bucket_name" {
-  default = "csda-cumulus-cba-uat-orca-reports"
-}
-
-# TODO - Remove these from here all together during the PR
-# These have been moved to ssm_parameters.tf
-# Leaving these here while this task is still a Work in Progress
-#
-#variable "s3_access_key" {
-#  default = "Axxx"
-#}
-#variable "s3_secret_key" {
-#  default = "Axxx"
-#}
-
-
-
-

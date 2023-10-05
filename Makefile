@@ -109,6 +109,10 @@ create-test-data: docker
 docker: Dockerfile .dockerignore .terraform-version Gemfile Gemfile.lock package.json yarn.lock
 	$(DOCKER_BUILD)
 
+## fmt: Runs `terraspace fmt` to format all Terraform files
+fmt: docker
+	$(DOCKER_RUN) $(IMAGE) bundle exec 'terraspace fmt 2>/dev/null'
+
 ## init-STACK: Runs `terraform init` for specified STACK
 init-%: docker
 	$(TERRASPACE) init $*

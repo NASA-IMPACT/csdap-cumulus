@@ -54,10 +54,11 @@ data "aws_ssm_parameter" "csdap_client_password" {
   name = "/shared/cumulus/csdap-client-password"
 }
 
-data "aws_ssm_parameter" "s3_access_key" {
+data "aws_ssm_parameter" "orca_s3_access_key" {
   name = "/shared/cumulus/orca/dr/s3-access-key"
 }
-data "aws_ssm_parameter" "s3_secret_key" {
+
+data "aws_ssm_parameter" "orca_s3_secret_key" {
   name = "/shared/cumulus/orca/dr/s3-secret-key"
 }
 
@@ -104,10 +105,12 @@ data "aws_ssm_parameter" "metrics_aws_account_id" {
 # Note, for setting the FIRST time, the command is slightly different (no --overwrite)
 # # aws ssm put-parameter --type SecureString --name NAME --value VALUE
 # TODO - add some of the above stuff to the proper documentation
-#data "aws_ssm_parameter" "s3_access_key" {
+
+#data "aws_ssm_parameter" "orca_s3_access_key" {
 #  name = "/shared/cumulus/orca/dr/s3-access-key"
 #}
-#data "aws_ssm_parameter" "s3_secret_key" {
+
+#data "aws_ssm_parameter" "orca_s3_secret_key" {
 #  name = "/shared/cumulus/orca/dr/s3-secret-key"
 #}
 
