@@ -1,3 +1,4 @@
+/* eslint-disable functional/no-return-void */
 import test, { ExecutionContext } from 'ava';
 import * as duration from 'duration-fns';
 import * as E from 'fp-ts/Either';
@@ -6,11 +7,11 @@ import { flow, pipe } from 'fp-ts/function';
 
 import { DecodedEventHandler } from './aws/lambda';
 import {
-  advanceStartDate,
-  formatProviderPath,
+  batchGranules,
+  formatProviderPaths,
+  FormatProviderPathsInput,
   prefixGranuleIds,
   PrefixGranuleIdsInput,
-  ProviderPathInput,
 } from './discovery';
 import * as PR from './io/PathReporter';
 
@@ -23,7 +24,7 @@ const shouldFailToDecode = test.macro({
     `ProviderPathInput should fail to decode ${JSON.stringify(input)}`,
   exec: (t: ExecutionContext, input, paths: readonly (readonly string[])[]) =>
     pipe(
-      ProviderPathInput.decode(input),
+      FormatProviderPathsInput.decode(input),
       E.match(
         (errors) => {
           const messages = PR.failure(errors);
@@ -45,61 +46,61 @@ const shouldFailToDecode = test.macro({
 test(
   shouldFailToDecode,
   {
-    config: {
+    meta: {
       providerPathFormat: 'planet/PSScene3Band-yyyyMM',
       startDate: '2018-08',
     },
   },
-  [['config', 'providerPathFormat']]
+  [['meta', 'providerPathFormat']]
 );
 
 test(
   shouldFailToDecode,
   {
-    config: {
+    meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: 'hello',
     },
   },
-  [['config', 'startDate']]
+  [['meta', 'startDate']]
 );
 
 test(
   shouldFailToDecode,
   {
-    config: {
+    meta: {
       providerPathFormat: 'planet/PSScene3Band-yyyyMM',
       startDate: 'hello',
     },
   },
   [
-    ['config', 'providerPathFormat'],
-    ['config', 'startDate'],
+    ['meta', 'providerPathFormat'],
+    ['meta', 'startDate'],
   ]
 );
 
 test(
   shouldFailToDecode,
   {
-    config: {
+    meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: '202101',
       endDate: 'never',
     },
   },
-  [['config', 'endDate']]
+  [['meta', 'endDate']]
 );
 
 test(
   shouldFailToDecode,
   {
-    config: {
+    meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: '202101',
       step: 'none',
     },
   },
-  [['config', 'step']]
+  [['meta', 'step']]
 );
 
 //------------------------------------------------------------------------------
@@ -107,10 +108,11 @@ test(
 //------------------------------------------------------------------------------
 
 const shouldDecode = test.macro({
-  title: (_, input) => `ProviderPathInput should decode ${JSON.stringify(input)}`,
+  title: (_, input) =>
+    `FormatProviderPathsInput should decode ${JSON.stringify(input)}`,
   exec: (t: ExecutionContext, input: unknown, expected: unknown) =>
     pipe(
-      ProviderPathInput.decode(input),
+      FormatProviderPathsInput.decode(input),
       E.match(
         (errors) => t.fail(PR.failure(errors).join('\n')),
         (actual) => t.deepEqual(actual, expected)
@@ -121,13 +123,13 @@ const shouldDecode = test.macro({
 test(
   shouldDecode,
   {
-    config: {
+    meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: '2018-08',
     },
   },
   {
-    config: {
+    meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: new Date('2018-08'),
       endDate: O.none,
@@ -139,14 +141,14 @@ test(
 test(
   shouldDecode,
   {
-    config: {
+    meta: {
       extraProperty: 'whatever',
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: '2018-08',
     },
   },
   {
-    config: {
+    meta: {
       extraProperty: 'whatever',
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: new Date('2018-08'),
@@ -159,14 +161,14 @@ test(
 test(
   shouldDecode,
   {
-    config: {
+    meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: '2019-08',
       endDate: undefined,
     },
   },
   {
-    config: {
+    meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: new Date('2019-08'),
       endDate: O.none,
@@ -178,14 +180,14 @@ test(
 test(
   shouldDecode,
   {
-    config: {
+    meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: '2019-08',
       endDate: null,
     },
   },
   {
-    config: {
+    meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: new Date('2019-08'),
       endDate: O.none,
@@ -197,14 +199,14 @@ test(
 test(
   shouldDecode,
   {
-    config: {
+    meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: '2018-08',
       endDate: '202001',
     },
   },
   {
-    config: {
+    meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: new Date('2018-08'),
       endDate: O.some(new Date('202001')),
@@ -216,14 +218,14 @@ test(
 test(
   shouldDecode,
   {
-    config: {
+    meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: '2020-08',
       step: undefined,
     },
   },
   {
-    config: {
+    meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: new Date('2020-08'),
       endDate: O.none,
@@ -235,14 +237,14 @@ test(
 test(
   shouldDecode,
   {
-    config: {
+    meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: '2019-08',
       step: null,
     },
   },
   {
-    config: {
+    meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: new Date('2019-08'),
       endDate: O.none,
@@ -254,14 +256,14 @@ test(
 test(
   shouldDecode,
   {
-    config: {
+    meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: '2018-08',
       step: 'P1M',
     },
   },
   {
-    config: {
+    meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: new Date('2018-08'),
       endDate: O.none,
@@ -273,7 +275,7 @@ test(
 test(
   shouldDecode,
   {
-    config: {
+    meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: '2018-08',
       endDate: '202001',
@@ -281,7 +283,7 @@ test(
     },
   },
   {
-    config: {
+    meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: new Date('2018-08'),
       endDate: O.some(new Date('202001')),
@@ -291,23 +293,31 @@ test(
 );
 
 //------------------------------------------------------------------------------
-// Expected formatProviderPath outputs
+// Expected formatProviderPaths outputs
 //------------------------------------------------------------------------------
 
-const shouldOutput = test.macro({
+const formatProviderPathsShouldOutput = test.macro({
   title: (
     _,
-    f: DecodedEventHandler<typeof ProviderPathInput, ProviderPathInput, unknown>,
+    f: DecodedEventHandler<
+      typeof FormatProviderPathsInput,
+      FormatProviderPathsInput,
+      unknown
+    >,
     input
   ) => `${f.name} should succeed with input ${JSON.stringify(input)}`,
   exec: (
     t: ExecutionContext,
-    f: DecodedEventHandler<typeof ProviderPathInput, ProviderPathInput, unknown>,
+    f: DecodedEventHandler<
+      typeof FormatProviderPathsInput,
+      FormatProviderPathsInput,
+      unknown
+    >,
     input: unknown,
     expected: unknown
   ) =>
     pipe(
-      ProviderPathInput.decode(input),
+      FormatProviderPathsInput.decode(input),
       E.match(
         (errors) => t.fail(PR.failure(errors).join('\n')),
         (event) => t.deepEqual(f(event), expected)
@@ -316,137 +326,205 @@ const shouldOutput = test.macro({
 });
 
 test(
-  shouldOutput,
-  formatProviderPath,
+  formatProviderPathsShouldOutput,
+  formatProviderPaths,
   {
-    config: {
+    meta: {
       providerPathFormat: "'css/nga/WV04/1B/'yyyy/DDD",
       startDate: '2017-05-04T00:00:00Z',
     },
   },
-  'css/nga/WV04/1B/2017/124'
+  [
+    {
+      meta: {
+        providerPathFormat: "'css/nga/WV04/1B/'yyyy/DDD",
+        providerPath: 'css/nga/WV04/1B/2017/124',
+        startDate: '2017-05-04T00:00:00.000Z',
+        endDate: null,
+        step: null,
+      },
+    },
+  ]
 );
 
 test(
-  shouldOutput,
-  formatProviderPath,
+  formatProviderPathsShouldOutput,
+  formatProviderPaths,
   {
-    config: {
+    meta: {
       providerPathFormat: "'css/nga/WV04/1B/'yyyy/D/",
       startDate: '2017-01-04T00:00:00Z',
     },
   },
-  'css/nga/WV04/1B/2017/4/'
+  [
+    {
+      meta: {
+        providerPathFormat: "'css/nga/WV04/1B/'yyyy/D/",
+        providerPath: 'css/nga/WV04/1B/2017/4/',
+        startDate: '2017-01-04T00:00:00.000Z',
+        endDate: null,
+        step: null,
+      },
+    },
+  ]
 );
 
 test(
-  shouldOutput,
-  formatProviderPath,
+  formatProviderPathsShouldOutput,
+  formatProviderPaths,
   {
-    config: {
+    meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM_dd",
       startDate: '2018-08-01T00:00:00Z',
     },
   },
-  'planet/PSScene3Band-201808_01'
+  [
+    {
+      meta: {
+        providerPathFormat: "'planet/PSScene3Band-'yyyyMM_dd",
+        providerPath: 'planet/PSScene3Band-201808_01',
+        startDate: '2018-08-01T00:00:00.000Z',
+        endDate: null,
+        step: null,
+      },
+    },
+  ]
 );
 
 test(
-  shouldOutput,
-  formatProviderPath,
+  formatProviderPathsShouldOutput,
+  formatProviderPaths,
   {
-    config: {
+    meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: '2018-08-01T00:00:00Z',
     },
   },
-  'planet/PSScene3Band-201808'
+  [
+    {
+      meta: {
+        providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
+        providerPath: 'planet/PSScene3Band-201808',
+        startDate: '2018-08-01T00:00:00.000Z',
+        endDate: null,
+        step: null,
+      },
+    },
+  ]
 );
 
-//------------------------------------------------------------------------------
-// Expected advanceStartDate outputs
-//------------------------------------------------------------------------------
-
 test(
-  shouldOutput,
-  advanceStartDate,
+  formatProviderPathsShouldOutput,
+  formatProviderPaths,
   {
-    config: {
+    meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: '2018-08-01T00:00:00Z',
+      endDate: '2018-08-01T00:00:00Z',
     },
   },
-  null
+  []
 );
 
 test(
-  shouldOutput,
-  advanceStartDate,
+  formatProviderPathsShouldOutput,
+  formatProviderPaths,
   {
-    config: {
+    payload: {},
+    meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: '2018-08-01T00:00:00Z',
-      endDate: '2021-09-01T00:00:00Z',
-      step: null,
+      endDate: '2018-09-01T00:00:00Z',
+      foo: 'bar',
     },
   },
-  null
+  [
+    {
+      payload: {},
+      meta: {
+        providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
+        providerPath: 'planet/PSScene3Band-201808',
+        startDate: '2018-08-01T00:00:00.000Z',
+        endDate: '2018-09-01T00:00:00.000Z',
+        step: null,
+        foo: 'bar',
+      },
+    },
+  ]
 );
 
 test(
-  shouldOutput,
-  advanceStartDate,
+  formatProviderPathsShouldOutput,
+  formatProviderPaths,
   {
-    config: {
+    meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: '2018-08-01T00:00:00Z',
-      endDate: null,
+      endDate: '2020-12-01T00:00:00Z',
+    },
+  },
+  [
+    {
+      meta: {
+        providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
+        providerPath: 'planet/PSScene3Band-201808',
+        startDate: '2018-08-01T00:00:00.000Z',
+        endDate: '2020-12-01T00:00:00.000Z',
+        step: null,
+      },
+    },
+  ]
+);
+
+test(
+  formatProviderPathsShouldOutput,
+  formatProviderPaths,
+  {
+    meta: {
+      providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
+      startDate: '2018-08-01T00:00:00Z',
+      endDate: '2018-12-01T00:00:00Z',
       step: 'P1M',
     },
   },
-  '2018-09-01T00:00:00.000Z'
-);
-
-test(
-  shouldOutput,
-  advanceStartDate,
-  {
-    config: {
-      providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
-      startDate: '2018-09-01T00:00:00Z',
-      endDate: '2020-01-01T00:00:00Z',
-      step: 'P1M',
+  [
+    {
+      meta: {
+        providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
+        providerPath: 'planet/PSScene3Band-201808',
+        startDate: '2018-08-01T00:00:00.000Z',
+        endDate: '2018-12-01T00:00:00.000Z',
+        step: 'P1M',
+      },
     },
-  },
-  '2018-10-01T00:00:00.000Z'
-);
-
-test(
-  shouldOutput,
-  advanceStartDate,
-  {
-    config: {
-      providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
-      startDate: '2018-08-01T00:00:00Z',
-      endDate: '2018-09-01T00:00:00Z', // endDate is exclusive
-      step: 'P1M',
+    {
+      meta: {
+        providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
+        providerPath: 'planet/PSScene3Band-201809',
+        startDate: '2018-08-01T00:00:00.000Z',
+        endDate: '2018-12-01T00:00:00.000Z',
+        step: 'P1M',
+      },
     },
-  },
-  null
-);
-
-test(
-  shouldOutput,
-  advanceStartDate,
-  {
-    config: {
-      providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
-      startDate: '2018-08-01T00:00:00Z',
-      endDate: '2020-01-01T00:00:00Z',
-      step: 'P1Y',
+    {
+      meta: {
+        providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
+        providerPath: 'planet/PSScene3Band-201810',
+        startDate: '2018-08-01T00:00:00.000Z',
+        endDate: '2018-12-01T00:00:00.000Z',
+        step: 'P1M',
+      },
     },
-  },
-  '2019-08-01T00:00:00.000Z'
+    {
+      meta: {
+        providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
+        providerPath: 'planet/PSScene3Band-201811',
+        startDate: '2018-08-01T00:00:00.000Z',
+        endDate: '2018-12-01T00:00:00.000Z',
+        step: 'P1M',
+      },
+    },
+  ]
 );
 
 //------------------------------------------------------------------------------
@@ -468,7 +546,7 @@ test('prefixGranuleIds should prefix granule IDs with collection name', (t) => {
     ],
   };
   const event = {
-    config: { collection: { name: collectionName } },
+    config: { collection: { name: collectionName }, batchIndex: 0 },
     input: { granules: [granule] },
   };
 
@@ -479,4 +557,39 @@ test('prefixGranuleIds should prefix granule IDs with collection name', (t) => {
       flow(prefixGranuleIds, (actual) => t.deepEqual(actual, expected))
     )
   );
+});
+
+//------------------------------------------------------------------------------
+// batchGranules
+//------------------------------------------------------------------------------
+
+test('batchGranules should output singleton array identical to input when there are no granules', (t) => {
+  const actual = batchGranules({
+    config: { maxBatchSize: 0 },
+    input: { granules: [] },
+  });
+  const expected = [{ granules: [] }];
+
+  t.deepEqual(actual, expected);
+});
+
+test('batchGranules should output a singleton array identical to input when there are no more than 1000 granules', (t) => {
+  const actual = batchGranules({
+    config: { maxBatchSize: 0 },
+    input: { granules: [{ granuleId: 'foo' }] },
+  });
+  const expected = [{ granules: [{ granuleId: 'foo' }] }];
+
+  t.deepEqual(actual, expected);
+});
+
+test('batchGranules should output array with nearly equally sized batches when there are over maxBatchSize granules', (t) => {
+  const granules = Array.from({ length: 100 }, (_, i) => ({ granuleId: `${i}` }));
+  const batch1 = granules.slice(0, 34);
+  const batch2 = granules.slice(34, 67);
+  const batch3 = granules.slice(67, 100);
+  const actual = batchGranules({ config: { maxBatchSize: 40 }, input: { granules } });
+  const expected = [{ granules: batch1 }, { granules: batch2 }, { granules: batch3 }];
+
+  t.deepEqual(actual, expected);
 });

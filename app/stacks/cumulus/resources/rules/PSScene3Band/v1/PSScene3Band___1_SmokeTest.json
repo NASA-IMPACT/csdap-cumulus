@@ -17,6 +17,7 @@
     "endDate": "2017-12-01T05:00:00.000Z",
     "step": "PT1H",
     "discoverOnly": false,
+    "maxBatchSize": 2,
     "rule": {
       "state": "DISABLED"
     }

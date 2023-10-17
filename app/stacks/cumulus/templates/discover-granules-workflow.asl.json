@@ -18,291 +18,277 @@
               "StringEquals": "ENABLED"
             }
           ],
-          "Next": "Try"
+          "Next": "SelfDiscovery?"
         }
       ],
       "Default": "SkipWorkflow"
     },
-    "Try": {
-      "Type": "Parallel",
-      "Branches": [
+    "SelfDiscovery?": {
+      "Comment": "Are we discovering granules from our own bucket?",
+      "Type": "Choice",
+      "Choices": [
         {
-          "StartAt": "SelfDiscovery?",
-          "States": {
-            "SelfDiscovery?": {
-              "Comment": "Are we discovering granules from our own bucket?",
-              "Type": "Choice",
-              "Choices": [
-                {
-                  "Variable": "$.meta.provider.host",
-                  "StringEqualsPath": "$.meta.buckets.protected.name",
-                  "Next": "UseIngestedPathFormat"
-                }
-              ],
-              "Default": "FormatProviderPath"
-            },
-            "UseIngestedPathFormat": {
-              "Comment": "Use the ingested path format for self-discovered granules",
-              "Type": "Pass",
-              "InputPath": "$.meta.ingestedPathFormat",
-              "ResultPath": "$.meta.providerPathFormat",
-              "Next": "FormatProviderPath"
-            },
-            "FormatProviderPath": {
-              "Parameters": {
-                "cma": {
-                  "event.$": "$",
-                  "ReplaceConfig": {
-                    "MaxSize": 16384,
-                    "Path": "$.payload",
-                    "TargetPath": "$.payload"
-                  },
-                  "task_config": {
-                    "providerPathFormat": "{$.meta.providerPathFormat}",
-                    "startDate": "{$.meta.startDate}",
-                    "endDate": "{$.meta.endDate}",
-                    "step": "{$.meta.step}",
-                    "cumulus_message": {
-                      "outputs": [
-                        {
-                          "source": "{$}",
-                          "destination": "{$.meta.providerPath}"
+          "Variable": "$.meta.provider.host",
+          "StringEqualsPath": "$.meta.buckets.protected.name",
+          "Next": "UseIngestedPathFormat"
+        }
+      ],
+      "Default": "FormatProviderPaths"
+    },
+    "UseIngestedPathFormat": {
+      "Comment": "Use the ingested path format for self-discovered granules",
+      "Type": "Pass",
+      "InputPath": "$.meta.ingestedPathFormat",
+      "ResultPath": "$.meta.providerPathFormat",
+      "Next": "FormatProviderPaths"
+    },
+    "FormatProviderPaths": {
+      "Type": "Task",
+      "Resource": "${format_provider_paths_task_arn}",
+      "Next": "DiscoverGranulesMap"
+    },
+    "DiscoverGranulesMap": {
+      "Type": "Map",
+      "End": true,
+      "MaxConcurrency": 10,
+      "ToleratedFailurePercentage": 0,
+      "ItemsPath": "$",
+      "ItemProcessor": {
+        "ProcessorConfig": {
+          "Mode": "DISTRIBUTED",
+          "ExecutionType": "STANDARD"
+        },
+        "StartAt": "Try",
+        "States": {
+          "Try": {
+            "Comment": "try/catch task to simplify error handling",
+            "Type": "Parallel",
+            "OutputPath": "$[0]",
+            "End": true,
+            "Catch": [
+              {
+                "ErrorEquals": [
+                  "States.ALL"
+                ],
+                "Next": "HandleError",
+                "ResultPath": "$.exception"
+              }
+            ],
+            "Branches": [
+              {
+                "StartAt": "DiscoverGranules",
+                "States": {
+                  "DiscoverGranules": {
+                    "Parameters": {
+                      "cma": {
+                        "event.$": "$",
+                        "ReplaceConfig": {
+                          "MaxSize": 0,
+                          "Path": "$.payload",
+                          "TargetPath": "$.payload"
+                        },
+                        "task_config": {
+                          "provider": "{$.meta.provider}",
+                          "provider_path": "{$.meta.providerPath}",
+                          "collection": "{$.meta.collection}",
+                          "buckets": "{$.meta.buckets}",
+                          "stack": "{$.meta.stack}",
+                          "duplicateGranuleHandling": "{$.meta.collection.duplicateHandling}"
                         }
-                      ]
-                    }
-                  }
-                }
-              },
-              "Type": "Task",
-              "Resource": "${format_provider_path_task_arn}",
-              "Next": "DiscoverGranules"
-            },
-            "DiscoverGranules": {
-              "Parameters": {
-                "cma": {
-                  "event.$": "$",
-                  "ReplaceConfig": {
-                    "MaxSize": 16384,
-                    "Path": "$.payload",
-                    "TargetPath": "$.payload"
-                  },
-                  "task_config": {
-                    "provider": "{$.meta.provider}",
-                    "provider_path": "{$.meta.providerPath}",
-                    "collection": "{$.meta.collection}",
-                    "buckets": "{$.meta.buckets}",
-                    "stack": "{$.meta.stack}",
-                    "duplicateGranuleHandling": "{$.meta.collection.duplicateHandling}"
-                  }
-                }
-              },
-              "Type": "Task",
-              "Resource": "${discover_granules_task_arn}",
-              "Retry": [
-                {
-                  "ErrorEquals": [
-                    "Lambda.ServiceException",
-                    "Lambda.AWSLambdaException",
-                    "Lambda.SdkClientException"
-                  ],
-                  "IntervalSeconds": 2,
-                  "MaxAttempts": 6,
-                  "BackoffRate": 2
-                }
-              ],
-              "Next": "PrefixGranuleIds?"
-            },
-            "PrefixGranuleIds?": {
-              "Type": "Choice",
-              "Choices": [
-                {
-                  "And": [
-                    {
-                      "Variable": "$.meta.collection.meta.prefixGranuleIds",
-                      "IsPresent": true
+                      }
                     },
-                    {
-                      "Variable": "$.meta.collection.meta.prefixGranuleIds",
-                      "BooleanEquals": true
-                    }
-                  ],
-                  "Next": "PrefixGranuleIds"
-                }
-              ],
-              "Default": "QueueGranules?"
-            },
-            "PrefixGranuleIds": {
-              "Parameters": {
-                "cma": {
-                  "event.$": "$",
-                  "ReplaceConfig": {
-                    "MaxSize": 16384,
-                    "Path": "$.payload",
-                    "TargetPath": "$.payload"
+                    "Type": "Task",
+                    "Resource": "${discover_granules_task_arn}",
+                    "Retry": [
+                      {
+                        "ErrorEquals": [
+                          "Lambda.ServiceException",
+                          "Lambda.AWSLambdaException",
+                          "Lambda.SdkClientException"
+                        ],
+                        "IntervalSeconds": 2,
+                        "MaxAttempts": 6,
+                        "BackoffRate": 2
+                      }
+                    ],
+                    "Next": "BatchGranules"
                   },
-                  "task_config": {
-                    "collection": "{$.meta.collection}"
-                  }
-                }
-              },
-              "Type": "Task",
-              "Resource": "${prefix_granule_ids_task_arn}",
-              "Retry": [
-                {
-                  "ErrorEquals": [
-                    "Lambda.ServiceException",
-                    "Lambda.AWSLambdaException",
-                    "Lambda.SdkClientException"
-                  ],
-                  "IntervalSeconds": 2,
-                  "MaxAttempts": 6,
-                  "BackoffRate": 2
-                }
-              ],
-              "Next": "QueueGranules?"
-            },
-            "QueueGranules?": {
-              "Type": "Choice",
-              "Choices": [
-                {
-                  "Or": [
-                    {
-                      "Variable": "$.meta.discoverOnly",
-                      "IsPresent": false
-                    },
-                    {
-                      "Variable": "$.meta.discoverOnly",
-                      "BooleanEquals": false
-                    }
-                  ],
-                  "Next": "QueueGranules"
-                }
-              ],
-              "Default": "AdvanceStartDate"
-            },
-            "QueueGranules": {
-              "Parameters": {
-                "cma": {
-                  "event.$": "$",
-                  "ReplaceConfig": {
-                    "MaxSize": 16384,
-                    "Path": "$.payload",
-                    "TargetPath": "$.payload"
-                  },
-                  "task_config": {
-                    "queueUrl": "${background_job_queue_url}",
-                    "preferredQueueBatchSize": "{$.meta.collection.meta.preferredQueueBatchSize}",
-                    "provider": "{$.meta.provider}",
-                    "internalBucket": "{$.meta.buckets.internal.name}",
-                    "stackName": "{$.meta.stack}",
-                    "granuleIngestWorkflow": "${ingest_granule_workflow_name}",
-                    "childWorkflowMeta": {}
-                  }
-                }
-              },
-              "Type": "Task",
-              "Resource": "${queue_granules_task_arn}",
-              "Retry": [
-                {
-                  "ErrorEquals": [
-                    "Lambda.ServiceException",
-                    "Lambda.AWSLambdaException",
-                    "Lambda.SdkClientException"
-                  ],
-                  "IntervalSeconds": 2,
-                  "MaxAttempts": 6,
-                  "BackoffRate": 2
-                }
-              ],
-              "Next": "AdvanceStartDate"
-            },
-            "AdvanceStartDate": {
-              "Parameters": {
-                "cma": {
-                  "event.$": "$",
-                  "ReplaceConfig": {
-                    "MaxSize": 16384,
-                    "Path": "$.payload",
-                    "TargetPath": "$.payload"
-                  },
-                  "task_config": {
-                    "providerPathFormat": "{$.meta.providerPathFormat}",
-                    "startDate": "{$.meta.startDate}",
-                    "endDate": "{$.meta.endDate}",
-                    "step": "{$.meta.step}",
-                    "cumulus_message": {
-                      "outputs": [
-                        {
-                          "source": "{$}",
-                          "destination": "{$.meta.startDate}"
+                  "BatchGranules": {
+                    "Comment": "Splits discovered granules into batches so the batches can be sent to a Map task for concurrent queueing.",
+                    "Parameters": {
+                      "Comment": "cma.ReplaceConfig.MaxSize MUST be 0 to ensure payload is always written to S3 because the batching replicates the CMA payload in memory, which would otherwise run the risk of exhausting memory.",
+                      "cma": {
+                        "event.$": "$",
+                        "ReplaceConfig": {
+                          "MaxSize": 0,
+                          "Path": "$.payload",
+                          "TargetPath": "$.payload"
+                        },
+                        "task_config": {
+                          "maxBatchSize": "{$.meta.maxBatchSize}"
                         }
-                      ]
-                    }
+                      }
+                    },
+                    "Type": "Task",
+                    "Resource": "${batch_granules_task_arn}",
+                    "Retry": [
+                      {
+                        "ErrorEquals": [
+                          "Lambda.ServiceException",
+                          "Lambda.AWSLambdaException",
+                          "Lambda.SdkClientException"
+                        ],
+                        "IntervalSeconds": 2,
+                        "MaxAttempts": 6,
+                        "BackoffRate": 2
+                      }
+                    ],
+                    "Next": "QueueGranulesMap"
+                  },
+                  "QueueGranulesMap": {
+                    "Type": "Map",
+                    "MaxConcurrency": 10,
+                    "ToleratedFailurePercentage": 0,
+                    "ItemsPath": "$",
+                    "ItemProcessor": {
+                      "StartAt": "UnbatchGranules",
+                      "States": {
+                        "UnbatchGranules": {
+                          "Parameters": {
+                            "cma": {
+                              "event.$": "$",
+                              "ReplaceConfig": {
+                                "MaxSize": 16384,
+                                "Path": "$.payload",
+                                "TargetPath": "$.payload"
+                              },
+                              "task_config": {
+                                "batchIndex": "{$.meta.batchIndex}"
+                              }
+                            }
+                          },
+                          "Type": "Task",
+                          "Resource": "${unbatch_granules_task_arn}",
+                          "Retry": [
+                            {
+                              "ErrorEquals": [
+                                "Lambda.ServiceException",
+                                "Lambda.AWSLambdaException",
+                                "Lambda.SdkClientException"
+                              ],
+                              "IntervalSeconds": 2,
+                              "MaxAttempts": 6,
+                              "BackoffRate": 2
+                            }
+                          ],
+                          "Next": "PrefixGranuleIds?"
+                        },
+                        "PrefixGranuleIds?": {
+                          "Type": "Choice",
+                          "Choices": [
+                            {
+                              "And": [
+                                {
+                                  "Variable": "$.meta.collection.meta.prefixGranuleIds",
+                                  "IsPresent": true
+                                },
+                                {
+                                  "Variable": "$.meta.collection.meta.prefixGranuleIds",
+                                  "BooleanEquals": true
+                                }
+                              ],
+                              "Next": "PrefixGranuleIds"
+                            }
+                          ],
+                          "Default": "QueueGranules"
+                        },
+                        "PrefixGranuleIds": {
+                          "Parameters": {
+                            "cma": {
+                              "event.$": "$",
+                              "ReplaceConfig": {
+                                "MaxSize": 16384,
+                                "Path": "$.payload",
+                                "TargetPath": "$.payload"
+                              },
+                              "task_config": {
+                                "collection": "{$.meta.collection}"
+                              }
+                            }
+                          },
+                          "Type": "Task",
+                          "Resource": "${prefix_granule_ids_task_arn}",
+                          "Retry": [
+                            {
+                              "ErrorEquals": [
+                                "Lambda.ServiceException",
+                                "Lambda.AWSLambdaException",
+                                "Lambda.SdkClientException"
+                              ],
+                              "IntervalSeconds": 2,
+                              "MaxAttempts": 6,
+                              "BackoffRate": 2
+                            }
+                          ],
+                          "Next": "QueueGranules"
+                        },
+                        "QueueGranules": {
+                          "Parameters": {
+                            "cma": {
+                              "event.$": "$",
+                              "ReplaceConfig": {
+                                "MaxSize": 16384,
+                                "Path": "$.payload",
+                                "TargetPath": "$.payload"
+                              },
+                              "task_config": {
+                                "queueUrl": "${background_job_queue_url}",
+                                "preferredQueueBatchSize": "{$.meta.collection.meta.preferredQueueBatchSize}",
+                                "provider": "{$.meta.provider}",
+                                "internalBucket": "{$.meta.buckets.internal.name}",
+                                "stackName": "{$.meta.stack}",
+                                "granuleIngestWorkflow": "${ingest_granule_workflow_name}",
+                                "childWorkflowMeta": {}
+                              }
+                            }
+                          },
+                          "Type": "Task",
+                          "End": true,
+                          "Resource": "${queue_granules_task_arn}",
+                          "Retry": [
+                            {
+                              "ErrorEquals": [
+                                "Lambda.ServiceException",
+                                "Lambda.AWSLambdaException",
+                                "Lambda.SdkClientException"
+                              ],
+                              "IntervalSeconds": 2,
+                              "MaxAttempts": 6,
+                              "BackoffRate": 2
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    "Next": "Success"
+                  },
+                  "Success": {
+                    "Type": "Succeed"
                   }
                 }
-              },
-              "Type": "Task",
-              "Resource": "${advance_start_date_task_arn}",
-              "Retry": [
-                {
-                  "ErrorEquals": [
-                    "Lambda.ServiceException",
-                    "Lambda.AWSLambdaException",
-                    "Lambda.SdkClientException"
-                  ],
-                  "IntervalSeconds": 2,
-                  "MaxAttempts": 6,
-                  "BackoffRate": 2
-                }
-              ],
-              "Next": "DiscoverMoreGranules?"
-            },
-            "DiscoverMoreGranules?": {
-              "Comment": "If the start date is updated, attempt further discovery",
-              "Type": "Choice",
-              "Choices": [
-                {
-                  "And": [
-                    {
-                      "Variable": "$.meta.startDate",
-                      "IsPresent": true
-                    },
-                    {
-                      "Variable": "$.meta.startDate",
-                      "IsString": true
-                    }
-                  ],
-                  "Next": "FormatProviderPath"
-                }
-              ],
-              "Default": "Finish"
-            },
-            "Finish": {
-              "Type": "Pass",
-              "End": true
-            }
+              }
+            ]
+          },
+          "HandleError": {
+            "Type": "Fail",
+            "Cause": "Workflow failed"
           }
         }
-      ],
-      "Catch": [
-        {
-          "ErrorEquals": [
-            "States.ALL"
-          ],
-          "Next": "Failed",
-          "ResultPath": "$.exception"
-        }
-      ],
-      "OutputPath": "$[0]",
-      "End": true
+      }
     },
     "SkipWorkflow": {
       "Type": "Pass",
       "End": true
-    },
-    "Failed": {
-      "Type": "Fail",
-      "Cause": "Workflow failed"
     }
   }
 }
