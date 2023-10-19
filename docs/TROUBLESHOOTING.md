@@ -1,6 +1,7 @@
 # Troubleshooting
 
 - [Deployment](#deployment)
+  - [Error creating API Gateway Deployment: BadRequestException: Private REST API doesn't have a resource policy attached to it](#error-creating-api-gateway-deployment-badrequestexception-private-rest-api-doesnt-have-a-resource-policy-attached-to-it)
   - [Aws::STS::Errors::InvalidClientTokenId: The security token included in the request is invalid](#awsstserrorsinvalidclienttokenid-the-security-token-included-in-the-request-is-invalid)
   - [Error describing SSM parameter: ParameterNotFound](#error-describing-ssm-parameter-parameternotfound)
   - [Running "up" Command Stopped](#running-up-command-stopped)
@@ -17,6 +18,25 @@
   - [Error Deleting RDS Cluster (Cannot delete protected Cluster)](#error-deleting-rds-cluster-cannot-delete-protected-cluster)
 
 ## Deployment
+
+### Error creating API Gateway Deployment: BadRequestException: Private REST API doesn't have a resource policy attached to it
+
+You might encounter an error similar to the following during deployment:
+
+```plain
+Error: Error creating API Gateway Deployment: BadRequestException: Private REST API doesn't have a resource policy attached to it
+
+  on .terraform/modules/orca/modules/api-gateway/main.tf line 498, in resource "aws_api_gateway_deployment" "orca_api_deployment":
+ 498: resource "aws_api_gateway_deployment" "orca_api_deployment" {
+```
+
+This is likely due to a race condition between resources, as Terraform often
+creates several resources in parallel.
+
+The fix for this problem is simple: **Rerun your deployment command**, and by
+the time Terraform again attempts to perform the previously failing operation,
+it will succeed.  If it fails again, rerun the deployment again, until you no
+longer see the error.
 
 ### Aws::STS::Errors::InvalidClientTokenId: The security token included in the request is invalid
 

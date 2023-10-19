@@ -54,6 +54,33 @@ data "aws_ssm_parameter" "csdap_client_password" {
   name = "/shared/cumulus/csdap-client-password"
 }
 
+# ORCA Bucket Access
+#
+# Currently, the buckets must be setup in the Disaster Recovery (DR) AWS
+# accounts.  There are only DR AWS accounts for CBA UAT and CBA PROD.
+#
+# Unfortunately, this parameter must be refreshed every time these keys expire.
+# To refresh, do the following:
+#
+# 1. Make new long-term access keys
+# 2. For each environment, run the following
+#
+#    DOTENV=<.env file for UAT or Prod> make bash
+#    aws ssm put-parameter --name ACCESS_NAME --overwrite --value NEW_ACCESS_KEY
+#    aws ssm put-parameter --name SECRET_NAME --overwrite --value NEW_SECRET_KEY
+#
+# where ACCESS_NAME and SECRET_NAME are the `name` values in the respective
+# SSM parameters below, and NEW_ACCESS_KEY and NEW_SECRET_KEY are the new
+# values, respectively.
+
+data "aws_ssm_parameter" "orca_s3_access_key" {
+  name = "/shared/cumulus/orca/dr/s3-access-key"
+}
+
+data "aws_ssm_parameter" "orca_s3_secret_key" {
+  name = "/shared/cumulus/orca/dr/s3-secret-key"
+}
+
 #-------------------------------------------------------------------------------
 # SSM Parameters required across ONLY non-sandbox (non-dev) environments
 #-------------------------------------------------------------------------------

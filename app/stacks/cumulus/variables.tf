@@ -156,6 +156,10 @@ variable "metrics_es_username" {
   default = null
 }
 
+variable "orca_dlq_subscription_email" {
+  type = string
+}
+
 variable "private_archive_api_gateway" {
   type    = bool
   default = true

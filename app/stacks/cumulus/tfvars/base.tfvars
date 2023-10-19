@@ -15,10 +15,20 @@
 #<% depends_on("rds-cluster") %>
 
 cmr_environment = "UAT"
+orca_dlq_subscription_email = "csdap@uah.edu"
 
 system_bucket = "<%= bucket('internal') %>"
 
 buckets = {
+  # https://nasa.github.io/cumulus-orca/docs/developer/deployment-guide/deployment-s3-bucket/
+  orca_reports = {
+    name = "<%= %Q[csda-cumulus-cba-#{Terraspace.env == 'prod' ? 'prod' : 'uat'}-orca-reports] %>"
+    type = "orca"
+  }
+  orca_default = {
+    name = "<%= %Q[csda-cumulus-cba-#{Terraspace.env == 'prod' ? 'prod' : 'uat'}-orca-archive] %>"
+    type = "orca"
+  }
   internal = {
     name = "<%= bucket('internal') %>"
     type = "internal"
