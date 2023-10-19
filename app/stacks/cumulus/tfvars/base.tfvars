@@ -15,7 +15,7 @@
 #<% depends_on("rds-cluster") %>
 
 cmr_environment = "UAT"
-orca_dlq_subscription_email = "pic8690@gmail.com"
+orca_dlq_subscription_email = "csdap@uah.edu"
 
 system_bucket = "<%= bucket('internal') %>"
 

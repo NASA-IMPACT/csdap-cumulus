@@ -17,8 +17,6 @@ cumulus_distribution_url = "https://data.csdap.earthdata.nasa.gov/"
 cumulus_distribution_url = "https://data.csda.earthdata.nasa.gov/"
 # <% end %>
 
-#orca_dlq_subscription_email = ""
-
 metrics_es_host = "https://d23fzndssjmbvi.cloudfront.net/"
 
 # <% if in_cba? then %>
