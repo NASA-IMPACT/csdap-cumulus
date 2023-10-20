@@ -228,10 +228,10 @@
                 }
               ]
             },
-            "CopyToArchive":{
-              "Parameters":{
-                "cma":{
-                  "event.$":"$",
+            "CopyToArchive": {
+              "Parameters": {
+                "cma": {
+                  "event.$": "$",
                   "task_config": {
                     "excludedFileExtensions": "{$.meta.collection.meta.orca.excludedFileExtensions}",
                     "s3MultipartChunksizeMb": "{$.meta.collection.meta.s3MultipartChunksizeMb}",
@@ -244,8 +244,8 @@
                   }
                 }
               },
-              "Type":"Task",
-              "Resource":"module.orca.orca_lambda_copy_to_archive_arn",
+              "Type": "Task",
+              "Resource": "module.orca.orca_lambda_copy_to_archive_arn",
               "Retry": [
                 {
                   "ErrorEquals": [
@@ -259,7 +259,7 @@
                   "BackoffRate": 2
                 }
               ],
-              "Next":"PostToCmr"
+              "Next": "PostToCmr"
             },
             "PostToCmr": {
               "Parameters": {
