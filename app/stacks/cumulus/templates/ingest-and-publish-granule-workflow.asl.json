@@ -243,17 +243,19 @@
                     "defaultBucketOverride": "{$.meta.collection.meta.orca.defaultBucketOverride}"
                   }
                 }
-              }
-            },
+              },
               "Type":"Task",
               "Resource":"module.orca.orca_lambda_copy_to_archive_arn",
               "Retry": [
                 {
                   "ErrorEquals": [
-                    "States.ALL"
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "States.TaskFailed"
                   ],
                   "IntervalSeconds": 2,
-                  "MaxAttempts": 3,
+                  "MaxAttempts": 6,
                   "BackoffRate": 2
                 }
               ],
