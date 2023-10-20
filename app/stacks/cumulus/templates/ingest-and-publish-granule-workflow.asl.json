@@ -247,15 +247,6 @@
             },
               "Type":"Task",
               "Resource":"module.orca.orca_lambda_copy_to_archive_arn",
-              "Catch":[
-                {
-                  "ErrorEquals":[
-                    "States.ALL"
-                  ],
-                  "ResultPath":"$.exception",
-                  "Next":"WorkflowFailed"
-                }
-              ],
               "Retry": [
                 {
                   "ErrorEquals": [
