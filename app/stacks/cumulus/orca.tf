@@ -53,7 +53,7 @@ module "orca" {
   # default_multipart_chunksize_mb                       = 250
   # metadata_queue_message_retention_time                = 777600
   # orca_default_recovery_type                           = "Standard"
-  # orca_default_storage_class                           = "GLACIER"
+  orca_default_storage_class                           = "DEEP_ARCHIVE"
   # orca_delete_old_reconcile_jobs_frequency_cron        = "cron(0 0 ? * SUN *)"
   # orca_ingest_lambda_memory_size                       = 2240
   # orca_ingest_lambda_timeout                           = 600
@@ -75,3 +75,90 @@ module "orca" {
   # staged_recovery_queue_message_retention_time_seconds = 432000
   # status_update_queue_message_retention_time_seconds   = 777600
 }
+
+# Trying to follow: https://nasa.github.io/cumulus-orca/docs/developer/deployment-guide/deployment-with-cumulus#define-the-orca-workflows
+# Not understanding exactly where
+"MoveGranuleStep": {
+      "Parameters": {
+        "cma": {
+          "event.$": "$",
+          "task_config": {
+            "bucket": "{$.meta.buckets.internal.name}",
+            "buckets": "{$.meta.buckets}",
+            "distribution_endpoint": "{$.meta.distribution_endpoint}",
+            "collection": "{$.meta.collection}",
+            "duplicateHandling": "{$.meta.collection.duplicateHandling}",
+            "s3MultipartChunksizeMb": "{$.meta.collection.meta.s3MultipartChunksizeMb}",
+            "cumulus_message": {
+              "outputs": [
+                { "source": "{$}", "destination": "{$.payload}" },
+                { "source": "{$.granules}", "destination": "{$.meta.processed_granules}" }
+              ]
+            }
+          }
+        }
+      },
+      "Type": "Task",
+      "Resource": "${move_granules_task_arn}",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "ResultPath": "$.exception",
+          "Next": "WorkflowFailed"
+        }
+      ],
+
+"CopyToArchive":{
+  "Parameters":{
+    "cma":{
+      "event.$":"$",
+      "task_config": {
+        "excludedFileExtensions": "{$.meta.collection.meta.orca.excludedFileExtensions}",
+        "s3MultipartChunksizeMb": "{$.meta.collection.meta.s3MultipartChunksizeMb}",
+        "providerId": "{$.meta.provider.id}",
+        "providerName": "{$.meta.provider.name}",
+        "executionId": "{$.cumulus_meta.execution_name}",
+        "collectionShortname": "{$.meta.collection.name}",
+        "collectionVersion": "{$.meta.collection.version}",
+        "defaultBucketOverride": "{$.meta.collection.meta.orca.defaultBucketOverride}"
+      }
+    }
+  }
+},
+  "Type":"Task",
+  "Resource":"module.orca.orca_lambda_copy_to_archive_arn",
+  "Catch":[
+    {
+      "ErrorEquals":[
+        "States.ALL"
+      ],
+      "ResultPath":"$.exception",
+      "Next":"WorkflowFailed"
+    }
+  ],
+  "Retry": [
+    {
+      "ErrorEquals": [
+        "States.ALL"
+      ],
+      "IntervalSeconds": 2,
+      "MaxAttempts": 3,
+      "BackoffRate": 2
+    }
+  ],
+  "Next":"WorkflowSucceeded"
+},

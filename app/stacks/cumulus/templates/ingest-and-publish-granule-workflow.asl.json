@@ -214,7 +214,7 @@
               },
               "Type": "Task",
               "Resource": "${update_granules_cmr_metadata_file_links_task_arn}",
-              "Next": "PostToCmr",
+              "Next": "CopyToArchive",
               "Retry": [
                 {
                   "ErrorEquals": [
@@ -227,6 +227,46 @@
                   "BackoffRate": 2
                 }
               ]
+            },
+            "CopyToArchive":{
+              "Parameters":{
+                "cma":{
+                  "event.$":"$",
+                  "task_config": {
+                    "excludedFileExtensions": "{$.meta.collection.meta.orca.excludedFileExtensions}",
+                    "s3MultipartChunksizeMb": "{$.meta.collection.meta.s3MultipartChunksizeMb}",
+                    "providerId": "{$.meta.provider.id}",
+                    "providerName": "{$.meta.provider.name}",
+                    "executionId": "{$.cumulus_meta.execution_name}",
+                    "collectionShortname": "{$.meta.collection.name}",
+                    "collectionVersion": "{$.meta.collection.version}",
+                    "defaultBucketOverride": "{$.meta.collection.meta.orca.defaultBucketOverride}"
+                  }
+                }
+              }
+            },
+              "Type":"Task",
+              "Resource":"module.orca.orca_lambda_copy_to_archive_arn",
+              "Catch":[
+                {
+                  "ErrorEquals":[
+                    "States.ALL"
+                  ],
+                  "ResultPath":"$.exception",
+                  "Next":"WorkflowFailed"
+                }
+              ],
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "States.ALL"
+                  ],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 3,
+                  "BackoffRate": 2
+                }
+              ],
+              "Next":"PostToCmr"
             },
             "PostToCmr": {
               "Parameters": {
