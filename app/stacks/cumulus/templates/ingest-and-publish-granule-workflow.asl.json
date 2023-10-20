@@ -245,7 +245,7 @@
                 }
               },
               "Type": "Task",
-              "Resource": "module.orca.orca_lambda_copy_to_archive_arn",
+              "Resource": "${copy_to_archive_task_arn}",
               "Retry": [
                 {
                   "ErrorEquals": [
