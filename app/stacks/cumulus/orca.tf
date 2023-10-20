@@ -53,7 +53,7 @@ module "orca" {
   # default_multipart_chunksize_mb                       = 250
   # metadata_queue_message_retention_time                = 777600
   # orca_default_recovery_type                           = "Standard"
-  # orca_default_storage_class                           = "GLACIER"
+  orca_default_storage_class                           = "DEEP_ARCHIVE"
   # orca_delete_old_reconcile_jobs_frequency_cron        = "cron(0 0 ? * SUN *)"
   # orca_ingest_lambda_memory_size                       = 2240
   # orca_ingest_lambda_timeout                           = 600

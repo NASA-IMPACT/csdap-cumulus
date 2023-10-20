@@ -547,6 +547,7 @@ module "ingest_and_publish_granule_workflow" {
     files_to_granules_task_arn : module.cumulus.files_to_granules_task.task_arn,
     move_granules_task_arn : module.cumulus.move_granules_task.task_arn,
     update_granules_cmr_metadata_file_links_task_arn : module.cumulus.update_granules_cmr_metadata_file_links_task.task_arn,
+    copy_to_archive_task_arn : module.orca.orca_lambda_copy_to_glacier_arn,
     post_to_cmr_task_arn : module.cumulus.post_to_cmr_task.task_arn
   })
 }

@@ -214,7 +214,7 @@
               },
               "Type": "Task",
               "Resource": "${update_granules_cmr_metadata_file_links_task_arn}",
-              "Next": "PostToCmr",
+              "Next": "CopyToArchive",
               "Retry": [
                 {
                   "ErrorEquals": [
@@ -227,6 +227,39 @@
                   "BackoffRate": 2
                 }
               ]
+            },
+            "CopyToArchive": {
+              "Parameters": {
+                "cma": {
+                  "event.$": "$",
+                  "task_config": {
+                    "excludedFileExtensions": "{$.meta.collection.meta.orca.excludedFileExtensions}",
+                    "s3MultipartChunksizeMb": "{$.meta.collection.meta.s3MultipartChunksizeMb}",
+                    "providerId": "{$.meta.provider.id}",
+                    "providerName": "{$.meta.provider.name}",
+                    "executionId": "{$.cumulus_meta.execution_name}",
+                    "collectionShortname": "{$.meta.collection.name}",
+                    "collectionVersion": "{$.meta.collection.version}",
+                    "defaultBucketOverride": "{$.meta.collection.meta.orca.defaultBucketOverride}"
+                  }
+                }
+              },
+              "Type": "Task",
+              "Resource": "${copy_to_archive_task_arn}",
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "States.TaskFailed"
+                  ],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 6,
+                  "BackoffRate": 2
+                }
+              ],
+              "Next": "PostToCmr"
             },
             "PostToCmr": {
               "Parameters": {
