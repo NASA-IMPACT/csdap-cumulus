@@ -15,7 +15,7 @@
     }
   ],
   "meta": {
-    "preferredQueueBatchSize": 5,
+    "preferredQueueBatchSize": 1,
     "prefixGranuleIds": true,
     "granuleRecoveryWorkflow": "OrcaRecoveryWorkflow"
   }

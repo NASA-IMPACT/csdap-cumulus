@@ -22,6 +22,8 @@ locals {
   elasticsearch_hostname          = jsondecode("<%= json_output('data-persistence.elasticsearch_hostname') %>")
   elasticsearch_security_group_id = jsondecode("<%= json_output('data-persistence.elasticsearch_security_group_id') %>")
 
+  lambda_runtime = "nodejs16.x"
+
   lambda_timeouts = {
     add_missing_file_checksums_task_timeout              = 900
     discover_granules_task_timeout                       = 900
@@ -81,24 +83,6 @@ data "archive_file" "lambda" {
   source_dir  = data.external.lambda_archive_exploded.result.dir
   output_path = "${data.external.lambda_archive_exploded.result.dir}/../lambda.zip"
 }
-
-# <% if !in_sandbox? then %>
-data "aws_iam_policy_document" "allow_s3_access_logging" {
-  statement {
-    sid    = "AllowS3AccessLogging"
-    effect = "Allow"
-    principals {
-      type        = "Service"
-      identifiers = ["logging.s3.amazonaws.com"]
-    }
-    actions = [
-      "s3:PutObject",
-      "s3:PutObjectAcl"
-    ]
-    resources = ["arn:aws:s3:::${var.system_bucket}/*"]
-  }
-}
-# <% end %>
 
 #-------------------------------------------------------------------------------
 # RESOURCES
@@ -228,13 +212,42 @@ resource "aws_lambda_permission" "background_job_queue_watcher" {
   source_arn    = aws_cloudwatch_event_rule.background_job_queue_watcher.arn
 }
 
-resource "aws_lambda_function" "prefix_granule_ids" {
-  function_name = "${var.prefix}-PrefixGranuleIds"
+resource "aws_lambda_function" "format_provider_paths" {
+  function_name = "${var.prefix}-FormatProviderPaths"
   filename      = data.archive_file.lambda.output_path
   role          = module.cumulus.lambda_processing_role_arn
-  handler       = "index.prefixGranuleIdsCMAHandler"
-  runtime       = "nodejs14.x"
-  timeout       = lookup(local.lambda_timeouts, "discover_granules_task_timeout", 300)
+  handler       = "index.formatProviderPathsHandler"
+  runtime       = local.lambda_runtime
+  timeout       = 60
+  memory_size   = 256
+
+  source_code_hash = data.archive_file.lambda.output_base64sha256
+  layers           = [module.cma.lambda_layer_version_arn]
+
+  tags = local.tags
+
+  dynamic "vpc_config" {
+    for_each = length(module.vpc.subnets.ids) == 0 ? [] : [1]
+    content {
+      subnet_ids         = module.vpc.subnets.ids
+      security_group_ids = [aws_security_group.egress_only.id]
+    }
+  }
+
+  environment {
+    variables = {
+      CUMULUS_MESSAGE_ADAPTER_DIR = "/opt/"
+    }
+  }
+}
+
+resource "aws_lambda_function" "batch_granules" {
+  function_name = "${var.prefix}-BatchGranules"
+  filename      = data.archive_file.lambda.output_path
+  role          = module.cumulus.lambda_processing_role_arn
+  handler       = "index.batchGranulesCMAHandler"
+  runtime       = local.lambda_runtime
+  timeout       = 900
   memory_size   = 3008
 
   source_code_hash = data.archive_file.lambda.output_base64sha256
@@ -253,25 +266,24 @@ resource "aws_lambda_function" "prefix_granule_ids" {
   environment {
     variables = {
       stackName                   = var.prefix
-      GranulesTable               = local.dynamo_tables.granules.name
       CUMULUS_MESSAGE_ADAPTER_DIR = "/opt/"
     }
   }
 }
 
-resource "aws_lambda_function" "format_provider_path" {
-  function_name = "${var.prefix}-FormatProviderPath"
+resource "aws_lambda_function" "unbatch_granules" {
+  function_name = "${var.prefix}-UnbatchGranules"
   filename      = data.archive_file.lambda.output_path
   role          = module.cumulus.lambda_processing_role_arn
-  handler       = "index.formatProviderPathCMAHandler"
-  runtime       = "nodejs14.x"
-  timeout       = 300
+  handler       = "index.unbatchGranulesCMAHandler"
+  runtime       = local.lambda_runtime
+  timeout       = 900
   memory_size   = 3008
 
   source_code_hash = data.archive_file.lambda.output_base64sha256
   layers           = [module.cma.lambda_layer_version_arn]
 
-  tags = local.tags
+  tags = var.tags
 
   dynamic "vpc_config" {
     for_each = length(module.vpc.subnets.ids) == 0 ? [] : [1]
@@ -283,24 +295,25 @@ resource "aws_lambda_function" "format_provider_path" {
 
   environment {
     variables = {
+      stackName                   = var.prefix
       CUMULUS_MESSAGE_ADAPTER_DIR = "/opt/"
     }
   }
 }
 
-resource "aws_lambda_function" "advance_start_date" {
-  function_name = "${var.prefix}-AdvanceStartDate"
+resource "aws_lambda_function" "prefix_granule_ids" {
+  function_name = "${var.prefix}-PrefixGranuleIds"
   filename      = data.archive_file.lambda.output_path
   role          = module.cumulus.lambda_processing_role_arn
-  handler       = "index.advanceStartDateCMAHandler"
-  runtime       = "nodejs14.x"
-  timeout       = 300
+  handler       = "index.prefixGranuleIdsCMAHandler"
+  runtime       = local.lambda_runtime
+  timeout       = 900
   memory_size   = 3008
 
   source_code_hash = data.archive_file.lambda.output_base64sha256
   layers           = [module.cma.lambda_layer_version_arn]
 
-  tags = local.tags
+  tags = var.tags
 
   dynamic "vpc_config" {
     for_each = length(module.vpc.subnets.ids) == 0 ? [] : [1]
@@ -312,6 +325,7 @@ resource "aws_lambda_function" "advance_start_date" {
 
   environment {
     variables = {
+      stackName                   = var.prefix
       CUMULUS_MESSAGE_ADAPTER_DIR = "/opt/"
     }
   }
@@ -322,7 +336,7 @@ resource "aws_lambda_function" "require_cmr_files" {
   filename      = data.archive_file.lambda.output_path
   role          = module.cumulus.lambda_processing_role_arn
   handler       = "index.requireCmrFilesCMAHandler"
-  runtime       = "nodejs14.x"
+  runtime       = local.lambda_runtime
   timeout       = 300
   memory_size   = 3008
 
@@ -351,7 +365,7 @@ resource "aws_lambda_function" "add_ummg_checksums" {
   filename      = data.archive_file.lambda.output_path
   role          = module.cumulus.lambda_processing_role_arn
   handler       = "index.addUmmgChecksumsCMAHandler"
-  runtime       = "nodejs14.x"
+  runtime       = local.lambda_runtime
   timeout       = 300
   memory_size   = 3008
 
@@ -371,85 +385,6 @@ resource "aws_lambda_function" "add_ummg_checksums" {
   environment {
     variables = {
       CUMULUS_MESSAGE_ADAPTER_DIR = "/opt/"
-    }
-  }
-}
-
-
-# aws_sfn_activity means AWS Step Functions Activity
-resource "aws_sfn_activity" "prefix_granule_ids" {
-  name = "${var.prefix}-PrefixGranuleIds"
-}
-
-module "prefix_granule_ids_service" {
-  source = "https://github.com/nasa/cumulus/releases/download/<%= cumulus_version %>/terraform-aws-cumulus-ecs-service.zip"
-
-  prefix = var.prefix
-  name   = "PrefixGranuleIds"
-
-  cluster_arn   = module.cumulus.ecs_cluster_arn
-  desired_count = 1
-  image         = local.ecs_task_image
-
-  cpu                = local.ecs_task_cpu
-  memory_reservation = local.ecs_task_memory_reservation
-
-  environment = {
-    AWS_DEFAULT_REGION = data.aws_region.current.name
-  }
-  command = [
-    "cumulus-ecs-task",
-    "--activityArn",
-    aws_sfn_activity.prefix_granule_ids.id,
-    "--lambdaArn",
-    aws_lambda_function.prefix_granule_ids.arn
-  ]
-  alarms = {
-    MemoryUtilizationHigh = {
-      comparison_operator = "GreaterThanThreshold"
-      evaluation_periods  = 1
-      metric_name         = "MemoryUtilization"
-      statistic           = "SampleCount"
-      threshold           = 75
-    }
-  }
-}
-
-
-resource "aws_sfn_activity" "queue_granules" {
-  name = "${var.prefix}-QueueGranules"
-}
-
-module "queue_granules_service" {
-  source = "https://github.com/nasa/cumulus/releases/download/<%= cumulus_version %>/terraform-aws-cumulus-ecs-service.zip"
-
-  prefix = var.prefix
-  name   = "QueueGranules"
-
-  cluster_arn   = module.cumulus.ecs_cluster_arn
-  desired_count = 1
-  image         = local.ecs_task_image
-
-  cpu                = local.ecs_task_cpu
-  memory_reservation = local.ecs_task_memory_reservation
-
-  environment = {
-    AWS_DEFAULT_REGION = data.aws_region.current.name
-  }
-  command = [
-    "cumulus-ecs-task",
-    "--activityArn",
-    aws_sfn_activity.queue_granules.id,
-    "--lambdaArn",
-    module.cumulus.queue_granules_task.task_arn
-  ]
-  alarms = {
-    MemoryUtilizationHigh = {
-      comparison_operator = "GreaterThanThreshold"
-      evaluation_periods  = 1
-      metric_name         = "MemoryUtilization"
-      statistic           = "SampleCount"
-      threshold           = 75
     }
   }
 }
@@ -520,11 +455,12 @@ module "discover_granules_workflow" {
 
   state_machine_definition = templatefile("${path.module}/templates/discover-granules-workflow.asl.json", {
     ingest_granule_workflow_name : module.ingest_and_publish_granule_workflow.name,
-    format_provider_path_task_arn : aws_lambda_function.format_provider_path.arn,
+    format_provider_paths_task_arn : aws_lambda_function.format_provider_paths.arn,
     discover_granules_task_arn : module.cumulus.discover_granules_task.task_arn,
-    prefix_granule_ids_task_arn : aws_sfn_activity.prefix_granule_ids.id,
-    queue_granules_task_arn : aws_sfn_activity.queue_granules.id,
-    advance_start_date_task_arn : aws_lambda_function.advance_start_date.arn,
+    batch_granules_task_arn : aws_lambda_function.batch_granules.arn,
+    unbatch_granules_task_arn : aws_lambda_function.unbatch_granules.arn,
+    prefix_granule_ids_task_arn : aws_lambda_function.prefix_granule_ids.arn,
+    queue_granules_task_arn : module.cumulus.queue_granules_task.task_arn,
     background_job_queue_url : aws_sqs_queue.background_job_queue.id
   })
 }

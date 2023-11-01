@@ -7,7 +7,7 @@
   "sampleFileName": "WV04_20170504052256_f9ca790e-2502-46a6-9918-205faa15cd4c-inv_17MAY04052256-M1BS-059097041070_01_P001-BROWSE.jpg",
   "url_path": "{cmrMetadata.CollectionReference.ShortName}___{cmrMetadata.CollectionReference.Version}/{dateFormat(cmrMetadata.TemporalExtent.SingleDateTime, YYYY)}/{dateFormat(cmrMetadata.TemporalExtent.SingleDateTime, DDDD)}/{cmrMetadata.GranuleUR}",
   "meta": {
-    "preferredQueueBatchSize": 5
+    "preferredQueueBatchSize": 1
   },
   "ignoreFilesConfigForDiscovery": false,
   "files": [
