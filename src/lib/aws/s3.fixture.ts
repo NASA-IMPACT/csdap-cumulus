@@ -1,7 +1,7 @@
 import { Readable } from 'stream';
 
 import { GetObjectCommandInput } from '@aws-sdk/client-s3';
-import { sdkStreamMixin } from '@aws-sdk/util-stream-node';
+import { sdkStreamMixin } from '@smithy/util-stream';
 
 const store: { readonly [Bucket: string]: { readonly [Key: string]: string } } = {
   'my-bucket': {

@@ -483,7 +483,7 @@ module "ingest_and_publish_granule_workflow" {
     files_to_granules_task_arn : module.cumulus.files_to_granules_task.task_arn,
     move_granules_task_arn : module.cumulus.move_granules_task.task_arn,
     update_granules_cmr_metadata_file_links_task_arn : module.cumulus.update_granules_cmr_metadata_file_links_task.task_arn,
-    copy_to_archive_task_arn : module.orca.orca_lambda_copy_to_glacier_arn,
+    copy_to_archive_adapter_task_arn : module.cumulus.orca_copy_to_archive_adapter_task.task_arn,
     post_to_cmr_task_arn : module.cumulus.post_to_cmr_task.task_arn
   })
 }
@@ -495,6 +495,7 @@ module "cumulus" {
   deploy_to_ngap = true
 
   cumulus_message_adapter_lambda_layer_version_arn = module.cma.lambda_layer_version_arn
+  async_operation_image                            = "cumuluss/async-operation:47"
 
   vpc_id            = module.vpc.vpc_id
   lambda_subnet_ids = module.vpc.subnets.ids
@@ -507,6 +508,10 @@ module "cumulus" {
   ecs_cluster_desired_size        = 1
   ecs_cluster_max_size            = 2
   key_name                        = var.key_name
+
+  orca_api_uri                    = module.orca.orca_api_deployment_invoke_url
+  orca_lambda_copy_to_archive_arn = module.orca.orca_lambda_copy_to_archive_arn
+  orca_sfn_recovery_workflow_arn  = module.orca.orca_sfn_recovery_workflow_arn
 
   rds_security_group         = local.rds_security_group
   rds_user_access_secret_arn = local.rds_user_access_secret_arn
