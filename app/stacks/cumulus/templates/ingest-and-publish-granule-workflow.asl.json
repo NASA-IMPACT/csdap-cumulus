@@ -233,8 +233,8 @@
                 "cma": {
                   "event.$": "$",
                   "task_config": {
-                    "excludedFileExtensions": "{$.meta.collection.meta.orca.excludedFileExtensions}",
                     "s3MultipartChunksizeMb": "{$.meta.collection.meta.s3MultipartChunksizeMb}",
+                    "excludedFileExtensions": "{$.meta.collection.meta.orca.excludedFileExtensions}",
                     "providerId": "{$.meta.provider.id}",
                     "providerName": "{$.meta.provider.name}",
                     "executionId": "{$.cumulus_meta.execution_name}",
@@ -245,7 +245,7 @@
                 }
               },
               "Type": "Task",
-              "Resource": "${copy_to_archive_task_arn}",
+              "Resource": "${copy_to_archive_adapter_task_arn}",
               "Retry": [
                 {
                   "ErrorEquals": [

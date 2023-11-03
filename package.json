@@ -52,14 +52,19 @@
     "tf:lambda:archive-exploded": "yarn lambda:archive-exploded >&2 && echo { '\"'dir'\"': '\"'${PWD}/${npm_package_config_lambda_archive_dir}'\"' }"
   },
   "engines": {
-    "node": ">=14"
+    "node": ">=16"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.370.0",
-    "@cumulus/aws-client": "13.4.0",
-    "@cumulus/cmrjs": "13.4.0",
-    "@cumulus/common": "13.4.0",
+    "@aws-sdk/client-sts": "^3.370.0",
+    "@aws-sdk/lib-dynamodb": "^3.370.0",
+    "@aws-sdk/lib-storage": "^3.370.0",
+    "@aws-sdk/types": "^3.370.0",
+    "@cumulus/aws-client": "16.1.1",
+    "@cumulus/cmrjs": "16.1.1",
+    "@cumulus/common": "16.1.1",
     "@cumulus/cumulus-message-adapter-js": "2.0.4",
+    "@smithy/util-stream": "^2.0.17",
     "date-fns": "^2.29.3",
     "duration-fns": "^3.0.1",
     "fp-ts": "^2.11.5",
@@ -67,15 +72,15 @@
     "io-ts": "^2.2.16",
     "io-ts-types": "^0.5.16",
     "monocle-ts": "^2.3.13",
-    "newtype-ts": "^0.3.5"
+    "newtype-ts": "^0.3.5",
+    "xml2js": "^0.6.0"
   },
   "devDependencies": {
     "@ava/typescript": "^3.0.1",
     "@aws-sdk/client-dynamodb": "^3.370.0",
-    "@aws-sdk/util-stream-node": "^3.370.0",
-    "@cumulus/types": "13.4.0",
+    "@cumulus/types": "16.1.1",
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
-    "@tsconfig/node14": "^1.0.1",
+    "@tsconfig/node16": "^16.1.1",
     "@types/aws-lambda": "^8.10.85",
     "@types/lodash": "^4.14.177",
     "@types/node": "^16.11.1",
@@ -97,7 +102,7 @@
     "source-map-support": "^0.5.19",
     "standard-version": "^9.0.0",
     "ts-node": "^10.3.0",
-    "typedoc": "^0.22.6",
+    "typedoc": "^0.25.3",
     "typescript": "^4.4.4"
   },
   "resolutions": {

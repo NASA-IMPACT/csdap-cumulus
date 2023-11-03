@@ -1,5 +1,5 @@
 module Terraspace::Project::CumulusVersionHelper
   def cumulus_version
-    "v13.4.0"
+    "v16.1.1"
   end
 end
