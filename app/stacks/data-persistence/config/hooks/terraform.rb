@@ -13,7 +13,7 @@ require "aws-sdk-iam"
 #
 # See https://nasa.github.io/cumulus/docs/v9.6.0/deployment/deployment-readme#vpc-subnets-and-security-group
 #
-# This hook simply check to see if this service linked role exists, and if not,
+# This hook simply checks to see if this service linked role exists, and if not,
 # it creates it so that we don't have to remember to do this manually before
 # deploying the first Cumulus deployment to a given AWS account.
 #

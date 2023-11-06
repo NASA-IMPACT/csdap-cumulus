@@ -163,7 +163,7 @@ resource "random_string" "token_secret" {
   special = true
 }
 
-resource "aws_s3_bucket_object" "bucket_map_yaml_distribution" {
+resource "aws_s3_object" "bucket_map_yaml_distribution" {
   bucket  = var.system_bucket
   key     = "${var.prefix}/cumulus_distribution/bucket_map.yaml"
   content = local.bucket_map_yaml
@@ -402,7 +402,7 @@ module "cma" {
 
   prefix      = var.prefix
   bucket      = var.system_bucket
-  cma_version = "2.0.2"
+  cma_version = "2.0.3"
 }
 
 module "s3-replicator" {
@@ -423,7 +423,7 @@ module "cumulus_distribution" {
 
   api_gateway_stage         = "dev"
   api_url                   = var.cumulus_distribution_url
-  bucket_map_file           = aws_s3_bucket_object.bucket_map_yaml_distribution.id
+  bucket_map_file           = aws_s3_object.bucket_map_yaml_distribution.id
   bucketname_prefix         = ""
   buckets                   = var.buckets
   cmr_acl_based_credentials = true

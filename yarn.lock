@@ -1074,10 +1074,19 @@
   dependencies:
     "@jridgewell/trace-mapping" "0.3.9"
 
-"@cumulus/aws-client@16.1.1":
-  version "16.1.1"
-  resolved "https://registry.yarnpkg.com/@cumulus/aws-client/-/aws-client-16.1.1.tgz#c8c8e59f137143d2ca8f3478b527b87228df28d7"
-  integrity sha512-Xq1X5qwCVUvNZmTF2JDks5vXtrJ7PNlY5HCe4rqfxzj9+2W4wikjYIKA9ZWUwhnsklGEuREYGHzuP6Ypt2H/+Q==
+"@cumulus/api-client@18.1.0":
+  version "18.1.0"
+  resolved "https://registry.yarnpkg.com/@cumulus/api-client/-/api-client-18.1.0.tgz#d087189310389235d67847b51a3258ed064c1ebe"
+  integrity sha512-0zwETZ7ndJ/z9E7JHk3d9ucvn1jT551vq1sjII8uKz+ldvDSJjWnFMG5y/tzbrCWO6RiYOona7J8y75lRRcJxQ==
+  dependencies:
+    "@cumulus/aws-client" "18.1.0"
+    "@cumulus/logger" "18.1.0"
+    p-retry "^2.0.0"
+
+"@cumulus/aws-client@18.1.0":
+  version "18.1.0"
+  resolved "https://registry.yarnpkg.com/@cumulus/aws-client/-/aws-client-18.1.0.tgz#4b11df13db9732f84d2df0008c32cd6ee89cfb8a"
+  integrity sha512-Ki0pkQHlEpKq7pNvk1hAo7OgthfYQKyCxqn+A2rruzAEnSokGOgERRaK90glJeL+ooR1a+jal8aitMmkTkpj9g==
   dependencies:
     "@aws-sdk/client-api-gateway" "^3.58.0"
     "@aws-sdk/client-dynamodb" "^3.58.0"
@@ -1088,9 +1097,9 @@
     "@aws-sdk/s3-request-presigner" "^3.58.0"
     "@aws-sdk/signature-v4-crt" "^3.58.0"
     "@aws-sdk/types" "^3.58.0"
-    "@cumulus/checksum" "16.1.1"
-    "@cumulus/errors" "16.1.1"
-    "@cumulus/logger" "16.1.1"
+    "@cumulus/checksum" "18.1.0"
+    "@cumulus/errors" "18.1.0"
+    "@cumulus/logger" "18.1.0"
     aws-sdk "^2.585.0"
     jsonpath-plus "^1.1.0"
     lodash "~4.17.21"
@@ -1102,22 +1111,22 @@
     pump "^3.0.0"
     uuid "^8.2.0"
 
-"@cumulus/checksum@16.1.1":
-  version "16.1.1"
-  resolved "https://registry.yarnpkg.com/@cumulus/checksum/-/checksum-16.1.1.tgz#029ff6b0cbba37ed4318f31686c8879a1565a9f4"
-  integrity sha512-iP0ReCWHUAb69vHIRSofOvWAI6b0pcH5gSmMhf+ZL6y7YYWM1OnUFdOOO8riRKBe7qyfbRgrS+wLGU+N6io4Gw==
+"@cumulus/checksum@18.1.0":
+  version "18.1.0"
+  resolved "https://registry.yarnpkg.com/@cumulus/checksum/-/checksum-18.1.0.tgz#29595c6f6bef78a7bc43805049d464224f5e652d"
+  integrity sha512-k3A1TiYLOE6nhHxn/ZIk3TsDpyHP3m4V/NzZ2ggusAEtKtmhTAzZQguCIPp32Ui5eAPvR7xVfG8Z9FhuiM5YCA==
   dependencies:
     cksum "^1.3.0"
 
-"@cumulus/cmr-client@16.1.1":
-  version "16.1.1"
-  resolved "https://registry.yarnpkg.com/@cumulus/cmr-client/-/cmr-client-16.1.1.tgz#6c7368f1e923a79ead2e3b6530f169e59488f10c"
-  integrity sha512-oYmjI6I7ooGUCtHunp92G82OdQNkGvSXM9v7j1DPBcVZ2e6Mmte/cycvg3X01+H4G5UVzLX1LSp0NHkh4sfzpQ==
+"@cumulus/cmr-client@18.1.0":
+  version "18.1.0"
+  resolved "https://registry.yarnpkg.com/@cumulus/cmr-client/-/cmr-client-18.1.0.tgz#9ac45e6585ac7a3da0aa609e2e26af5ea6f0e9ff"
+  integrity sha512-PWQxOXJLdGnmzEQ9MCetJlyR+BnaFh6D9PP3aPTW7iM937dRsYw/02Td/OJnhtzlpZktXJjrFKu55HXHa4a1Fw==
   dependencies:
-    "@cumulus/aws-client" "16.1.1"
-    "@cumulus/common" "16.1.1"
-    "@cumulus/errors" "16.1.1"
-    "@cumulus/logger" "16.1.1"
+    "@cumulus/aws-client" "18.1.0"
+    "@cumulus/common" "18.1.0"
+    "@cumulus/errors" "18.1.0"
+    "@cumulus/logger" "18.1.0"
     got "^11.8.5"
     jsonwebtoken "^9.0.0"
     lodash "^4.17.21"
@@ -1125,18 +1134,18 @@
     xml2js "0.5.0"
     zod "^3.20.2"
 
-"@cumulus/cmrjs@16.1.1":
-  version "16.1.1"
-  resolved "https://registry.yarnpkg.com/@cumulus/cmrjs/-/cmrjs-16.1.1.tgz#441cb247a1fcd5505ec7d8c736464747984dfca4"
-  integrity sha512-hqjCyOVjD3rk5yAwei0hJm461dFCvEurJx9WwB4r4RgjltZ71oQw613aVqyC+Q4oYqn3QDgObFMkQ6a4Mx+ZJg==
+"@cumulus/cmrjs@18.1.0":
+  version "18.1.0"
+  resolved "https://registry.yarnpkg.com/@cumulus/cmrjs/-/cmrjs-18.1.0.tgz#c3196b81259cc0317c5159240b48fb8ca3e648c5"
+  integrity sha512-qMz/AKK2Q8xP1v1/uA1cmFvY3SZCTJBnr6rBN+0WFj66jkovJpjeBOaE6jdyIGye59XZFRu9aoSMBi/+x4f3oA==
   dependencies:
-    "@cumulus/aws-client" "16.1.1"
-    "@cumulus/cmr-client" "16.1.1"
-    "@cumulus/common" "16.1.1"
-    "@cumulus/distribution-utils" "16.1.1"
-    "@cumulus/errors" "16.1.1"
-    "@cumulus/launchpad-auth" "16.1.1"
-    "@cumulus/logger" "16.1.1"
+    "@cumulus/aws-client" "18.1.0"
+    "@cumulus/cmr-client" "18.1.0"
+    "@cumulus/common" "18.1.0"
+    "@cumulus/distribution-utils" "18.1.0"
+    "@cumulus/errors" "18.1.0"
+    "@cumulus/launchpad-auth" "18.1.0"
+    "@cumulus/logger" "18.1.0"
     got "^11.8.1"
     js2xmlparser "^4.0.0"
     lodash "^4.17.21"
@@ -1144,16 +1153,16 @@
     url-join "^1.0.0"
     xml2js "0.5.0"
 
-"@cumulus/common@16.1.1":
-  version "16.1.1"
-  resolved "https://registry.yarnpkg.com/@cumulus/common/-/common-16.1.1.tgz#6026ab6875caf52dd55b99f62d50f14048879c53"
-  integrity sha512-aE5pC7pNASfl1nGVmxDBnPD4bEbNCFiAGKRIAlXmvofC4uDR1EQuCBI+M/Hobpl2RBBWk3i86wWBk3rmWZb0xw==
+"@cumulus/common@18.1.0":
+  version "18.1.0"
+  resolved "https://registry.yarnpkg.com/@cumulus/common/-/common-18.1.0.tgz#81da39783c567701f463d0e44f8dd32046a57d41"
+  integrity sha512-1EBcJDKh4HkIOg9nbP1n8JXPX6GOlrR99soDz5OG4zdNVLYJI8fE/KflTTy6HipM5wJ+pW6nfyGReBEafSVI3A==
   dependencies:
     "@aws-sdk/client-s3" "^3.58.0"
     "@aws-sdk/signature-v4-crt" "^3.58.0"
-    "@cumulus/aws-client" "16.1.1"
-    "@cumulus/errors" "16.1.1"
-    "@cumulus/logger" "16.1.1"
+    "@cumulus/aws-client" "18.1.0"
+    "@cumulus/errors" "18.1.0"
+    "@cumulus/logger" "18.1.0"
     ajv "^6.12.3"
     aws-sdk "^2.585.0"
     follow-redirects "^1.2.4"
@@ -1180,43 +1189,43 @@
     execa "^4.0.0"
     lookpath "1.0.3"
 
-"@cumulus/distribution-utils@16.1.1":
-  version "16.1.1"
-  resolved "https://registry.yarnpkg.com/@cumulus/distribution-utils/-/distribution-utils-16.1.1.tgz#a3af889b00b8e1541c91e52eb42b03a745eb369a"
-  integrity sha512-boXMEE8hEFqCm2+JiSOWuZUiWBg6mF3U3kdAuWoMujOIPNQOKgpW71yV6YPQlFUtB5bKAc5GD1odMLPYhtUY0Q==
+"@cumulus/distribution-utils@18.1.0":
+  version "18.1.0"
+  resolved "https://registry.yarnpkg.com/@cumulus/distribution-utils/-/distribution-utils-18.1.0.tgz#016e7f99e4586de9ea770553832d739b35812789"
+  integrity sha512-fF8/a/FOWYF4nLH1HSmkXBXwshHNFsBqRiekirqieho2vUkveEaSPf4RYJ7L+Fl90BhsFEMdADVH8oaflIthiw==
   dependencies:
-    "@cumulus/aws-client" "16.1.1"
-    "@cumulus/common" "16.1.1"
-    "@cumulus/errors" "16.1.1"
+    "@cumulus/aws-client" "18.1.0"
+    "@cumulus/common" "18.1.0"
+    "@cumulus/errors" "18.1.0"
     url-join "^1.1.0"
 
-"@cumulus/errors@16.1.1":
-  version "16.1.1"
-  resolved "https://registry.yarnpkg.com/@cumulus/errors/-/errors-16.1.1.tgz#68f14dc1d96b9c133a16d2d8b0d69f13bb7a1349"
-  integrity sha512-bJds+3KL8ExdqzjDRDzFC150p2yKKSzKpSdVSVMXn2+cXPeWAxr3S2sR7GI2LS4wun3zpd71w0kW8fBeFAkP5A==
+"@cumulus/errors@18.1.0":
+  version "18.1.0"
+  resolved "https://registry.yarnpkg.com/@cumulus/errors/-/errors-18.1.0.tgz#024f01dc8f27e7e01fdd8aa1338603bbe869941d"
+  integrity sha512-bKtQ+rCbuO+kw8FJL5WMNQi2RtTc1UdCtd5pt8JCgRkHZWjfCsOPlzGJjcphozliUIb11IQvqLvDJh2wgmwPPQ==
 
-"@cumulus/launchpad-auth@16.1.1":
-  version "16.1.1"
-  resolved "https://registry.yarnpkg.com/@cumulus/launchpad-auth/-/launchpad-auth-16.1.1.tgz#8bc8e411473190f143b5c09875fc6e4412d03db0"
-  integrity sha512-Lb8Pu04CnmWfGiSd7IxuCC5cEdyd6Id1Xf9ssBM8w5/aJV5fBJzzI174QlJu/zEMFdwK9g8U3ike0CQwhrxPBg==
+"@cumulus/launchpad-auth@18.1.0":
+  version "18.1.0"
+  resolved "https://registry.yarnpkg.com/@cumulus/launchpad-auth/-/launchpad-auth-18.1.0.tgz#f07f75a84c178c4004dd1d667ad6190e15f860e0"
+  integrity sha512-qhy2MJqpOL5FKQBCA/RpyoUZUwUP/pnEq9LlnWkSxVrA7iSw3oPjlFXX3ZiBF96+QnPfqe2QFN9/+2mqsR+ovQ==
   dependencies:
-    "@cumulus/aws-client" "16.1.1"
-    "@cumulus/logger" "16.1.1"
+    "@cumulus/aws-client" "18.1.0"
+    "@cumulus/logger" "18.1.0"
     got "^11.8.5"
     lodash "^4.17.21"
     uuid "^3.2.1"
 
-"@cumulus/logger@16.1.1":
-  version "16.1.1"
-  resolved "https://registry.yarnpkg.com/@cumulus/logger/-/logger-16.1.1.tgz#df6a3fe0b5dac5ac9ad5330599affdeba42c63db"
-  integrity sha512-WADj/TMl141For8B0jq91S87mRpkLF9quzB1O03l3WZivQq+DEe98OUTc0dZmWwsbr97JNAkie0ui7qSr0uKVQ==
+"@cumulus/logger@18.1.0":
+  version "18.1.0"
+  resolved "https://registry.yarnpkg.com/@cumulus/logger/-/logger-18.1.0.tgz#bd7ddc6fedfc75e744a71ebba7bb4950f716b249"
+  integrity sha512-T4iREl9t4vyLKRyn2Io/UrYKeehnK5EIwcLtNFpc4OtT/MaqLjs1OjK7+PPKFExewZOIDuef7N5cWCtth6lYJg==
   dependencies:
     lodash.iserror "^3.1.1"
 
-"@cumulus/types@16.1.1":
-  version "16.1.1"
-  resolved "https://registry.yarnpkg.com/@cumulus/types/-/types-16.1.1.tgz#ccf77426013d7bc164972787cad01b2f8ae862b5"
-  integrity sha512-ye1LHMVSH3ND/cuaReVVoM9PHNxrublLRzPMdKTfGGPoE1K773Lv+ZjAenUKgSdelsXqag+YrvNCetYUlm+9Aw==
+"@cumulus/types@18.1.0":
+  version "18.1.0"
+  resolved "https://registry.yarnpkg.com/@cumulus/types/-/types-18.1.0.tgz#349c1b940e4dd8d83368a81792cdf274d945d77d"
+  integrity sha512-2O2BmwWVtmWTVPH/W4dts6flRcvRlrc7m/wkd0J6rnklKZ8eeCLrpE58u3ZhH2+gEUS1o0TNekHFc5Vi3wlw5g==
 
 "@cumulus/types@^9.6.0":
   version "9.9.4"
@@ -2768,6 +2777,16 @@ clone@^1.0.2:
   resolved "https://registry.yarnpkg.com/clone/-/clone-1.0.4.tgz#da309cc263df15994c688ca902179ca3c7cd7c7e"
   integrity sha512-JQHZ2QMW6l3aH/j6xCqQThY/9OH4D/9ls34cgkUBiEeocRTU04tHfKPBsUK1PqZCUQM7GiA0IIXJSuXHI64Kbg==
 
+cmd-ts@^0.11.0:
+  version "0.11.0"
+  resolved "https://registry.yarnpkg.com/cmd-ts/-/cmd-ts-0.11.0.tgz#80926180f39665e35e321b72439f792a2b63b745"
+  integrity sha512-6RvjD+f9oGPeWoMS53oavafmQ9qC839PjP3CyvPkAIfqMEXTbrclni7t3fnyVJFNWxuBexnLshcotY0RuNrI8Q==
+  dependencies:
+    chalk "^4.0.0"
+    debug "^4.3.4"
+    didyoumean "^1.2.2"
+    strip-ansi "^6.0.0"
+
 code-excerpt@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/code-excerpt/-/code-excerpt-4.0.0.tgz#2de7d46e98514385cb01f7b3b741320115f4c95e"
@@ -3127,6 +3146,13 @@ crypto-random-string@^4.0.0:
   dependencies:
     type-fest "^1.0.1"
 
+"cumulus-cli@github:NASA-IMPACT/cumulus-cli#2eb0c6b":
+  version "0.1.0"
+  resolved "https://codeload.github.com/NASA-IMPACT/cumulus-cli/tar.gz/2eb0c6b4a2fbb28bdf166eda9ab759ab5f57a5dc"
+  dependencies:
+    cmd-ts "^0.11.0"
+    lodash "^4.17.21"
+
 currently-unhandled@^0.4.1:
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/currently-unhandled/-/currently-unhandled-0.4.1.tgz#988df33feab191ef799a61369dd76c17adf957ea"
@@ -3314,6 +3340,11 @@ detect-newline@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/detect-newline/-/detect-newline-3.1.0.tgz#576f5dfc63ae1a192ff192d8ad3af6308991b651"
   integrity sha512-TLz+x/vEXm/Y7P7wn1EJFNLxYpUD4TgMosxY6fAVJUnJMbupHBOncxyWUG9OpTaH9EBD7uFI5LfEgmMOc54DsA==
+
+didyoumean@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/didyoumean/-/didyoumean-1.2.2.tgz#989346ffe9e839b4555ecf5666edea0d3e8ad037"
+  integrity sha512-gxtyfqMg7GKyhQmb056K7M3xszy/myH8w+B4RT+QXBQsvAOdc3XymqDDPHx1BgPgsdAA5SIifona89YtRATDzw==
 
 diff@^4.0.1:
   version "4.0.2"
@@ -5935,6 +5966,13 @@ p-map@^5.4.0:
   dependencies:
     aggregate-error "^4.0.0"
 
+p-retry@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/p-retry/-/p-retry-2.0.0.tgz#b97f1f4d6d81a3c065b2b40107b811e995c1bfba"
+  integrity sha512-ZbCuzAmiwJ45q4evp/IG9D+5MUllGSUeCWwPt3j/tdYSi1KPkSD+46uqmAA1LhccDhOXv8kYZKNb8x78VflzfA==
+  dependencies:
+    retry "^0.12.0"
+
 p-retry@^4.2.0:
   version "4.6.2"
   resolved "https://registry.yarnpkg.com/p-retry/-/p-retry-4.6.2.tgz#9baae7184057edd4e17231cee04264106e092a16"
@@ -6464,6 +6502,11 @@ ret@^0.2.0:
   version "0.2.2"
   resolved "https://registry.yarnpkg.com/ret/-/ret-0.2.2.tgz#b6861782a1f4762dce43402a71eb7a283f44573c"
   integrity sha512-M0b3YWQs7R3Z917WRQy1HHA7Ba7D8hvZg6UE5mLykJxQVE2ju0IXbGlaHPPlkY+WN7wFP+wUMXmBFA0aV6vYGQ==
+
+retry@^0.12.0:
+  version "0.12.0"
+  resolved "https://registry.yarnpkg.com/retry/-/retry-0.12.0.tgz#1b42a6266a21f07421d1b0b54b7dc167b01c013b"
+  integrity sha512-9LkiTwjUh6rT555DtE9rTX+BKByPfrMzEAtnlEtdEwr3Nkffwiihqe2bWADg+OQRjt9gl6ICdmB/ZFDCGAtSow==
 
 retry@^0.13.1:
   version "0.13.1"

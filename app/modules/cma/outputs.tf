@@ -1,5 +1,5 @@
 output "cma_zip_file_id" {
-  value = aws_s3_bucket_object.cma_zip_file.id
+  value = aws_s3_object.cma_zip_file.id
 }
 
 output "lambda_layer_version_arn" {

@@ -15,18 +15,18 @@ data "aws_secretsmanager_secret_version" "rds_cluster_user_credentials_secret_ve
 }
 
 module "orca" {
-  source = "https://github.com/nasa/cumulus-orca/releases/download/v8.0.1/cumulus-orca-terraform.zip"
+  source = "https://github.com/nasa/cumulus-orca/releases/download/v8.1.0/cumulus-orca-terraform.zip"
   #--------------------------
   # Cumulus variables
   #--------------------------
   # REQUIRED
+  aws_region               = data.aws_region.current.name
   buckets                  = var.buckets
   lambda_subnet_ids        = module.vpc.subnets.ids
   permissions_boundary_arn = local.permissions_boundary_arn
   prefix                   = var.prefix
   system_bucket            = var.system_bucket
   vpc_id                   = module.vpc.vpc_id
-  workflow_config          = module.cumulus.workflow_config
 
   # OPTIONAL
   tags = var.tags
