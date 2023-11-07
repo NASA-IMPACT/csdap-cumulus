@@ -75,20 +75,6 @@ RUN : \
   && npm install -g hygen@6.2.11 \
   && :
 
-# Install Cumulus CLI (see https://github.com/NASA-IMPACT/cumulus-cli)
-WORKDIR /usr/src
-RUN git clone --depth 1 https://github.com/NASA-IMPACT/cumulus-cli.git
-WORKDIR /usr/src/cumulus-cli
-# hadolint ignore=SC1091
-RUN : \
-  && source "${NVM_DIR}/nvm.sh" --install \
-  && nvm install \
-  && npm install \
-  && npm run build \
-  && npm install -g \
-  && ln -s "$(which cumulus)" /usr/local/bin/cumulus \
-  && :
-
 WORKDIR /work
 
 # Install node dependencies
@@ -107,6 +93,10 @@ RUN : \
 # changes in the wrong environment.
 # hadolint ignore=SC2016
 RUN : \
+  # Add yarn bin to path so that the `cumulus` command can be found.  It was
+  # installed by `yarn install` because it is in the `devDependencies` list in
+  # the package.json file.
+  && echo 'export PATH="$(yarn bin):${PATH}"' >> ~/.bashrc \
   && echo 'export PS1="(${AWS_PROFILE:-[ERROR: AWS_PROFILE is not defined]}:${TS_ENV:-[ERROR: TS_ENV is undefined]}):\w \$ "' >> ~/.bashrc \
   #-----------------------------------------------------------------------------
   # IMPORTANT

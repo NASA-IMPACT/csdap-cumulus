@@ -16,7 +16,7 @@ resource "null_resource" "download_cma_zip_file" {
   }
 }
 
-resource "aws_s3_bucket_object" "cma_zip_file" {
+resource "aws_s3_object" "cma_zip_file" {
   depends_on = [null_resource.download_cma_zip_file]
   bucket     = var.bucket
   key        = local.cma_zip_name
@@ -30,7 +30,7 @@ resource "aws_s3_bucket_object" "cma_zip_file" {
 
 resource "aws_lambda_layer_version" "cma" {
   s3_bucket   = var.bucket
-  s3_key      = aws_s3_bucket_object.cma_zip_file.key
+  s3_key      = aws_s3_object.cma_zip_file.key
   layer_name  = "${var.prefix}-cumulus-message-adapter"
   description = "Lambda layer for Cumulus Message Adapter ${var.cma_version}"
 }
