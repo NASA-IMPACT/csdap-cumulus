@@ -13,12 +13,8 @@
   "meta": {
     "discoverOnly": false,
     "providerPathFormat": "'css/nga/WV04/1B/'yyyy/DDD",
-    "rule": {
-      "state": "DISABLED"
-    },
     "startDate": "2017-01-01T00:00:00Z",
     "endDate": "2018-01-01T00:00:00Z",
     "step": "P1D"
   }
 }
-
