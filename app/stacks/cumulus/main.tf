@@ -25,38 +25,23 @@ locals {
   lambda_runtime = "nodejs16.x"
 
   lambda_timeouts = {
-    add_missing_file_checksums_task_timeout              = 900
-    discover_granules_task_timeout                       = 900
-    discover_pdrs_task_timeout                           = 600
-    hyrax_metadata_update_tasks_timeout                  = 600
-    lzards_backup_task_timeout                           = 600
-    move_granules_task_timeout                           = 600
-    parse_pdr_task_timeout                               = 600
-    pdr_status_check_task_timeout                        = 600
-    post_to_cmr_task_timeout                             = 600
-    queue_granules_task_timeout                          = 900
-    queue_pdrs_task_timeout                              = 600
-    queue_workflow_task_timeout                          = 600
-    sync_granule_task_timeout                            = 900
-    update_granules_cmr_metadata_file_links_task_timeout = 600
+    AddMissingFileChecksums            = 900
+    DiscoverGranules                   = 900
+    MoveGranules                       = 900
+    PostToCmr                          = 900
+    QueueGranules                      = 900
+    SyncGranule                        = 900
+    UpdateGranulesCmrMetadataFileLinks = 900
   }
 
   lambda_memory_sizes = {
-    add_missing_file_checksums_task_memory_size    = 3008
-    discover_granules_task_memory_size             = 3008
-    discover_pdrs_task_memory_size                 = 3008
-    hyrax_metadata_updates_task_memory_size        = 3008
-    lzards_backup_task_memory_size                 = 3008
-    move_granules_task_memory_size                 = 3008
-    parse_pdr_task_memory_size                     = 3008
-    pdr_status_check_task_memory_size              = 3008
-    post_to_cmr_task_memory_size                   = 3008
-    queue_granules_task_memory_size                = 3008
-    queue_pdrs_task_memory_size                    = 3008
-    queue_workflow_task_memory_size                = 3008
-    sync_granule_task_memory_size                  = 3008
-    update_cmr_access_constraints_task_memory_size = 3008
-    update_granules_cmr_task_memory_size           = 3008
+    AddMissingFileChecksums            = 3008
+    DiscoverGranules                   = 3008
+    MoveGranules                       = 3008
+    PostToCmr                          = 3008
+    QueueGranules                      = 3008
+    SyncGranule                        = 3008
+    UpdateGranulesCmrMetadataFileLinks = 3008
   }
 
   rds_security_group         = jsondecode("<%= json_output('rds-cluster.security_group_id') %>")
