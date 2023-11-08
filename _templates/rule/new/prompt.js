@@ -29,7 +29,12 @@ module.exports = [
   },
   {
     type: 'input',
-    name: 'year',
-    message: "Year (YYYY):"
+    name: 'startYear',
+    message: "Start Year (YYYY):"
+  },
+  {
+    type: 'input',
+    name: 'endYear',
+    message: "End Year (YYYY):"
   }
 ]

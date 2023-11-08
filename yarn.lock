@@ -3146,9 +3146,9 @@ crypto-random-string@^4.0.0:
   dependencies:
     type-fest "^1.0.1"
 
-"cumulus-cli@github:NASA-IMPACT/cumulus-cli#2eb0c6b":
+"cumulus-cli@github:NASA-IMPACT/cumulus-cli#66641bb":
   version "0.1.0"
-  resolved "https://codeload.github.com/NASA-IMPACT/cumulus-cli/tar.gz/2eb0c6b4a2fbb28bdf166eda9ab759ab5f57a5dc"
+  resolved "https://codeload.github.com/NASA-IMPACT/cumulus-cli/tar.gz/66641bb15184d585a171ef85e6d67144a0c8912b"
   dependencies:
     cmd-ts "^0.11.0"
     lodash "^4.17.21"

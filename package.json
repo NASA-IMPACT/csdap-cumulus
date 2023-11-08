@@ -89,7 +89,7 @@
     "@typescript-eslint/parser": "^5.1.0",
     "ava": "^4.3.3",
     "codecov": "^3.5.0",
-    "cumulus-cli": "github:NASA-IMPACT/cumulus-cli#2eb0c6b",
+    "cumulus-cli": "github:NASA-IMPACT/cumulus-cli#66641bb",
     "cz-conventional-changelog": "^3.3.0",
     "eslint": "^8.0.1",
     "eslint-config-prettier": "^8.3.0",

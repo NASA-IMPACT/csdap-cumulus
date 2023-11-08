@@ -14,9 +14,6 @@
     "discoverOnly": false,
     "providerPathFormat": "'css/nga/WV04/1B/'yyyy",
     "ingestedPathFormat": "'WV04_MSI_L1B___1/'yyyy",
-    "rule": {
-      "state": "DISABLED"
-    },
     "startDate": "2017-01-01T00:00:00Z",
     "endDate": "2019-01-01T00:00:00Z",
     "step": "P1Y"

@@ -1,28 +1,8 @@
 {
   "Comment": "Discovers new Granules from a given provider",
   "TimeoutSeconds": 5184000,
-  "StartAt": "RuleEnabled?",
+  "StartAt": "SelfDiscovery?",
   "States": {
-    "RuleEnabled?": {
-      "Comment": "Require that the rule that triggered the workflow is 'ENABLED', otherwise skip the workflow",
-      "Type": "Choice",
-      "Choices": [
-        {
-          "And": [
-            {
-              "Variable": "$.meta.rule.state",
-              "IsPresent": true
-            },
-            {
-              "Variable": "$.meta.rule.state",
-              "StringEquals": "ENABLED"
-            }
-          ],
-          "Next": "SelfDiscovery?"
-        }
-      ],
-      "Default": "SkipWorkflow"
-    },
     "SelfDiscovery?": {
       "Comment": "Are we discovering granules from our own bucket?",
       "Type": "Choice",
@@ -285,10 +265,6 @@
           }
         }
       }
-    },
-    "SkipWorkflow": {
-      "Type": "Pass",
-      "End": true
     }
   }
 }

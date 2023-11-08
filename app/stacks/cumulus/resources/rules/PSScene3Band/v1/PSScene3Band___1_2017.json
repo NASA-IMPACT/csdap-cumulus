@@ -15,9 +15,6 @@
     "ingestedPathFormat": "'planet/PSScene3Band/'yyyyMMdd",
     "startDate": "2017-01-01T00:00:00Z",
     "endDate": "2018-01-01T00:00:00Z",
-    "step": "P1D",
-    "rule": {
-      "state": "DISABLED"
-    }
+    "step": "P1D"
   }
 }
