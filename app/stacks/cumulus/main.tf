@@ -74,27 +74,6 @@ data "archive_file" "lambda" {
 #-------------------------------------------------------------------------------
 
 # <% if !in_sandbox? then %>
-resource "null_resource" "allow_s3_access_logging" {
-  triggers = {
-    buckets = var.system_bucket
-  }
-
-  # Since we do not have Terraform configured to manage our buckets, we cannot
-  # ask Terraform to put any policies on the buckets, so we're calling out to
-  # the AWS CLI to put the desired policy on our "system" (internal) bucket to
-  # allow S3 access logs to be written to it.
-  provisioner "local-exec" {
-    interpreter = ["bash", "-c"]
-    command     = <<-COMMAND
-      aws s3api put-bucket-policy \
-        --bucket ${var.system_bucket} \
-        --policy '${data.aws_iam_policy_document.allow_s3_access_logging.json}'
-    COMMAND
-  }
-}
-# <% end %>
-
-# <% if !in_sandbox? then %>
 resource "null_resource" "put_bucket_logging" {
   for_each = toset(concat(local.protected_bucket_names, local.public_bucket_names))
 
