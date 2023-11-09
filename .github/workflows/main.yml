@@ -55,12 +55,12 @@ jobs:
       deploy: true
     secrets: inherit
 
-  # deploy-prod:
-  #   # Run only on main branch (on push, including on merged PRs)
-  #   if: github.event.ref == 'refs/heads/main'
-  #   needs: deploy-uat
-  #   uses: ./.github/workflows/terraspace.yml
-  #   with:
-  #     TS_ENV: prod
-  #     deploy: true
-  #   secrets: inherit
+  deploy-prod:
+    # Run only on main branch (on push, including on merged PRs)
+    if: github.event.ref == 'refs/heads/main'
+    needs: deploy-uat
+    uses: ./.github/workflows/terraspace.yml
+    with:
+      TS_ENV: prod
+      deploy: true
+    secrets: inherit
