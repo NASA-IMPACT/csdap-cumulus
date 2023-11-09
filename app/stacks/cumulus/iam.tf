@@ -16,24 +16,6 @@ locals {
   default_elb_account_id = "797873946194"
 }
 
-# <% if !in_sandbox? then %>
-data "aws_iam_policy_document" "allow_s3_access_logging" {
-  statement {
-    sid    = "AllowS3AccessLogging"
-    effect = "Allow"
-    principals {
-      type        = "Service"
-      identifiers = ["logging.s3.amazonaws.com"]
-    }
-    actions = [
-      "s3:PutObject",
-      "s3:PutObjectAcl"
-    ]
-    resources = ["arn:aws:s3:::${var.system_bucket}/*"]
-  }
-}
-# <% end %>
-
 #-------------------------------------------------------------------------------
 # Additional permissions required in order to allow Step Functions to include
 # Distributed Map states.  This is what allows us to sidestep the 25,000 event-
@@ -75,14 +57,28 @@ resource "aws_iam_role_policy_attachment" "allow_sfn_distributed_maps" {
 }
 
 #-------------------------------------------------------------------------------
-# Additional policy required on the system bucket as per ORCA v8.0.0.
+# Additional policy for system bucket
 #
 # See also:
 # - https://github.com/nasa/cumulus-orca/releases/tag/v8.0.0
 # - https://nasa.github.io/cumulus-orca/docs/developer/deployment-guide/deployment-s3-bucket#bucket-policy-for-load-balancer-server-access-logging
 #-------------------------------------------------------------------------------
 
-data "aws_iam_policy_document" "allow_load_balancer_s3_write_access" {
+data "aws_iam_policy_document" "system_bucket" {
+  statement {
+    sid    = "AllowS3AccessLogging"
+    effect = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["logging.s3.amazonaws.com"]
+    }
+    actions = [
+      "s3:PutObject",
+      "s3:PutObjectAcl"
+    ]
+    resources = ["arn:aws:s3:::${var.system_bucket}/*"]
+  }
+
   statement {
     effect  = "Allow"
     actions = ["s3:PutObject"]
@@ -99,7 +95,7 @@ data "aws_iam_policy_document" "allow_load_balancer_s3_write_access" {
 }
 
 # Attach policy above to the system bucket
-resource "null_resource" "allow_load_balancer_s3_write_access" {
+resource "null_resource" "attach_system_bucket_policy" {
   triggers = {
     buckets = var.system_bucket
   }
@@ -113,7 +109,7 @@ resource "null_resource" "allow_load_balancer_s3_write_access" {
     command     = <<-COMMAND
       aws s3api put-bucket-policy \
         --bucket ${var.system_bucket} \
-        --policy '${data.aws_iam_policy_document.allow_load_balancer_s3_write_access.json}'
+        --policy '${data.aws_iam_policy_document.system_bucket.json}'
     COMMAND
   }
 }
