@@ -565,7 +565,7 @@ test('prefixGranuleIds should prefix granule IDs with collection name', (t) => {
 
 test('batchGranules should output singleton array identical to input when there are no granules', (t) => {
   const actual = batchGranules({
-    config: { maxBatchSize: 0 },
+    config: { providerPath: 'foo', maxBatchSize: 0 },
     input: { granules: [] },
   });
   const expected = [{ granules: [] }];
@@ -575,7 +575,7 @@ test('batchGranules should output singleton array identical to input when there 
 
 test('batchGranules should output a singleton array identical to input when there are no more than 1000 granules', (t) => {
   const actual = batchGranules({
-    config: { maxBatchSize: 0 },
+    config: { providerPath: 'foo', maxBatchSize: 0 },
     input: { granules: [{ granuleId: 'foo' }] },
   });
   const expected = [{ granules: [{ granuleId: 'foo' }] }];
@@ -588,7 +588,10 @@ test('batchGranules should output array with nearly equally sized batches when t
   const batch1 = granules.slice(0, 34);
   const batch2 = granules.slice(34, 67);
   const batch3 = granules.slice(67, 100);
-  const actual = batchGranules({ config: { maxBatchSize: 40 }, input: { granules } });
+  const actual = batchGranules({
+    config: { providerPath: 'foo', maxBatchSize: 40 },
+    input: { granules },
+  });
   const expected = [{ granules: batch1 }, { granules: batch2 }, { granules: batch3 }];
 
   t.deepEqual(actual, expected);
