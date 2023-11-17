@@ -1,0 +1,5 @@
+{
+  "id": "cumulus",
+  "protocol": "s3",
+  "host": "csdap-cumulus-prod-protected"
+}

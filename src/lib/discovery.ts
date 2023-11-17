@@ -7,7 +7,7 @@ import * as fp from 'lodash/fp';
 
 import * as L from './aws/lambda';
 import * as $t from './io';
-import { batches } from './stdlib/arrays';
+import * as A from './stdlib/arrays';
 import { range as dateRange } from './stdlib/dates';
 
 const Granule = t.type({
@@ -53,6 +53,7 @@ export const FormatProviderPathsOutput = t.intersection([
 export const BatchGranulesInput = t.readonly(
   t.type({
     config: t.type({
+      providerPath: t.string,
       maxBatchSize: tt.fromNullable(t.number, 1000),
     }),
     input: DiscoverGranulesOutput,
@@ -62,6 +63,7 @@ export const BatchGranulesInput = t.readonly(
 export const UnbatchGranulesInput = t.readonly(
   t.type({
     config: t.type({
+      providerPath: t.string,
       batchIndex: t.Int,
     }),
     input: t.readonlyArray(DiscoverGranulesOutput),
@@ -187,6 +189,16 @@ export const formatProviderPaths = (args: FormatProviderPathsInput) => {
   );
   const encodedArgs = FormatProviderPathsInput.encode(args);
 
+  console.info(
+    JSON.stringify({
+      startDate,
+      endDate,
+      step: O.getOrElseW(() => null)(step),
+      numDates: providerPaths.length,
+      providerPaths: A.ellipsize(providerPaths),
+    })
+  );
+
   return providerPaths.map((providerPath) =>
     fp.set('meta.providerPath', providerPath, encodedArgs)
   );
@@ -248,9 +260,20 @@ export const batchGranules = (
 ): readonly DiscoverGranulesOutput[] => {
   const { input, config } = event;
   const { granules } = input;
-  const { maxBatchSize } = config;
+  const { providerPath, maxBatchSize } = config;
+  const batches = A.batches(granules, maxBatchSize).map((granules) => ({ granules }));
 
-  return batches(granules, maxBatchSize).map((granules) => ({ granules }));
+  console.info(
+    JSON.stringify({
+      providerPath,
+      numGranules: granules.length,
+      maxBatchSize,
+      numBatches: batches.length,
+      batchSizes: batches.map((batch) => batch.granules.length),
+    })
+  );
+
+  return batches;
 };
 
 /**
@@ -260,8 +283,21 @@ export const batchGranules = (
  * @param args.config.batchIndex - index of the batch of granules to select
  * @returns element at the 0-based batch index in the input array
  */
-export const unbatchGranules = (args: UnbatchGranulesInput): DiscoverGranulesOutput =>
-  args.input[args.config.batchIndex];
+export const unbatchGranules = (args: UnbatchGranulesInput): DiscoverGranulesOutput => {
+  const { providerPath, batchIndex } = args.config;
+  const batch = args.input[batchIndex];
+
+  console.info(
+    JSON.stringify({
+      providerPath,
+      numBatches: args.input.length,
+      batchIndex,
+      batchSize: batch.granules.length,
+    })
+  );
+
+  return batch;
+};
 
 /**
  * Prefixes the granule ID of each granule in an array of granules with the name of

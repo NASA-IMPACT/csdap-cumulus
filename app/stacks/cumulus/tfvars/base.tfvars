@@ -14,7 +14,7 @@
 #<% depends_on("data-persistence") %>
 #<% depends_on("rds-cluster") %>
 
-cmr_environment = "UAT"
+cmr_environment             = "UAT"
 orca_dlq_subscription_email = "csdap@uah.edu"
 
 system_bucket = "<%= bucket('internal') %>"
@@ -49,7 +49,7 @@ buckets = {
     name = "<%= bucket('dashboard') %>"
     type = "dashboard"
   }
-  #----<% if in_sandbox? then %>
+  #-----<% if in_sandbox? then %>
   # Sandbox provider bucket
   provider = {
     name = "<%= bucket('provider') %>"
@@ -63,6 +63,10 @@ buckets = {
   }
   maxar = {
     name = "csdap-maxar-delivery"
+    type = "provider"
+  }
+  cumulus = {
+    name = "csdap-cumulus-prod-protected"
     type = "provider"
   }
   #-----<% end %>
