@@ -14,8 +14,6 @@
   - [Performing Discovery without Ingestion](#performing-discovery-without-ingestion)
 - [Updating CMR Metadata (Self Discovery)](#updating-cmr-metadata-self-discovery)
 - [Destroying a Deployment](#destroying-a-deployment)
-  - [Destroying Managed Resources](#destroying-managed-resources)
-  - [Destroying Unmanaged Resources](#destroying-unmanaged-resources)
 
 ## The Cumulus CLI
 
@@ -694,8 +692,6 @@ applicable to either UAT or Prod):
 against the correct deployment to avoid accidentally destroying resources in the
 wrong deployment.
 
-### Destroying Managed Resources
-
 At a high level, destroying a Cumulus deployment is relatively straightforward,
 but there are some resource dependencies that may present difficulties.
 Therefore, to make it easy simply run the following command, which will prompt
@@ -710,124 +706,12 @@ all resources managed by Terraform in all of the modules (`cumulus`, then
 `data-persistence`, and finally `rds-cluster`), so it will take quite a bit of
 time to complete.
 
+The `nuke` script has some rudimentary retry logic built in, but it's not
+bulletproof, so it may fail after multiple retries.  You may need to inspect any
+error messages carefully to determine whether you can run `make nuke` again, or
+you must manually finish any cleanup effort.
+
 **NOTE:** If you encounter any errors during destruction, refer to the
-[troubleshooting guide](./TROUBLESHOOTING.md).
-
-### Destroying Unmanaged Resources
-
-In addition to the resources managed by Terraform, there are a number of
-additional resource (not managed by Terraform).  If you do not plan to redeploy
-Cumulus after destroying the managed resources, as described in the previous
-section, then you should destroy the unmanaged resources as well.
-
-The following commands should be run within the Docker container, so first open
-a bash session in the container:
-
-```sh
-make bash
-```
-
-There are several **SSM Parameters** that must be cleaned up.  To delete them,
-run the following:
-
-```sh
-aws ssm describe-parameters \
-  --parameter-filters "Key=Name,Option=Contains,Values=/${TS_ENV}/" \
-  --query Parameters[].Name \
-  --output text |
-  tr '\t' '\n' |
-  xargs -L1 -t aws ssm delete-parameter --name
-```
-
-There are many **CloudWatch log groups** that must be cleaned up:
-
-```sh
-aws logs describe-log-groups \
-  --log-group-name-pattern="${CUMULUS_PREFIX}" \
-  --output text \
-  --query logGroups[].logGroupName |
-  tr '\t' '\n' |
-  xargs -L1 -t aws logs delete-log-group --log-group-name
-```
-
-There are a couple of **API Gateway REST APIs** that must be cleaned up:
-
-```sh
-aws apigateway get-rest-apis \
-  --output text \
-  --query "items[?contains(name, '${CUMULUS_PREFIX}')].id" |
-  tr '\t' '\n' |
-  xargs -L1 -t aws apigateway delete-rest-api --rest-api-id
-```
-
-There are several **buckets** that should be destroyed.  To see the list of
-buckets related to your deployment, run the following:
-
-```sh
-aws s3api list-buckets \
-  --output text \
-  --query "Buckets[?contains(Name, '${CUMULUS_PREFIX}')].Name" |
-  tr '\t' '\n'
-```
-
-To empty and delete a bucket, you can run the following command, where `<NAME>`
-is a name from the buckets listed from the previous command:
-
-```sh
-aws s3 rb s3://<NAME> --force
-```
-
-However, if the list of buckets from above definitely includes _only your
-buckets_ (which it should), you can empty and delete _all but one_ of your
-buckets more quickly by running the following:
-
-```sh
-aws s3api list-buckets \
-  --output text \
-  --query "Buckets[?contains(Name, '${CUMULUS_PREFIX}')].Name" |
-  tr '\t' '\n' |
-  xargs -t -I{} aws s3 rb s3://{} --force
-```
-
-The final bucket (your tfstate bucket) has versioning enabled (which the other
-buckets did not), so you must run this command to empty the bucket first:
-
-```sh
-aws s3api list-buckets \
-  --output text \
-  --query "Buckets[?contains(Name, '${CUMULUS_PREFIX}')].Name" |
-  xargs -t -I{} sh -c 'aws s3api delete-objects --no-paginate --bucket "${1}" --delete "$(aws s3api list-object-versions --bucket "${1}" --output=json --query="{Objects: Versions[].{Key:Key,VersionId:VersionId}}")"' -- {}
-```
-
-Then, delete the bucket lifecycle configuration to allow yourself to delete the
-"delete markers" that AWS created:
-
-```sh
-aws s3api list-buckets \
-  --output text \
-  --query "Buckets[?contains(Name, '${CUMULUS_PREFIX}')].Name" |
-  xargs -t aws s3api delete-bucket-lifecycle --bucket
-```
-
-Now you can delete the delete markers in the bucket:
-
-```sh
-aws s3api list-buckets \
-  --output text \
-  --query "Buckets[?contains(Name, '${CUMULUS_PREFIX}')].Name" |
-  xargs -t -I{} sh -c 'aws s3api delete-objects --no-paginate --bucket "${1}" --delete "$(aws s3api list-object-versions --bucket "${1}" --output=json --query="{Objects: DeleteMarkers[].{Key:Key,VersionId:VersionId}}")"' -- {}
-```
-
-Finally, you can delete the bucket itself:
-
-```sh
-aws s3api list-buckets \
-  --output text \
-  --query "Buckets[?contains(Name, '${CUMULUS_PREFIX}')].Name" |
-  xargs -t -I{} aws s3 rb s3://{}
-```
-
-Again, if you encounter any errors during any of these steps, refer to the
 [troubleshooting guide](./TROUBLESHOOTING.md).
 
 [Cumulus API]:
