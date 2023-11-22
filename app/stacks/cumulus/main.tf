@@ -69,9 +69,29 @@ data "archive_file" "lambda" {
   output_path = "${data.external.lambda_archive_exploded.result.dir}/../lambda.zip"
 }
 
+data "aws_secretsmanager_secret" "launchpad_pfx" {
+  name = "cumulus-launchpad-pfx"
+}
+
+# When the Launchpad certificate expires, and a new one is obtained (along with
+# a new passphrase), we need to update this secret with the contents of the new
+# certificate.  See OPERATING.md for information on updating the Launchpad cert.
+data "aws_secretsmanager_secret_version" "launchpad_pfx" {
+  secret_id = data.aws_secretsmanager_secret.launchpad_pfx.id
+}
+
 #-------------------------------------------------------------------------------
 # RESOURCES
 #-------------------------------------------------------------------------------
+
+# When the Launchpad certificate secret is updated, we need to update the
+# launchpad.pfx file in the system bucket that Cumulus uses to generate tokens
+# to authorize publishing to the CMR (via the PostToCmr Lambda function).
+resource "aws_s3_object" "launchpad_pfx" {
+  bucket         = var.system_bucket
+  key            = "${var.prefix}/crypto/launchpad.pfx"
+  content_base64 = data.aws_secretsmanager_secret_version.launchpad_pfx.secret_string
+}
 
 # <% if !in_sandbox? then %>
 resource "null_resource" "put_bucket_logging" {

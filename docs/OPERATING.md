@@ -1,5 +1,6 @@
 # Operating CSDAP Cumulus
 
+- [Update Launchpad Certificate](#update-launchpad-certificate)
 - [The Cumulus CLI](#the-cumulus-cli)
   - [Running Commands](#running-commands)
   - [Running Against Non-Development Deployments](#running-against-non-development-deployments)
@@ -14,6 +15,80 @@
   - [Performing Discovery without Ingestion](#performing-discovery-without-ingestion)
 - [Updating CMR Metadata (Self Discovery)](#updating-cmr-metadata-self-discovery)
 - [Destroying a Deployment](#destroying-a-deployment)
+
+## Update Launchpad Certificate
+
+When the Launchpad certificate used for generating auth tokens for publishing
+metadata to the CMR has expired, the `PostToCmr` Lambda function will always
+fail with 401 (Unauthorized) errors.  When this happens (ideally, _BEFORE_ it
+expires, so `PostToCmr` does _not_ start throwing such errors), the Project
+Owner must request a new certificate.  Once the request is fulfilled, the
+Project Owner should receive a new certificate file (`.pfx`) as well as a new
+passphrase/password.
+
+For every AWS account in which CSDA Cumulus is deployed (sandbox, UAT, and
+Prod), the new Launchpad certificate file and its associated passcode must be
+updated _once_ per AWS account (regardless of the number of deployments in an
+account), using the following commands, where `<pfx>` is the path to the new
+Launchpad certificate file (`.pfx`) downloaded from the email resulting from the
+completion of the renewal request, relative to your current directory (which
+must be the root of the repo).
+
+You will be prompted for the passcode each time:
+
+```plain
+export LAUNCHPAD_PFX=<pfx>
+AWS_PROFILE=csda-cumulus-sbx-7894 make update-launchpad
+AWS_PROFILE=csda-cumulus-uat-1686 make update-launchpad
+AWS_PROFILE=csda-cumulus-prod-5047 make update-launchpad
+```
+
+Once all of the commands above run successfully, be sure to delete your local
+copy of the `.pfx` file, for security reasons.
+
+The command above does the following in the AWS account associated with the
+specified AWS profile:
+
+1. Verifies that the specified certificate/passcode combination are valid by
+   using them in an attempt to generate a Launchpad token.  If successful, the
+   command continues with the following steps.  Otherwise, it fails with an
+   error message.  Failure might typically be because you have entered the
+   passcode incorrectly, so upon failure, you should double-check the passcode.
+1. Creates/updates an AWS binary secret named `cumulus-launchpad-pfx` from the
+   contents of the specified `.pfx` file.
+1. Creates/updates an AWS SSM secret string parameter named
+   `/cumulus/shared/launchpad-passcode` from the passcode entered at the prompt.
+
+Once the certificate and passcode are updated, each deployment must be
+_redeployed_ in order to pick up the new certificate and passcode.  During
+redeployment, the new value of the `cumulus-launchpad-pfx` secret will be used
+to create/replace the S3 object `<prefix>/crypto/launchpad.pfx` within the
+deployment's "system" bucket (typically the "internal" bucket).  This is where
+Cumulus expects to find the Launchpad certificate.
+
+For sandbox deployments, each developer should redeploy their own deployment
+by running `make up-cumulus-yes`.
+
+To redeploy UAT and Prod, do the following:
+
+1. Go to the list of [GitHub Actions Cumulus workflow runs]
+1. Find the most recent successful workflow run (ideally, this will be the first
+   one in the list) and click its title to view the details of the run, where
+   you should see that deployment to UAT and to Prod both ran successfully.
+1. Towards the upper right of the page, click the **Re-run all jobs** button to
+   trigger deployment to UAT.
+1. Once deployment to UAT succeeds, deployment to Prod will be pending manual
+   approval.  At this point, run a smoke test in UAT to determine whether or not
+   the `PostToCmr` Lambda function succeeds.
+1. Once the smoke test in UAT shows that `PostToCmr` succeeds, return to the
+   page where you previously clicked the **Re-run all jobs** button, where you
+   should now see a **Review deployments** button.
+1. Click the **Review deployments** button to open the "Review pending
+   deployments" dialog box.
+1. On the dialog box, check the box next to "prod", then click the **Approve and
+   deploy** button.
+1. Once deployment to "prod" succeeds, run a smoke test to confirm successful
+   operation of the `PostToCmr` Lambda function.
 
 ## The Cumulus CLI
 
@@ -728,6 +803,8 @@ you must manually finish any cleanup effort.
   https://nasa.github.io/cumulus/docs/operator-docs/provider
 [rule]:
   https://nasa.github.io/cumulus/docs/data-cookbooks/setup#rules
+[GitHub Actions Cumulus workflow runs]:
+  https://github.com/NASA-IMPACT/csdap-cumulus/actions/workflows/main.yml
 [How to specify a file location in a bucket]:
   https://nasa.github.io/cumulus/docs/workflows/workflow-configuration-how-to#how-to-specify-a-file-location-in-a-bucket
 [ISO 8601 Combined date and time representation]:

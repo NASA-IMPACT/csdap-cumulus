@@ -1,5 +1,7 @@
 # Troubleshooting
 
+- [Ingestion](#ingestion)
+  - [PostToCmr Always Fails with 401 (Unauthorized)](#posttocmr-always-fails-with-401-unauthorized)
 - [Deployment](#deployment)
   - [Error creating API Gateway Deployment: BadRequestException: Private REST API doesn't have a resource policy attached to it](#error-creating-api-gateway-deployment-badrequestexception-private-rest-api-doesnt-have-a-resource-policy-attached-to-it)
   - [Aws::STS::Errors::InvalidClientTokenId: The security token included in the request is invalid](#awsstserrorsinvalidclienttokenid-the-security-token-included-in-the-request-is-invalid)
@@ -16,6 +18,18 @@
   - [Error Deleting EventBridge Rule](#error-deleting-eventbridge-rule)
   - [Error Deleting Security Group (DependencyViolation)](#error-deleting-security-group-dependencyviolation)
   - [Error Deleting RDS Cluster (Cannot delete protected Cluster)](#error-deleting-rds-cluster-cannot-delete-protected-cluster)
+
+## Ingestion
+
+### PostToCmr Always Fails with 401 (Unauthorized)
+
+When every request to the CMR fails, it is very likely that the Launchpad
+certificate has expired, so you should ask the Project Owner to check the
+status.  If the certificate has expired, the Project Owner must request a new
+certificate.  Once the request is fulfilled, the Project Owner should receive a
+new certificate file (`.pfx`) as well as a new passphrase/password.  For
+instructions on what to do with the new file and passphrase, see
+[OPERATING.md](./OPERATING.md).
 
 ## Deployment
 
