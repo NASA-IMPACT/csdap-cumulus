@@ -54,10 +54,12 @@ all-up: logs-init install
 
 ## all-up-yes: Deploys all modules (in dependency order) with automatic approval
 all-up-yes: logs-init install
+	$(eval DOCKER_RUN_OPTS := --interactive)
 	tail -f log/up/*.log & $(TERRASPACE) all up --yes; kill $$!
 
 ## all-SUBCOMMAND: Runs Terraspace SUBCOMMAND across all stacks (make all-help for list of SUBCOMMANDs)
 all-%: install
+	$(eval DOCKER_RUN_OPTS := --interactive)
 	$(TERRASPACE) all $(patsubst all-%,%,$@)
 
 ## bash: Runs bash terminal in Docker container
@@ -145,22 +147,15 @@ nuke: docker
 output-%: docker
 	$(TERRASPACE) output $*
 
-plan-cumulus: install
-
 ## plan-STACK: Runs `terraform plan` for specified STACK
 plan-%: install
 	$(eval DOCKER_RUN_OPTS := --interactive)
 	$(TERRASPACE) plan $*
 
 ## pre-deploy-setup: Setup resources prior to initial deployment (idempotent)
-pre-deploy-setup: logs-init
-	# Tail terraspace logs in background so we can see output from "all init"
-	# command to initialize all terraform modules.  After initialization is
-	# complete, kill background process that's following the logs.
-	tail -f log/init/*.log & $(TERRASPACE) all init; kill $$!
-
+pre-deploy-setup: all-init
 	# Ensure buckets exist, grab the name of the "internal" bucket, and copy launchpad.pfx there.
-	$(DOCKER_RUN) $(IMAGE) -ic "bin/ensure-buckets-exist.sh 2>/dev/null | grep internal | xargs bin/copy-launchpad-pfx.sh"
+	$(DOCKER_RUN) --interactive $(IMAGE) -ic "bin/ensure-buckets-exist.sh 2>/dev/null
 
 ## terraform-doctor-STACK: Fixes "duplicate resource" errors for specified STACK
 terraform-doctor-%: docker
@@ -184,6 +179,10 @@ up-%-yes: logs-init install
 up-%: logs-init install
 	$(eval DOCKER_RUN_OPTS := --interactive)
 	$(TERRASPACE) up $* | tee -a log/up/$*.log
+
+## update-launchpad: Updates Launchpad certificate and passcode (expects LAUNCHPAD_PFX env var to be set to path to Launchpad certificate file [.pfx])
+update-launchpad:
+	$(DOCKER_RUN) --interactive $(IMAGE) -ic "bin/update-launchpad-pfx.sh ${LAUNCHPAD_PFX}"
 
 ## validate-STACK: Runs `terraform validate` for specified STACK
 validate-%: docker
