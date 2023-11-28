@@ -21,10 +21,8 @@ import * as PR from './io/PathReporter';
 // Expected decoding failures
 //------------------------------------------------------------------------------
 
-const buckets = {
-  internal: {
-    name: 'my-bucket',
-  },
+const cumulus_meta = {
+  system_bucket: 'my-bucket',
 };
 
 const shouldFailToDecode = test.macro({
@@ -54,10 +52,10 @@ const shouldFailToDecode = test.macro({
 test(
   shouldFailToDecode,
   {
+    cumulus_meta,
     meta: {
       providerPathFormat: 'planet/PSScene3Band-yyyyMM',
       startDate: '2018-08',
-      buckets,
     },
   },
   [['meta', 'providerPathFormat']]
@@ -66,10 +64,10 @@ test(
 test(
   shouldFailToDecode,
   {
+    cumulus_meta,
     meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: 'hello',
-      buckets,
     },
   },
   [['meta', 'startDate']]
@@ -78,10 +76,10 @@ test(
 test(
   shouldFailToDecode,
   {
+    cumulus_meta,
     meta: {
       providerPathFormat: 'planet/PSScene3Band-yyyyMM',
       startDate: 'hello',
-      buckets,
     },
   },
   [
@@ -93,11 +91,11 @@ test(
 test(
   shouldFailToDecode,
   {
+    cumulus_meta,
     meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: '202101',
       endDate: 'never',
-      buckets,
     },
   },
   [['meta', 'endDate']]
@@ -106,11 +104,11 @@ test(
 test(
   shouldFailToDecode,
   {
+    cumulus_meta,
     meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: '202101',
       step: 'none',
-      buckets,
     },
   },
   [['meta', 'step']]
@@ -136,19 +134,19 @@ const shouldDecode = test.macro({
 test(
   shouldDecode,
   {
+    cumulus_meta,
     meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: '2018-08',
-      buckets,
     },
   },
   {
+    cumulus_meta,
     meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: new Date('2018-08'),
       endDate: O.none,
       step: O.none,
-      buckets,
     },
   }
 );
@@ -156,21 +154,21 @@ test(
 test(
   shouldDecode,
   {
+    cumulus_meta,
     meta: {
       extraProperty: 'whatever',
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: '2018-08',
-      buckets,
     },
   },
   {
+    cumulus_meta,
     meta: {
       extraProperty: 'whatever',
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: new Date('2018-08'),
       endDate: O.none,
       step: O.none,
-      buckets,
     },
   }
 );
@@ -178,20 +176,20 @@ test(
 test(
   shouldDecode,
   {
+    cumulus_meta,
     meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: '2019-08',
       endDate: undefined,
-      buckets,
     },
   },
   {
+    cumulus_meta,
     meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: new Date('2019-08'),
       endDate: O.none,
       step: O.none,
-      buckets,
     },
   }
 );
@@ -199,20 +197,20 @@ test(
 test(
   shouldDecode,
   {
+    cumulus_meta,
     meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: '2019-08',
       endDate: null,
-      buckets,
     },
   },
   {
+    cumulus_meta,
     meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: new Date('2019-08'),
       endDate: O.none,
       step: O.none,
-      buckets,
     },
   }
 );
@@ -220,20 +218,20 @@ test(
 test(
   shouldDecode,
   {
+    cumulus_meta,
     meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: '2018-08',
       endDate: '202001',
-      buckets,
     },
   },
   {
+    cumulus_meta,
     meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: new Date('2018-08'),
       endDate: O.some(new Date('202001')),
       step: O.none,
-      buckets,
     },
   }
 );
@@ -241,20 +239,20 @@ test(
 test(
   shouldDecode,
   {
+    cumulus_meta,
     meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: '2020-08',
       step: undefined,
-      buckets,
     },
   },
   {
+    cumulus_meta,
     meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: new Date('2020-08'),
       endDate: O.none,
       step: O.none,
-      buckets,
     },
   }
 );
@@ -262,20 +260,20 @@ test(
 test(
   shouldDecode,
   {
+    cumulus_meta,
     meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: '2019-08',
       step: null,
-      buckets,
     },
   },
   {
+    cumulus_meta,
     meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: new Date('2019-08'),
       endDate: O.none,
       step: O.none,
-      buckets,
     },
   }
 );
@@ -283,20 +281,20 @@ test(
 test(
   shouldDecode,
   {
+    cumulus_meta,
     meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: '2018-08',
       step: 'P1M',
-      buckets,
     },
   },
   {
+    cumulus_meta,
     meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: new Date('2018-08'),
       endDate: O.none,
       step: O.some(duration.parse('P1M')),
-      buckets,
     },
   }
 );
@@ -304,21 +302,21 @@ test(
 test(
   shouldDecode,
   {
+    cumulus_meta,
     meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: '2018-08',
       endDate: '202001',
       step: 'P1M',
-      buckets,
     },
   },
   {
+    cumulus_meta,
     meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: new Date('2018-08'),
       endDate: O.some(new Date('202001')),
       step: O.some(duration.parse('P1M')),
-      buckets,
     },
   }
 );
@@ -360,21 +358,21 @@ test(
   formatProviderPathsShouldOutput,
   generateDiscoverGranulesInputs,
   {
+    cumulus_meta,
     meta: {
       providerPathFormat: "'css/nga/WV04/1B/'yyyy/DDD",
       startDate: '2017-05-04T00:00:00Z',
-      buckets,
     },
   },
   [
     {
+      cumulus_meta,
       meta: {
         providerPathFormat: "'css/nga/WV04/1B/'yyyy/DDD",
         providerPath: 'css/nga/WV04/1B/2017/124',
         startDate: '2017-05-04T00:00:00.000Z',
         endDate: null,
         step: null,
-        buckets,
       },
     },
   ]
@@ -384,21 +382,21 @@ test(
   formatProviderPathsShouldOutput,
   generateDiscoverGranulesInputs,
   {
+    cumulus_meta,
     meta: {
       providerPathFormat: "'css/nga/WV04/1B/'yyyy/D/",
       startDate: '2017-01-04T00:00:00Z',
-      buckets,
     },
   },
   [
     {
+      cumulus_meta,
       meta: {
         providerPathFormat: "'css/nga/WV04/1B/'yyyy/D/",
         providerPath: 'css/nga/WV04/1B/2017/4/',
         startDate: '2017-01-04T00:00:00.000Z',
         endDate: null,
         step: null,
-        buckets,
       },
     },
   ]
@@ -408,21 +406,21 @@ test(
   formatProviderPathsShouldOutput,
   generateDiscoverGranulesInputs,
   {
+    cumulus_meta,
     meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM_dd",
       startDate: '2018-08-01T00:00:00Z',
-      buckets,
     },
   },
   [
     {
+      cumulus_meta,
       meta: {
         providerPathFormat: "'planet/PSScene3Band-'yyyyMM_dd",
         providerPath: 'planet/PSScene3Band-201808_01',
         startDate: '2018-08-01T00:00:00.000Z',
         endDate: null,
         step: null,
-        buckets,
       },
     },
   ]
@@ -432,21 +430,21 @@ test(
   formatProviderPathsShouldOutput,
   generateDiscoverGranulesInputs,
   {
+    cumulus_meta,
     meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: '2018-08-01T00:00:00Z',
-      buckets,
     },
   },
   [
     {
+      cumulus_meta,
       meta: {
         providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
         providerPath: 'planet/PSScene3Band-201808',
         startDate: '2018-08-01T00:00:00.000Z',
         endDate: null,
         step: null,
-        buckets,
       },
     },
   ]
@@ -456,11 +454,11 @@ test(
   formatProviderPathsShouldOutput,
   generateDiscoverGranulesInputs,
   {
+    cumulus_meta,
     meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: '2018-08-01T00:00:00Z',
       endDate: '2018-08-01T00:00:00Z',
-      buckets,
     },
   },
   []
@@ -471,24 +469,24 @@ test(
   generateDiscoverGranulesInputs,
   {
     payload: {},
+    cumulus_meta,
     meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: '2018-08-01T00:00:00Z',
       endDate: '2018-09-01T00:00:00Z',
-      buckets,
       foo: 'bar',
     },
   },
   [
     {
       payload: {},
+      cumulus_meta,
       meta: {
         providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
         providerPath: 'planet/PSScene3Band-201808',
         startDate: '2018-08-01T00:00:00.000Z',
         endDate: '2018-09-01T00:00:00.000Z',
         step: null,
-        buckets,
         foo: 'bar',
       },
     },
@@ -499,22 +497,22 @@ test(
   formatProviderPathsShouldOutput,
   generateDiscoverGranulesInputs,
   {
+    cumulus_meta,
     meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: '2018-08-01T00:00:00Z',
       endDate: '2020-12-01T00:00:00Z',
-      buckets,
     },
   },
   [
     {
+      cumulus_meta,
       meta: {
         providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
         providerPath: 'planet/PSScene3Band-201808',
         startDate: '2018-08-01T00:00:00.000Z',
         endDate: '2020-12-01T00:00:00.000Z',
         step: null,
-        buckets,
       },
     },
   ]
@@ -524,53 +522,53 @@ test(
   formatProviderPathsShouldOutput,
   generateDiscoverGranulesInputs,
   {
+    cumulus_meta,
     meta: {
       providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
       startDate: '2018-08-01T00:00:00Z',
       endDate: '2018-12-01T00:00:00Z',
       step: 'P1M',
-      buckets,
     },
   },
   [
     {
+      cumulus_meta,
       meta: {
         providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
         providerPath: 'planet/PSScene3Band-201808',
         startDate: '2018-08-01T00:00:00.000Z',
         endDate: '2018-12-01T00:00:00.000Z',
         step: 'P1M',
-        buckets,
       },
     },
     {
+      cumulus_meta,
       meta: {
         providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
         providerPath: 'planet/PSScene3Band-201809',
         startDate: '2018-08-01T00:00:00.000Z',
         endDate: '2018-12-01T00:00:00.000Z',
         step: 'P1M',
-        buckets,
       },
     },
     {
+      cumulus_meta,
       meta: {
         providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
         providerPath: 'planet/PSScene3Band-201810',
         startDate: '2018-08-01T00:00:00.000Z',
         endDate: '2018-12-01T00:00:00.000Z',
         step: 'P1M',
-        buckets,
       },
     },
     {
+      cumulus_meta,
       meta: {
         providerPathFormat: "'planet/PSScene3Band-'yyyyMM",
         providerPath: 'planet/PSScene3Band-201811',
         startDate: '2018-08-01T00:00:00.000Z',
         endDate: '2018-12-01T00:00:00.000Z',
         step: 'P1M',
-        buckets,
       },
     },
   ]
@@ -652,12 +650,12 @@ test('batchGranules should output array with nearly equally sized batches when t
 
 test('writeDiscoverGranulesInputs should write empty array when there are no time steps', async (t) => {
   const event = {
+    cumulus_meta,
     meta: {
       providerPathFormat: 'YYYY',
       startDate: new Date('2010-01-01T00:00:00Z'),
       endDate: O.some(new Date('2010-01-01T00:00:00Z')),
       step: O.some({ years: 1 }),
-      buckets,
     },
   };
 
@@ -679,12 +677,12 @@ test('writeDiscoverGranulesInputs should write empty array when there are no tim
 
 test('writeDiscoverGranulesInputs should write array of events with meta.providerPath injected into each element', async (t) => {
   const event = {
+    cumulus_meta,
     meta: {
       providerPathFormat: 'YYYY',
       startDate: new Date('2010-01-01T00:00:00Z'),
       endDate: O.some(new Date('2012-01-01T00:00:00Z')),
       step: O.some({ years: 1 }),
-      buckets,
     },
   };
   const encodedEvent = FormatProviderPathsInput.encode(event);
