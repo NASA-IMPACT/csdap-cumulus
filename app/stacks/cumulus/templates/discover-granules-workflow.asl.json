@@ -42,6 +42,13 @@
           "Key.$": "$.key"
         }
       },
+      "ResultWriter": {
+        "Resource": "arn:aws:states:::s3:putObject",
+        "Parameters": {
+          "Bucket.$": "$.bucket",
+          "Prefix": "mapRun"
+        }
+      },
       "ItemProcessor": {
         "ProcessorConfig": {
           "Mode": "DISTRIBUTED",
@@ -140,7 +147,18 @@
                     "MaxConcurrency": 10,
                     "ToleratedFailurePercentage": 0,
                     "ItemsPath": "$",
+                    "ResultWriter": {
+                      "Resource": "arn:aws:states:::s3:putObject",
+                      "Parameters": {
+                        "Bucket.$": "$.[0].cumulus_meta.system_bucket",
+                        "Prefix": "mapRun"
+                      }
+                    },
                     "ItemProcessor": {
+                      "ProcessorConfig": {
+                        "Mode": "DISTRIBUTED",
+                        "ExecutionType": "STANDARD"
+                      },
                       "StartAt": "UnbatchGranules",
                       "States": {
                         "UnbatchGranules": {

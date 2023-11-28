@@ -25,21 +25,17 @@ const DiscoverGranulesOutput = t.readonly(
 
 export const FormatProviderPathsInput = t.readonly(
   t.type({
+    cumulus_meta: t.readonly(
+      t.type({
+        system_bucket: t.string,
+      })
+    ),
     meta: t.readonly(
       t.type({
         providerPathFormat: $t.DateFormat,
         startDate: tt.DateFromISOString,
         endDate: tt.optionFromNullable(tt.DateFromISOString),
         step: tt.optionFromNullable($t.DurationFromISOString),
-        buckets: t.readonly(
-          t.type({
-            internal: t.readonly(
-              t.type({
-                name: t.string,
-              })
-            ),
-          })
-        ),
       })
     ),
   })
@@ -247,7 +243,7 @@ export const generateDiscoverGranulesInputs = (event: FormatProviderPathsInput) 
 export const writeDiscoverGranulesInputs =
   (event: FormatProviderPathsInput) =>
   async ({ s3 }: S3.HasS3<'putObject'>): Promise<BucketKey> => {
-    const bucket = event.meta.buckets.internal.name;
+    const bucket = event.cumulus_meta.system_bucket;
     const key = `states/${uuid.v4()}.json`;
 
     await s3.putObject({

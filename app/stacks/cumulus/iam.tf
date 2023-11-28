@@ -37,13 +37,16 @@ data "aws_iam_policy_document" "allow_sfn_distributed_maps" {
     resources = ["*"]
   }
 
-  # Allow StepFunctions to read input from S3, which is necessary when the size
-  # of the input array message might exceed the quota (256KiB).
+  # Allow StepFunctions to read input from S3, as well as write output to it,
+  # which is necessary when the size of the input array message might exceed the
+  # quota (256KiB).
   statement {
     effect = "Allow"
     actions = [
       "s3:Get*",
-      "s3:List*"
+      "s3:List*",
+      "s3:PutObject",
+      "s3:AbortMultipartUpload",
     ]
     resources = ["*"]
   }
