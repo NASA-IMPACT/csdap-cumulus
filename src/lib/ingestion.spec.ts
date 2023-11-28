@@ -1,8 +1,8 @@
 import test from 'ava';
-import * as RTE from 'fp-ts/ReaderTaskEither';
-import { pipe } from 'fp-ts/function';
+import * as RTE from 'fp-ts/lib/ReaderTaskEither';
+import { pipe } from 'fp-ts/lib/function';
 
-import { getObject } from './aws/s3.fixture';
+import { mockGetObject } from './aws/s3.fixture';
 import {
   addUmmgChecksumsHandlerRT,
   readUmmgRTE,
@@ -132,7 +132,7 @@ test('addUmmgChecksumsHandlerRT should add checksums from cmr.json', async (t) =
   };
 
   const program = addUmmgChecksumsHandlerRT(event);
-  const actual = await program({ s3: { getObject } })();
+  const actual = await program({ s3: { getObject: mockGetObject } })();
 
   t.deepEqual(actual, expected);
 });
@@ -150,7 +150,7 @@ test(`readUmmgRTE should return Right(UMM.G) upon success`, async (t) => {
     )
   );
 
-  return await program({ s3: { getObject } })();
+  return await program({ s3: { getObject: mockGetObject } })();
 });
 
 test(`readUmmgRTE should return Left(Error) for S3 failure`, async (t) => {
@@ -162,7 +162,7 @@ test(`readUmmgRTE should return Left(Error) for S3 failure`, async (t) => {
     )
   );
 
-  return await program({ s3: { getObject } })();
+  return await program({ s3: { getObject: mockGetObject } })();
 });
 
 test(`readUmmgRTE should return Left(Error) for decoding failure`, async (t) => {
@@ -174,5 +174,5 @@ test(`readUmmgRTE should return Left(Error) for decoding failure`, async (t) => 
     )
   );
 
-  return await program({ s3: { getObject } })();
+  return await program({ s3: { getObject: mockGetObject } })();
 });

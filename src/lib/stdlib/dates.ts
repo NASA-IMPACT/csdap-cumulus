@@ -1,7 +1,7 @@
 import * as dates from 'date-fns';
-import * as O from 'fp-ts/Option';
-import * as RA from 'fp-ts/ReadonlyArray';
-import { constant, flow, pipe } from 'fp-ts/function';
+import * as O from 'fp-ts/lib/Option';
+import * as RA from 'fp-ts/lib/ReadonlyArray';
+import { constant, flow, pipe } from 'fp-ts/lib/function';
 
 /**
  * Returns an array (possibly empty) of dates, starting with the `start` date, and

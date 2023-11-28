@@ -15,7 +15,7 @@
     "lambda-archive-dir": "build/main"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc --build",
     "build:scripts": "yarn --cwd scripts build",
     "clean:build": "rm -rf build/*",
     "clean:dependencies": "rm -rf node_modules/* node_modules/.bin node_modules/.cache node_modules/.yarn-integrity",
@@ -29,7 +29,7 @@
     "test": "run-s build test:*",
     "test:lint": "eslint src --ext .ts",
     "test:prettier": "prettier \"src/**/*.ts\" --check",
-    "test:unit": "nyc --silent ava",
+    "test:unit": "nyc --silent ava --node-arguments '--trace-warnings'",
     "check-cli": "run-s test diff-integration-tests check-integration-tests",
     "check-integration-tests": "run-s check-integration-test:*",
     "diff-integration-tests": "mkdir -p diff && rm -rf diff/test && cp -r test diff/test && rm -rf diff/test/test-*/.git && cd diff && git init --quiet && git add -A && git commit --quiet --no-verify --allow-empty -m 'WIP' && echo '\\n\\nCommitted most recent integration test output in the \"diff\" directory. Review the changes with \"cd diff && git diff HEAD\" or your preferred git diff viewer.'",
@@ -48,7 +48,7 @@
     "reset-hard": "git clean -dfx && git reset --hard && yarn",
     "prepare-release": "run-s reset-hard test cov:check doc:html version doc:publish",
     "lambda:install": "yarn install --production --no-bin-links --modules-folder ${PWD}/${npm_package_config_lambda_archive_dir}/node_modules && rm -rf ${PWD}/${npm_package_config_lambda_archive_dir}/node_modules/aws-sdk && rm -rf ${PWD}/${npm_package_config_lambda_archive_dir}/node_modules/'@types'",
-    "lambda:archive-exploded": "run-s clean:build test lambda:install",
+    "lambda:archive-exploded": "run-s build test lambda:install",
     "tf:lambda:archive-exploded": "yarn lambda:archive-exploded >&2 && echo { '\"'dir'\"': '\"'${PWD}/${npm_package_config_lambda_archive_dir}'\"' }"
   },
   "engines": {
@@ -85,6 +85,7 @@
     "@types/aws-lambda": "^8.10.85",
     "@types/lodash": "^4.14.177",
     "@types/node": "^16.11.1",
+    "@types/uuid": "^9.0.7",
     "@typescript-eslint/eslint-plugin": "^5.1.0",
     "@typescript-eslint/parser": "^5.1.0",
     "ava": "^4.3.3",

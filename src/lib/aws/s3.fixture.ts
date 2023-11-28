@@ -1,9 +1,15 @@
 import { Readable } from 'stream';
 
-import { GetObjectCommandInput } from '@aws-sdk/client-s3';
+import {
+  GetObjectCommandInput,
+  GetObjectCommandOutput,
+  PutObjectCommandInput,
+  PutObjectCommandOutput,
+} from '@aws-sdk/client-s3';
 import { sdkStreamMixin } from '@smithy/util-stream';
 
-const store: { readonly [Bucket: string]: { readonly [Key: string]: string } } = {
+// eslint-disable-next-line functional/prefer-readonly-type
+const store: { [Bucket: string]: { [Key: string]: string } } = {
   'my-bucket': {
     'empty': '',
     'empty.json': '{}',
@@ -34,23 +40,50 @@ const store: { readonly [Bucket: string]: { readonly [Key: string]: string } } =
   },
 };
 
-export const getObject = async (args: GetObjectCommandInput) => {
+export const mockGetObject = (
+  args: GetObjectCommandInput
+): Promise<GetObjectCommandOutput> => {
   const { Bucket, Key } = args;
 
-  // eslint-disable-next-line functional/no-throw-statement
-  if (!Bucket) throw new Error('No Bucket specified');
-  // eslint-disable-next-line functional/no-throw-statement
-  if (!store[Bucket]) throw new Error(`Bucket not found: ${Bucket}`);
-  // eslint-disable-next-line functional/no-throw-statement
-  if (!Key) throw new Error('No Key specified');
-  if (!store[Bucket][Key])
-    // eslint-disable-next-line functional/no-throw-statement
-    throw new Error(`Object not found in bucket ${Bucket}: ${Key}`);
+  if (!Bucket) {
+    return Promise.reject(new Error('No Bucket specified'));
+  }
+  if (!store[Bucket]) {
+    return Promise.reject(new Error(`Bucket not found: ${Bucket}`));
+  }
+  if (!Key) {
+    return Promise.reject(new Error('No Key specified'));
+  }
+  if (!store[Bucket][Key]) {
+    return Promise.reject(new Error(`Object not found in bucket ${Bucket}: ${Key}`));
+  }
 
-  return {
+  return Promise.resolve({
     $metadata: {},
     Body: sdkStreamMixin(Readable.from([store[Bucket][Key]])),
-  };
+  });
 };
 
-export const getObjectNotFound = async () => Promise.reject(new Error('not found'));
+export const mockPutObject = (
+  args: PutObjectCommandInput
+): Promise<PutObjectCommandOutput> => {
+  const { Bucket, Key, Body } = args;
+
+  if (!Bucket) {
+    return Promise.reject(new Error('No Bucket specified'));
+  }
+  if (!Key) {
+    return Promise.reject(new Error('No Key specified'));
+  }
+  if (!Body) {
+    return Promise.reject(new Error('No Body specified'));
+  }
+  if (!store[Bucket]) {
+    return Promise.reject(new Error(`Bucket not found: ${Bucket}`));
+  }
+
+  // eslint-disable-next-line functional/immutable-data
+  store[Bucket][Key] = Body.toString();
+
+  return Promise.resolve({ $metadata: {} });
+};

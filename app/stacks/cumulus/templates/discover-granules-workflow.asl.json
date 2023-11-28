@@ -32,7 +32,16 @@
       "End": true,
       "MaxConcurrency": 10,
       "ToleratedFailurePercentage": 0,
-      "ItemsPath": "$",
+      "ItemReader": {
+        "Resource": "arn:aws:states:::s3:getObject",
+        "ReaderConfig": {
+          "InputType": "JSON"
+        },
+        "Parameters": {
+          "Bucket.$": "$.bucket",
+          "Key.$": "$.key"
+        }
+      },
       "ItemProcessor": {
         "ProcessorConfig": {
           "Mode": "DISTRIBUTED",

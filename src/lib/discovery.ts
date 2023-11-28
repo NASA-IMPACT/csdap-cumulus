@@ -1,11 +1,14 @@
+import { s3 } from '@cumulus/aws-client/services';
 import * as dates from 'date-fns';
-import * as O from 'fp-ts/Option';
-import { pipe } from 'fp-ts/function';
+import * as O from 'fp-ts/lib/Option';
+import { pipe } from 'fp-ts/lib/function';
 import * as t from 'io-ts';
 import * as tt from 'io-ts-types';
 import * as fp from 'lodash/fp';
+import * as uuid from 'uuid';
 
 import * as L from './aws/lambda';
+import * as S3 from './aws/s3';
 import * as $t from './io';
 import * as A from './stdlib/arrays';
 import { range as dateRange } from './stdlib/dates';
@@ -28,6 +31,15 @@ export const FormatProviderPathsInput = t.readonly(
         startDate: tt.DateFromISOString,
         endDate: tt.optionFromNullable(tt.DateFromISOString),
         step: tt.optionFromNullable($t.DurationFromISOString),
+        buckets: t.readonly(
+          t.type({
+            internal: t.readonly(
+              t.type({
+                name: t.string,
+              })
+            ),
+          })
+        ),
       })
     ),
   })
@@ -35,7 +47,7 @@ export const FormatProviderPathsInput = t.readonly(
 
 // Output is the same as the input, with the addition of `meta.providerPath`, so we
 // simply construct an intersection of the two.
-export const FormatProviderPathsOutput = t.intersection([
+export const FormatProviderPathsItemOutput = t.intersection([
   FormatProviderPathsInput,
   t.readonly(
     t.type({
@@ -47,6 +59,11 @@ export const FormatProviderPathsOutput = t.intersection([
     })
   ),
 ]);
+
+type BucketKey = {
+  readonly bucket: string;
+  readonly key: string;
+};
 
 // Default maximum batch size for batching granules after discovery is 1000, but this
 // can be set on a per rule basis by setting `meta.maxBatchSize` in a rule definition.
@@ -97,7 +114,9 @@ type Granule = t.TypeOf<typeof Granule>;
 type DiscoverGranulesOutput = t.TypeOf<typeof DiscoverGranulesOutput>;
 
 export type FormatProviderPathsInput = t.TypeOf<typeof FormatProviderPathsInput>;
-export type FormatProviderPathsOutput = t.TypeOf<typeof FormatProviderPathsOutput>;
+export type FormatProviderPathsItemOutput = t.TypeOf<
+  typeof FormatProviderPathsItemOutput
+>;
 export type BatchGranulesInput = t.TypeOf<typeof BatchGranulesInput>;
 export type UnbatchGranulesInput = t.TypeOf<typeof UnbatchGranulesInput>;
 export type PrefixGranuleIdsInput = t.TypeOf<typeof PrefixGranuleIdsInput>;
@@ -132,7 +151,7 @@ export type PrefixGranuleIdsInput = t.TypeOf<typeof PrefixGranuleIdsInput>;
  * monthly, or yearly from the start date to the end date).
  *
  * @example
- * formatProviderPaths(
+ * generateDiscoverGranulesInputs(
  *   {
  *     ...,
  *     meta: {
@@ -167,42 +186,135 @@ export type PrefixGranuleIdsInput = t.TypeOf<typeof PrefixGranuleIdsInput>;
  * //   }
  * // ]
  *
- * @param args.meta.startDate - the first date (UTC) to use for constructing provider
+ * @param event.meta.startDate - the first date (UTC) to use for constructing provider
  *    paths
- * @param args.meta.endDate - optional, exclusive end date (UTC) for constructing
+ * @param event.meta.endDate - optional, exclusive end date (UTC) for constructing
  *    provider paths (default: current date)
- * @param args.meta.step - optional ISO8601 duration between successive dates (default:
+ * @param event.meta.step - optional ISO8601 duration between successive dates (default:
  *    entire time span between startDate and endDate)
- * @param args.meta.providerPathFormat - date format string used to construct a provider
- *    path from a date (must adhere to date-fns format specification)
+ * @param event.meta.providerPathFormat - date format string used to construct a
+ *    provider path from a date (must adhere to date-fns format specification)
  */
-export const formatProviderPaths = (args: FormatProviderPathsInput) => {
-  const { providerPathFormat, startDate, step } = args.meta;
-  const now = () => new Date(Date.now());
-  const endDate = pipe(args.meta.endDate, O.getOrElse(now));
-  const dateFormatOptions = {
-    useAdditionalDayOfYearTokens: true,
-    useAdditionalWeekYearTokens: true,
-  };
-  const providerPaths = dateRange(startDate, endDate, step).map((date) =>
-    dates.format(date, providerPathFormat, dateFormatOptions)
-  );
-  const encodedArgs = FormatProviderPathsInput.encode(args);
+export const generateDiscoverGranulesInputs = (event: FormatProviderPathsInput) => {
+  const { providerPathFormat, startDate, endDate, step } = event.meta;
+  const discoveryDates = discoveryDateRange(startDate, endDate, step);
+  const providerPaths = discoveryDates.map(formatDateWith(providerPathFormat));
 
   console.info(
     JSON.stringify({
       startDate,
-      endDate,
+      endDate: O.getOrElseW(() => null)(endDate),
       step: O.getOrElseW(() => null)(step),
       numDates: providerPaths.length,
       providerPaths: A.ellipsize(providerPaths),
     })
   );
 
-  return providerPaths.map((providerPath) =>
-    fp.set('meta.providerPath', providerPath, encodedArgs)
-  );
+  return providerPaths
+    .map(injectProviderPath(event))
+    .map(FormatProviderPathsItemOutput.encode);
 };
+
+/**
+ * Writes to S3 an array of inputs to DiscoverGranules.  The file is suitable to
+ * use as input to a Distributed Map state in an AWS Step Function, which would
+ * be configured with an `ItemReader` like so:
+ *
+ * ```plain
+ * "ItemReader": {
+ *   "Resource": "arn:aws:states:::s3:getObject",
+ *   "ReaderConfig": {
+ *       "InputType": "JSON"
+ *   },
+ *   "Parameters": {
+ *       "Bucket.$": "$.bucket",
+ *       "Key.$": "$.key"
+ *   }
+ * }
+ * ```
+ *
+ * @param event.meta.startDate - the first date (UTC) to use for constructing provider
+ *    paths
+ * @param event.meta.endDate - optional, exclusive end date (UTC) for constructing
+ *    provider paths (default: current date)
+ * @param event.meta.step - optional ISO8601 duration between successive dates (default:
+ *    entire time span between startDate and endDate)
+ * @param event.meta.providerPathFormat - date format string used to construct a
+ *    provider path from a date (must adhere to date-fns format specification)
+ * @param event.meta.buckets.internal.name - name of the bucket to write to
+ * @returns the bucket and key of the written S3 object containing the inputs
+ */
+export const writeDiscoverGranulesInputs =
+  (event: FormatProviderPathsInput) =>
+  async ({ s3 }: S3.HasS3<'putObject'>): Promise<BucketKey> => {
+    const bucket = event.meta.buckets.internal.name;
+    const key = `states/${uuid.v4()}.json`;
+
+    await s3.putObject({
+      Bucket: bucket,
+      Key: key,
+      Body: JSON.stringify(generateDiscoverGranulesInputs(event)),
+      Expires: dates.addDays(Date.now(), 90),
+      ContentType: 'application/json',
+    });
+
+    return { bucket, key };
+  };
+
+/**
+ * Returns an array of sequential dates (possibly empty).
+ *
+ * @param startDate - starting date in the array
+ * @param endDate - ending date (exclusive) (default: today)
+ * @param step - duration between successive dates in the array (default:
+ *    endDate - startDate)
+ * @returns an array of sequential dates, starting with the start date, at a
+ *    distance of `step` in between, ending with (but excluding) the end date;
+ *    an empty array, if the start date is on or after the end date
+ */
+export const discoveryDateRange = (
+  startDate: Date,
+  endDate: O.Option<Date>,
+  step: O.Option<Duration>
+): readonly Date[] => {
+  const now = () => new Date(Date.now());
+  return dateRange(startDate, pipe(endDate, O.getOrElse(now)), step);
+};
+
+/**
+ * Returns a function that take a `Date` and formats it according to the given
+ * date format.
+ *
+ * @param dateFormat - format used by the returned function for formatting dates
+ * @returns a function that take a `Date` and formats it according to the given
+ *    date format
+ */
+export const formatDateWith = (dateFormat: string): ((date: Date) => string) => {
+  const dateFormatOptions = {
+    useAdditionalDayOfYearTokens: true,
+    useAdditionalWeekYearTokens: true,
+  };
+
+  return (date: Date) => dates.format(date, dateFormat, dateFormatOptions);
+};
+
+/**
+ * Returns a copy of an event with a provider path string injected at the path
+ * `meta.providerPath`.
+ *
+ * @param event - event in which to inject the provider path
+ * @param providerPath - provider path to inject
+ * @returns copy of event with provider path injected at `meta.providerPath`
+ */
+export const injectProviderPath =
+  (event: FormatProviderPathsInput) =>
+  (providerPath: string): FormatProviderPathsItemOutput => ({
+    ...event,
+    meta: {
+      ...event.meta,
+      providerPath,
+    },
+  });
 
 /**
  * Splits a list of granules into batches of a maximum size.  Returns an array where
@@ -279,18 +391,20 @@ export const batchGranules = (
 /**
  * Selects a single batch of granules from an array of batches.
  *
- * @param args.input - array of granule batches
- * @param args.config.batchIndex - index of the batch of granules to select
+ * @param event.input - array of granule batches
+ * @param event.config.batchIndex - index of the batch of granules to select
  * @returns element at the 0-based batch index in the input array
  */
-export const unbatchGranules = (args: UnbatchGranulesInput): DiscoverGranulesOutput => {
-  const { providerPath, batchIndex } = args.config;
-  const batch = args.input[batchIndex];
+export const unbatchGranules = (
+  event: UnbatchGranulesInput
+): DiscoverGranulesOutput => {
+  const { providerPath, batchIndex } = event.config;
+  const batch = event.input[batchIndex];
 
   console.info(
     JSON.stringify({
       providerPath,
-      numBatches: args.input.length,
+      numBatches: event.input.length,
       batchIndex,
       batchSize: batch.granules.length,
     })
@@ -363,14 +477,14 @@ export const prefixGranuleIds = (args: PrefixGranuleIdsInput) => {
 //------------------------------------------------------------------------------
 
 export const formatProviderPathsHandler = pipe(
-  formatProviderPaths,
+  (event: FormatProviderPathsInput) => writeDiscoverGranulesInputs(event)({ s3: s3() }),
   L.asyncHandlerFor(FormatProviderPathsInput)
 );
 
 export const batchGranulesCMAHandler = pipe(
   batchGranules,
   L.asyncHandlerFor(BatchGranulesInput),
-  L.cmaAsyncHandler
+  L.cmaAsyncHandlerIndexed('batchIndex')
 );
 
 export const unbatchGranulesCMAHandler = pipe(

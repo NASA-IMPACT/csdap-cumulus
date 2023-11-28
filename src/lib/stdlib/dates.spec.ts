@@ -1,7 +1,7 @@
 /* eslint-disable functional/no-return-void */
 
 import test from 'ava';
-import * as O from 'fp-ts/Option';
+import * as O from 'fp-ts/lib/Option';
 
 import { range } from './dates';
 
