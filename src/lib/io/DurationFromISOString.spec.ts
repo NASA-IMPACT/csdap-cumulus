@@ -1,6 +1,6 @@
 /* eslint-disable functional/no-return-void */
 import test from 'ava';
-import * as E from 'fp-ts/Either';
+import * as E from 'fp-ts/lib/Either';
 
 import * as PR from './PathReporter';
 

@@ -1,13 +1,13 @@
 import { s3 } from '@cumulus/aws-client/services';
 import * as CMR from '@cumulus/cmrjs';
-import * as E from 'fp-ts/Either';
-import * as J from 'fp-ts/Json';
-import * as O from 'fp-ts/Option';
-import * as P from 'fp-ts/Predicate';
-import * as RT from 'fp-ts/ReaderTask';
-import * as RTE from 'fp-ts/ReaderTaskEither';
-import * as RA from 'fp-ts/ReadonlyArray';
-import { constant, pipe } from 'fp-ts/function';
+import * as E from 'fp-ts/lib/Either';
+import * as J from 'fp-ts/lib/Json';
+import * as O from 'fp-ts/lib/Option';
+import * as P from 'fp-ts/lib/Predicate';
+import * as RT from 'fp-ts/lib/ReaderTask';
+import * as RTE from 'fp-ts/lib/ReaderTaskEither';
+import * as RA from 'fp-ts/lib/ReadonlyArray';
+import { constant, pipe } from 'fp-ts/lib/function';
 import * as t from 'io-ts';
 
 import * as L from './aws/lambda';

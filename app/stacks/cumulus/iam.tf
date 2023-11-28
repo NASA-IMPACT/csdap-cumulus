@@ -26,12 +26,24 @@ locals {
 #-------------------------------------------------------------------------------
 
 data "aws_iam_policy_document" "allow_sfn_distributed_maps" {
+  # Allow StepFunctions to manage "child" executions for Distributed Maps.
   statement {
     effect = "Allow"
     actions = [
       "states:DescribeExecution",
       "states:StartExecution",
       "states:StopExecution",
+    ]
+    resources = ["*"]
+  }
+
+  # Allow StepFunctions to read input from S3, which is necessary when the size
+  # of the input array message might exceed the quota (256KiB).
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:Get*",
+      "s3:List*"
     ]
     resources = ["*"]
   }

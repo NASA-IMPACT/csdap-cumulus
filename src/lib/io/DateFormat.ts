@@ -1,7 +1,7 @@
 import * as dates from 'date-fns/fp';
-import * as E from 'fp-ts/Either';
-import * as O from 'fp-ts/Option';
-import { pipe } from 'fp-ts/function';
+import * as E from 'fp-ts/lib/Either';
+import * as O from 'fp-ts/lib/Option';
+import { pipe } from 'fp-ts/lib/function';
 import * as t from 'io-ts';
 import * as tt from 'io-ts-types';
 
@@ -14,10 +14,10 @@ import * as tt from 'io-ts-types';
  * input.
  */
 export const DateFormat = tt.withValidate(
-  tt.NonEmptyString,
+  t.string,
   (u, c) =>
     pipe(
-      tt.NonEmptyString.validate(u, c),
+      t.string.validate(u, c),
       E.chain(
         E.tryCatchK(
           O.fromPredicate(unsafeValidatDateFormat),

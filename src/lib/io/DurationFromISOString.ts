@@ -1,7 +1,7 @@
 import * as dates from 'date-fns';
 import * as duration from 'duration-fns';
-import * as E from 'fp-ts/Either';
-import { pipe } from 'fp-ts/function';
+import * as E from 'fp-ts/lib/Either';
+import { pipe } from 'fp-ts/lib/function';
 import * as t from 'io-ts';
 import * as tt from 'io-ts-types';
 

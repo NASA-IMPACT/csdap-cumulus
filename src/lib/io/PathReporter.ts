@@ -1,6 +1,6 @@
 import { fold } from 'fp-ts/lib/Either';
 import { Context, getFunctionName, ValidationError } from 'io-ts';
-import { Reporter } from 'io-ts/Reporter';
+import { Reporter } from 'io-ts/lib/Reporter';
 
 function stringify(v: unknown): string {
   if (typeof v === 'function') return getFunctionName(v);

@@ -1,5 +1,5 @@
 {
-  "extends": "@tsconfig/node14/tsconfig.json",
+  "extends": "@tsconfig/node16/tsconfig.json",
   "compilerOptions": {
     "incremental": false,
     "outDir": "build/main",
@@ -7,7 +7,7 @@
       "src",
       "scripts/src"
     ],
-    "moduleResolution": "node",
+    "moduleResolution": "Node16",
     "declaration": true,
     "declarationMap": true,
     "inlineSourceMap": true,
