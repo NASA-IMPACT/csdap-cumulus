@@ -33,6 +33,7 @@ data "aws_iam_policy_document" "allow_sfn_distributed_maps" {
       "states:DescribeExecution",
       "states:StartExecution",
       "states:StopExecution",
+      "states:RedriveExecution",
     ]
     resources = ["*"]
   }
