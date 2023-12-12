@@ -90,7 +90,7 @@
                           "buckets": "{$.meta.buckets}",
                           "stack": "{$.meta.stack}",
                           "duplicateGranuleHandling": "{$.meta.collection.duplicateHandling}",
-                          "concurrency": 8
+                          "concurrency": 4
                         }
                       }
                     },

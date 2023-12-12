@@ -121,27 +121,6 @@ resource "null_resource" "put_bucket_logging" {
 }
 # <% end %>
 
-# <% if !in_sandbox? then %>
-resource "null_resource" "allow_sns_subscriptions_from_metrics" {
-  for_each = toset(["collections", "executions", "granules", "pdrs"])
-
-  triggers = {
-    metrics_aws_account_id = data.aws_ssm_parameter.metrics_aws_account_id.value
-  }
-
-  provisioner "local-exec" {
-    interpreter = ["bash", "-c"]
-    command     = <<-COMMAND
-      aws sns add-permission \
-        --topic-arn arn:aws:sns:${var.aws_region}:${local.aws_account_id}:${var.prefix}-report-${each.value}-topic \
-        --label subscribe_from_metrics \
-        --action Subscribe \
-        --aws-account-id ${data.aws_ssm_parameter.metrics_aws_account_id.value} || true
-    COMMAND
-  }
-}
-# <% end %>
-
 resource "random_string" "token_secret" {
   length  = 32
   special = true
@@ -555,7 +534,8 @@ module "cumulus" {
   api_gateway_stage           = var.api_gateway_stage
 
   # <% if !in_sandbox? then %>
-  log_destination_arn = data.aws_ssm_parameter.log_destination_arn.value
+  log_destination_arn              = data.aws_ssm_parameter.log_destination_arn.value
+  report_sns_topic_subscriber_arns = ["arn:aws:iam::${data.aws_ssm_parameter.metrics_aws_account_id.value}:root"]
   # <% end %>
   additional_log_groups_to_elk = var.additional_log_groups_to_elk
 
