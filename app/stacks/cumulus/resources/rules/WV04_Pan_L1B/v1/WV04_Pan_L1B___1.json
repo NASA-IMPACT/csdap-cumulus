@@ -11,7 +11,7 @@
   },
   "workflow": "DiscoverAndQueueGranules",
   "meta": {
-    "discoverOnly": true,
+    "discoverOnly": false,
     "providerPathFormat": "'WV04_Pan_L1B___1/'yyyy/DDD",
     "startDate": "2017-01-01T00:00:00Z",
     "endDate": "2019-01-01T00:00:00Z",
