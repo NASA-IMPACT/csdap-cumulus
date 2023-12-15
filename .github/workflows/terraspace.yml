@@ -74,7 +74,7 @@ jobs:
         run: |
           # Ruby requires g++ to build gem native extensions
           sudo apt-get install -y --no-install-recommends g++ ruby-full
-          sudo gem install bundler
+          sudo gem install bundler -v 2.4.22
 
       - name: Install tfenv
         run: |
