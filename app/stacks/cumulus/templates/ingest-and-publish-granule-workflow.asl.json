@@ -304,12 +304,29 @@
           "ErrorEquals": [
             "States.ALL"
           ],
-          "Next": "Failed",
+          "Next": "RecordFailure",
           "ResultPath": "$.exception"
         }
       ],
       "OutputPath": "$[0]",
       "End": true
+    },
+    "RecordFailure": {
+      "Type": "Task",
+      "Resource": "${record_workflow_failure_task_arn}",
+      "Next": "Failed",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        }
+      ]
     },
     "Failed": {
       "Type": "Fail",

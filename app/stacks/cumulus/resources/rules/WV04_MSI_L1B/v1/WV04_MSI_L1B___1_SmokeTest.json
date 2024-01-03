@@ -4,7 +4,7 @@
   "rule": {
     "type": "onetime"
   },
-  "provider": "maxar",
+  "provider": "cumulus",
   "collection": {
     "name": "WV04_MSI_L1B",
     "version": "1"
@@ -12,7 +12,7 @@
   "workflow": "DiscoverAndQueueGranules",
   "meta": {
     "discoverOnly": false,
-    "providerPathFormat": "'css/nga/WV04/1B/'yyyy/DDD",
+    "providerPathFormat": "'WV04_MSI_L1B___1/'yyyy/DDD",
     "ingestedPathFormat": "'WV04_MSI_L1B___1/'yyyy/DDD",
     "startDate": "2017-05-04T00:00:00Z",
     "endDate": "2017-05-05T00:00:00Z",

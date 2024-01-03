@@ -16,7 +16,7 @@ const DURATION_OBJECT_KEYS = Object.freeze([
   'milliseconds',
 ]);
 
-export type DurationFromISOStringC = t.Type<Duration, string, unknown>;
+export type DurationFromISOStringC = t.Type<dates.Duration, string, unknown>;
 
 /**
  * Codec to convert between strings and Duration objects.  When decoding a string,
