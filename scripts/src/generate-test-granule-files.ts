@@ -3,8 +3,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 import * as Cmd from 'cmd-ts';
-import { Directory } from 'cmd-ts/batteries/fs';
 import * as Result from 'cmd-ts/dist/cjs/Result';
+import { Directory } from 'cmd-ts/dist/cjs/batteries/fs';
 import { Exit } from 'cmd-ts/dist/cjs/effects';
 import * as fp from 'lodash/fp';
 

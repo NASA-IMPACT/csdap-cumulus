@@ -7,7 +7,6 @@
       "src",
       "scripts/src"
     ],
-    "moduleResolution": "Node16",
     "declaration": true,
     "declarationMap": true,
     "inlineSourceMap": true,

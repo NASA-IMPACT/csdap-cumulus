@@ -352,6 +352,29 @@ resource "aws_lambda_function" "add_ummg_checksums" {
   }
 }
 
+resource "aws_lambda_function" "record_workflow_failure" {
+  function_name = "${var.prefix}-RecordWorkflowFailure"
+  filename      = data.archive_file.lambda.output_path
+  role          = module.cumulus.lambda_processing_role_arn
+  handler       = "index.recordWorkflowFailureHandler"
+  runtime       = local.lambda_runtime
+  timeout       = 60
+  memory_size   = 128
+
+  source_code_hash = data.archive_file.lambda.output_base64sha256
+  layers           = [module.cma.lambda_layer_version_arn]
+
+  tags = local.tags
+
+  dynamic "vpc_config" {
+    for_each = length(module.vpc.subnets.ids) == 0 ? [] : [1]
+    content {
+      subnet_ids         = module.vpc.subnets.ids
+      security_group_ids = [aws_security_group.egress_only.id]
+    }
+  }
+}
+
 #-------------------------------------------------------------------------------
 # MODULES
 #-------------------------------------------------------------------------------
@@ -447,7 +470,8 @@ module "ingest_and_publish_granule_workflow" {
     move_granules_task_arn : module.cumulus.move_granules_task.task_arn,
     update_granules_cmr_metadata_file_links_task_arn : module.cumulus.update_granules_cmr_metadata_file_links_task.task_arn,
     copy_to_archive_adapter_task_arn : module.cumulus.orca_copy_to_archive_adapter_task.task_arn,
-    post_to_cmr_task_arn : module.cumulus.post_to_cmr_task.task_arn
+    post_to_cmr_task_arn : module.cumulus.post_to_cmr_task.task_arn,
+    record_workflow_failure_task_arn : aws_lambda_function.record_workflow_failure.arn,
   })
 }
 

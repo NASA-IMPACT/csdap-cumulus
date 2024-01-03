@@ -271,7 +271,7 @@ export const writeDiscoverGranulesInputs =
 export const discoveryDateRange = (
   startDate: Date,
   endDate: O.Option<Date>,
-  step: O.Option<Duration>
+  step: O.Option<dates.Duration>
 ): readonly Date[] => {
   const now = () => new Date(Date.now());
   return dateRange(startDate, pipe(endDate, O.getOrElse(now)), step);
