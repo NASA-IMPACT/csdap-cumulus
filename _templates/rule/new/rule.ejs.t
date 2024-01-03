@@ -28,6 +28,7 @@ message: >
     "ingestedPathFormat": "<%- ingestedPathFormat %>",
     "startDate": "<%= startYear %>-01-01T00:00:00Z",
     "endDate": "<%= parseInt(endYear) + 1 %>-01-01T00:00:00Z",
-    "step": "P1D"
+    "step": "P1D",
+    "maxBatchSize": 200,
   }
 }
