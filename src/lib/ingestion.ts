@@ -303,11 +303,13 @@ export const recordWorkflowFailureRT = (event: FailedEvent) => {
   const failureDetails = toFailureDetails(event);
   const bucket = event.cumulus_meta.system_bucket;
   const { parentExecutionArn } = event.cumulus_meta;
-  const parentExecutionName = parentExecutionArn.split(':').slice(-1)[0];
+  const parentExecutionName = parentExecutionArn
+    ? `DiscoverAndQueueGranules-${parentExecutionArn.split(':').slice(-1)[0]}`
+    : 'reingest'; // There is no parent execution, so this is a reingest workflow
   const key = [
     'failures',
     event.meta.workflow_name,
-    `DiscoverAndQueueGranules-${parentExecutionName}`,
+    parentExecutionName,
     `${event.cumulus_meta.execution_name}.json`,
   ].join('/');
 
