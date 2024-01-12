@@ -30,7 +30,7 @@
     "DiscoverGranulesMap": {
       "Type": "Map",
       "End": true,
-      "MaxConcurrency": 10,
+      "MaxConcurrency": 3,
       "ToleratedFailurePercentage": 3,
       "ItemReader": {
         "Resource": "arn:aws:states:::s3:getObject",
@@ -155,7 +155,7 @@
                   },
                   "QueueGranulesMap": {
                     "Type": "Map",
-                    "MaxConcurrency": 10,
+                    "MaxConcurrency": 1,
                     "ToleratedFailurePercentage": 0,
                     "ItemsPath": "$",
                     "ResultWriter": {
@@ -287,7 +287,7 @@
                                 "TargetPath": "$.payload"
                               },
                               "task_config": {
-                                "concurrency": 1,
+                                "concurrency": 2,
                                 "queueUrl": "${background_job_queue_url}",
                                 "preferredQueueBatchSize": "{$.meta.collection.meta.preferredQueueBatchSize}",
                                 "provider": "{$.meta.provider}",

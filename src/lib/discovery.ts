@@ -61,13 +61,13 @@ type BucketKey = {
   readonly key: string;
 };
 
-// Default maximum batch size for batching granules after discovery is 200, but this
+// Default maximum batch size for batching granules after discovery is 5000, but this
 // can be set on a per rule basis by setting `meta.maxBatchSize` in a rule definition.
 export const BatchGranulesInput = t.readonly(
   t.type({
     config: t.type({
       providerPath: t.string,
-      maxBatchSize: tt.fromNullable(t.number, 200),
+      maxBatchSize: tt.fromNullable(t.number, 5000),
     }),
     input: DiscoverGranulesOutput,
   })
