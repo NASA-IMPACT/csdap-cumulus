@@ -36,7 +36,21 @@
                   }
                 }
               },
-              "Next": "SyncGranule"
+              "Next": "SyncGranule",
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Lambda.ClientExecutionTimeoutException",
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
+                  ],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 6,
+                  "BackoffRate": 2
+                }
+              ]
             },
             "SyncGranule": {
               "Parameters": {
@@ -81,6 +95,18 @@
               "Retry": [
                 {
                   "ErrorEquals": [
+                    "Lambda.ClientExecutionTimeoutException",
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
+                  ],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 6,
+                  "BackoffRate": 2
+                },
+                {
+                  "ErrorEquals": [
                     "States.ALL"
                   ],
                   "IntervalSeconds": 2,
@@ -117,7 +143,29 @@
                   }
                 }
               },
-              "Next": "AddMissingFileChecksums"
+              "Next": "AddMissingFileChecksums",
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Lambda.ClientExecutionTimeoutException",
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
+                  ],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 6,
+                  "BackoffRate": 2
+                },
+                {
+                  "ErrorEquals": [
+                    "States.ALL"
+                  ],
+                  "IntervalSeconds": 2,
+                  "BackoffRate": 2,
+                  "MaxAttempts": 3
+                }
+              ]
             },
             "AddMissingFileChecksums": {
               "Type": "Task",
@@ -148,7 +196,29 @@
                   }
                 }
               },
-              "Next": "MoveGranule"
+              "Next": "MoveGranule",
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Lambda.ClientExecutionTimeoutException",
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
+                  ],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 6,
+                  "BackoffRate": 2
+                },
+                {
+                  "ErrorEquals": [
+                    "States.ALL"
+                  ],
+                  "IntervalSeconds": 2,
+                  "BackoffRate": 2,
+                  "MaxAttempts": 3
+                }
+              ]
             },
             "MoveGranule": {
               "Parameters": {
@@ -174,14 +244,23 @@
               "Retry": [
                 {
                   "ErrorEquals": [
+                    "Lambda.ClientExecutionTimeoutException",
                     "Lambda.ServiceException",
                     "Lambda.AWSLambdaException",
                     "Lambda.SdkClientException",
-                    "States.TaskFailed"
+                    "Lambda.TooManyRequestsException"
+                  ],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 6,
+                  "BackoffRate": 2
+                },
+                {
+                  "ErrorEquals": [
+                    "States.ALL"
                   ],
                   "IntervalSeconds": 2,
                   "BackoffRate": 2,
-                  "MaxAttempts": 6
+                  "MaxAttempts": 3
                 }
               ]
             },
@@ -218,13 +297,23 @@
               "Retry": [
                 {
                   "ErrorEquals": [
+                    "Lambda.ClientExecutionTimeoutException",
                     "Lambda.ServiceException",
                     "Lambda.AWSLambdaException",
-                    "Lambda.SdkClientException"
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
                   ],
                   "IntervalSeconds": 2,
                   "MaxAttempts": 6,
                   "BackoffRate": 2
+                },
+                {
+                  "ErrorEquals": [
+                    "States.ALL"
+                  ],
+                  "IntervalSeconds": 2,
+                  "BackoffRate": 2,
+                  "MaxAttempts": 3
                 }
               ]
             },
@@ -246,20 +335,29 @@
               },
               "Type": "Task",
               "Resource": "${copy_to_archive_adapter_task_arn}",
+              "Next": "PostToCmr",
               "Retry": [
                 {
                   "ErrorEquals": [
+                    "Lambda.ClientExecutionTimeoutException",
                     "Lambda.ServiceException",
                     "Lambda.AWSLambdaException",
                     "Lambda.SdkClientException",
-                    "States.TaskFailed"
+                    "Lambda.TooManyRequestsException"
                   ],
                   "IntervalSeconds": 2,
                   "MaxAttempts": 6,
                   "BackoffRate": 2
+                },
+                {
+                  "ErrorEquals": [
+                    "States.ALL"
+                  ],
+                  "IntervalSeconds": 2,
+                  "BackoffRate": 2,
+                  "MaxAttempts": 3
                 }
-              ],
-              "Next": "PostToCmr"
+              ]
             },
             "PostToCmr": {
               "Parameters": {
@@ -284,14 +382,23 @@
               "Retry": [
                 {
                   "ErrorEquals": [
+                    "Lambda.ClientExecutionTimeoutException",
                     "Lambda.ServiceException",
                     "Lambda.AWSLambdaException",
                     "Lambda.SdkClientException",
-                    "States.TaskFailed"
+                    "Lambda.TooManyRequestsException"
                   ],
                   "IntervalSeconds": 2,
                   "MaxAttempts": 6,
                   "BackoffRate": 2
+                },
+                {
+                  "ErrorEquals": [
+                    "States.ALL"
+                  ],
+                  "IntervalSeconds": 2,
+                  "BackoffRate": 2,
+                  "MaxAttempts": 3
                 }
               ],
               "End": true

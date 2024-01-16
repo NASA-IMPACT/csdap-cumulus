@@ -28,6 +28,8 @@ module "rds_cluster" {
   permissions_boundary_arn = local.permissions_boundary_arn
   prefix                   = var.prefix
   provision_user_database  = true
+  min_capacity             = var.min_capacity
+  max_capacity             = var.max_capacity
   # ORCA requires us to use a password that contains a special character, but there is
   # some Cumulus constraint that allows only an underscore (in addition to alphanumeric
   # characters), and no other special characters, so we must generate a password that
