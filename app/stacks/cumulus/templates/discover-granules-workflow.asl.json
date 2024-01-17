@@ -30,8 +30,8 @@
     "DiscoverGranulesMap": {
       "Type": "Map",
       "End": true,
-      "MaxConcurrency": 3,
-      "ToleratedFailurePercentage": 3,
+      "MaxConcurrency": 7,
+      "ToleratedFailurePercentage": 1,
       "ItemReader": {
         "Resource": "arn:aws:states:::s3:getObject",
         "ReaderConfig": {
@@ -102,7 +102,8 @@
                           "Lambda.ClientExecutionTimeoutException",
                           "Lambda.ServiceException",
                           "Lambda.AWSLambdaException",
-                          "Lambda.SdkClientException"
+                          "Lambda.SdkClientException",
+                          "Lambda.TooManyRequestsException"
                         ],
                         "IntervalSeconds": 2,
                         "MaxAttempts": 6,
@@ -144,7 +145,8 @@
                           "Lambda.ClientExecutionTimeoutException",
                           "Lambda.ServiceException",
                           "Lambda.AWSLambdaException",
-                          "Lambda.SdkClientException"
+                          "Lambda.SdkClientException",
+                          "Lambda.TooManyRequestsException"
                         ],
                         "IntervalSeconds": 2,
                         "MaxAttempts": 6,
@@ -155,7 +157,7 @@
                   },
                   "QueueGranulesMap": {
                     "Type": "Map",
-                    "MaxConcurrency": 1,
+                    "MaxConcurrency": 2,
                     "ToleratedFailurePercentage": 0,
                     "ItemsPath": "$",
                     "ResultWriter": {
@@ -195,7 +197,8 @@
                                 "Lambda.ClientExecutionTimeoutException",
                                 "Lambda.ServiceException",
                                 "Lambda.AWSLambdaException",
-                                "Lambda.SdkClientException"
+                                "Lambda.SdkClientException",
+                                "Lambda.TooManyRequestsException"
                               ],
                               "IntervalSeconds": 2,
                               "MaxAttempts": 6,
@@ -245,7 +248,8 @@
                                 "Lambda.ClientExecutionTimeoutException",
                                 "Lambda.ServiceException",
                                 "Lambda.AWSLambdaException",
-                                "Lambda.SdkClientException"
+                                "Lambda.SdkClientException",
+                                "Lambda.TooManyRequestsException"
                               ],
                               "IntervalSeconds": 2,
                               "MaxAttempts": 6,
@@ -287,7 +291,7 @@
                                 "TargetPath": "$.payload"
                               },
                               "task_config": {
-                                "concurrency": 2,
+                                "concurrency": 4,
                                 "queueUrl": "${background_job_queue_url}",
                                 "preferredQueueBatchSize": "{$.meta.collection.meta.preferredQueueBatchSize}",
                                 "provider": "{$.meta.provider}",
@@ -303,14 +307,27 @@
                           "Resource": "${queue_granules_task_arn}",
                           "Retry": [
                             {
+                              "Comment": "Include 'Error' because Cumulus fails to rethrow Knex errors as something more specific.",
                               "ErrorEquals": [
+                                "Error",
                                 "Lambda.ClientExecutionTimeoutException",
                                 "Lambda.ServiceException",
                                 "Lambda.AWSLambdaException",
-                                "Lambda.SdkClientException"
+                                "Lambda.SdkClientException",
+                                "Lambda.TooManyRequestsException"
                               ],
                               "IntervalSeconds": 2,
                               "MaxAttempts": 6,
+                              "BackoffRate": 2
+                            },
+                            {
+                              "Comment": "When approaching a timeout, the CMA causes early termination, thus preventing an actual timeout, which produces 'Lambda.Unknown' errors instead.  In these cases, we don't want as many retries, and we want to space them further apart.",
+                              "ErrorEquals": [
+                                "Lambda.Unknown",
+                                "States.Timeout"
+                              ],
+                              "IntervalSeconds": 120,
+                              "MaxAttempts": 4,
                               "BackoffRate": 2
                             }
                           ]

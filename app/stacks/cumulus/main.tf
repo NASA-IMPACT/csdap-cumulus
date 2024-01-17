@@ -161,9 +161,9 @@ resource "aws_cloudwatch_event_target" "background_job_queue_watcher" {
   arn  = module.cumulus.sqs2sfThrottle_lambda_function_arn
   input = jsonencode(
     {
-      messageLimit = 1000
+      messageLimit = 300
       queueUrl     = aws_sqs_queue.background_job_queue.id
-      timeLimit    = 60
+      timeLimit    = 30
     }
   )
 }
@@ -576,7 +576,7 @@ module "cumulus" {
     {
       id              = "backgroundJobQueue",
       url             = aws_sqs_queue.background_job_queue.id,
-      execution_limit = 300
+      execution_limit = 500
     }
   ]
 }
