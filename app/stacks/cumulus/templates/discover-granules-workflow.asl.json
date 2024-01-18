@@ -30,7 +30,7 @@
     "DiscoverGranulesMap": {
       "Type": "Map",
       "End": true,
-      "MaxConcurrency": 7,
+      "MaxConcurrency": 3,
       "ToleratedFailurePercentage": 1,
       "ItemReader": {
         "Resource": "arn:aws:states:::s3:getObject",
@@ -157,7 +157,7 @@
                   },
                   "QueueGranulesMap": {
                     "Type": "Map",
-                    "MaxConcurrency": 2,
+                    "MaxConcurrency": 1,
                     "ToleratedFailurePercentage": 0,
                     "ItemsPath": "$",
                     "ResultWriter": {
