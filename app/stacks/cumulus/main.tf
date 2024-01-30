@@ -576,7 +576,7 @@ module "cumulus" {
     {
       id              = "backgroundJobQueue",
       url             = aws_sqs_queue.background_job_queue.id,
-      execution_limit = 1000
+      execution_limit = 1200
     }
   ]
 }
