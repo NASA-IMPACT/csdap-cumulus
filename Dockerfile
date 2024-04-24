@@ -44,6 +44,7 @@ WORKDIR /work
 # without releasing locks, wreaking havoc.  This sets the timeout to 4 hours.
 # See https://community.boltops.com/t/terraspace-execution-timeout/846
 ENV TS_BUFFER_TIMEOUT=14400
+ENV TS_VERSION_CHECK=0
 
 # Install all of the Terraspace Ruby dependencies listed in Gemfile.lock.  This
 # is required because the /usr/local/bin/terraspace wrapper runs `bundle exec`

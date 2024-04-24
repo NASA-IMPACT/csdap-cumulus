@@ -15,7 +15,7 @@ data "aws_secretsmanager_secret_version" "rds_cluster_user_credentials_secret_ve
 }
 
 module "orca" {
-  source = "https://github.com/nasa/cumulus-orca/releases/download/v8.1.0/cumulus-orca-terraform.zip"
+  source = "https://github.com/nasa/cumulus-orca/releases/download/v9.0.5/cumulus-orca-terraform.zip"
   #--------------------------
   # Cumulus variables
   #--------------------------
