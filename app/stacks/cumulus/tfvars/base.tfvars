@@ -21,6 +21,7 @@ system_bucket = "<%= bucket('internal') %>"
 
 buckets = {
   # https://nasa.github.io/cumulus-orca/docs/developer/deployment-guide/deployment-s3-bucket/
+  # Note, this means that Sandbox and UAT deployments all share the same UAT DR accounts ORCA buckets
   orca_reports = {
     name = "<%= %Q[csda-cumulus-cba-#{Terraspace.env == 'prod' ? 'prod' : 'uat'}-orca-reports] %>"
     type = "orca"
