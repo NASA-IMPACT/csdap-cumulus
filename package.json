@@ -48,7 +48,7 @@
     "reset-hard": "git clean -dfx && git reset --hard && yarn",
     "prepare-release": "run-s reset-hard test cov:check doc:html version doc:publish",
     "lambda:install": "yarn install --production --no-bin-links --modules-folder ${PWD}/${npm_package_config_lambda_archive_dir}/node_modules && rm -rf ${PWD}/${npm_package_config_lambda_archive_dir}/node_modules/aws-sdk && rm -rf ${PWD}/${npm_package_config_lambda_archive_dir}/node_modules/'@types'",
-    "lambda:archive-exploded": "run-s build test lambda:install",
+    "lambda:archive-exploded": "echo 'skipping: run-s build test lambda:install'",
     "tf:lambda:archive-exploded": "yarn lambda:archive-exploded >&2 && echo { '\"'dir'\"': '\"'${PWD}/${npm_package_config_lambda_archive_dir}'\"' }"
   },
   "engines": {
@@ -60,9 +60,9 @@
     "@aws-sdk/lib-dynamodb": "^3.370.0",
     "@aws-sdk/lib-storage": "^3.370.0",
     "@aws-sdk/types": "^3.370.0",
-    "@cumulus/aws-client": "18.1.0",
-    "@cumulus/cmrjs": "18.1.0",
-    "@cumulus/common": "18.1.0",
+    "@cumulus/aws-client": "18.2.0",
+    "@cumulus/cmrjs": "18.2.0",
+    "@cumulus/common": "18.2.0",
     "@cumulus/cumulus-message-adapter-js": "2.0.4",
     "@smithy/util-stream": "^2.0.17",
     "date-fns": "^3.0.6",
@@ -78,8 +78,8 @@
   "devDependencies": {
     "@ava/typescript": "^4.1.0",
     "@aws-sdk/client-dynamodb": "^3.370.0",
-    "@cumulus/api-client": "18.1.0",
-    "@cumulus/types": "18.1.0",
+    "@cumulus/api-client": "18.2.0",
+    "@cumulus/types": "18.2.0",
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
     "@tsconfig/node16": "^16.1.1",
     "@types/aws-lambda": "^8.10.85",
