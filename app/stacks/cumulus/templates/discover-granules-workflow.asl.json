@@ -163,7 +163,7 @@
                     "ResultWriter": {
                       "Resource": "arn:aws:states:::s3:putObject",
                       "Parameters": {
-                        "Bucket.$": "$.[0].cumulus_meta.system_bucket",
+                        "Bucket.$": "$[0].cumulus_meta.system_bucket",
                         "Prefix": "mapRun"
                       }
                     },
