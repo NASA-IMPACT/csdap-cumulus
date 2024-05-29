@@ -12,7 +12,7 @@
   "workflow": "DiscoverAndQueueGranules",
   "meta": {
     "discoverOnly": false,
-    "providerPathFormat": "'WV02_Pan_L1B___1/'yyyy/DDD",
+    "providerPathFormat": "'css/nga/WV02/1B/'yyyy/DDD",
     "ingestedPathFormat": "'WV02_Pan_L1B___1/'yyyy/DDD",
     "startDate": "2009-11-17T00:00:00Z",
     "endDate": "2023-01-01T00:00:00Z",
