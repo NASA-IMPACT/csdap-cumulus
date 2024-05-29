@@ -1,0 +1,21 @@
+{
+  "name": "WV02_Pan_L1B___1_SmokeTest",
+  "state": "DISABLED",
+  "rule": {
+    "type": "onetime"
+  },
+  "provider": "maxar",
+  "collection": {
+    "name": "WV02_Pan_L1B",
+    "version": "1"
+  },
+  "workflow": "DiscoverAndQueueGranules",
+  "meta": {
+    "discoverOnly": false,
+    "providerPathFormat": "'css/nga/WV02/1B/'yyyy/DDD",
+    "ingestedPathFormat": "'WV02_Pan_L1B___1/'yyyy/DDD",
+    "startDate": "2009-11-18T00:00:00Z",
+    "endDate": "2009-11-19T00:00:00Z",
+    "step": "P1D"
+  }
+}
