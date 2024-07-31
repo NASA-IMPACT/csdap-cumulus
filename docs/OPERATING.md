@@ -15,6 +15,10 @@
   - [Performing Discovery without Ingestion](#performing-discovery-without-ingestion)
 - [Updating CMR Metadata (Self Discovery)](#updating-cmr-metadata-self-discovery)
 - [Destroying a Deployment](#destroying-a-deployment)
+- [Cognito Integration](#cognito-integration)
+  - [Updating Vendor Based Data Access Filter](#updating-vendor-based-data-access-filter)
+
+
 
 ## Update Launchpad Certificate
 
@@ -777,7 +781,7 @@ make nuke
 ```
 
 After confirmation (you will have an opportunity to abort), this will destroy
-all resources managed by Terraform in all of the modules (`cumulus`, then
+all resources managed by Terraform in all of the modules (`post-deploy-mods`, then `cumulus`, then
 `data-persistence`, and finally `rds-cluster`), so it will take quite a bit of
 time to complete.
 
@@ -788,6 +792,65 @@ you must manually finish any cleanup effort.
 
 **NOTE:** If you encounter any errors during destruction, refer to the
 [troubleshooting guide](./TROUBLESHOOTING.md).
+
+## Cognito Integration
+Cognito Integration path through Cumulus for a user to get data:
+- A request is made for data which hits the lambda endpoint named cumulus-<ENV>-DistributionApiEndPoints
+- If the request is for an S3 file, then it gets forwarded to ESDIS Cognito System for User Login
+- After the User has a successful login, the request then comes back to cumulus-<ENV>-DistributionApiEndPoints where the file is served.
+- Note: There is a custom layer in pre-filter-DistributionApiEndpoints where a user's vendor access variable is checked before allowing or denying the file access.
+
+Related AWS Components and Configuration
+- API Gateway Connected to Lambda
+- Lambda cumulus-<ENV>-DistributionApiEndPoints
+- Lambda pre-filter-<ENV>-DistributionApiEndPoints
+- CloudFront Distribution Configuration 
+  - Under Origins, there should be a path that points to an origin domain that begins with `s3-`
+  - This part of the config happens on the ESDIS side.
+
+Vendor Based Access to Datasets
+- CSDA Admin Staff are able to configure which user has access to which vendor (this process may even be automated in another system)
+- On the ESDIS side, the custom property contain the list of allowed Vendors is attached to the user upon authentication
+- On this side, within pre-filter-<ENV>-DistributionApiEndpoints, the request is checked against the access list and the request is either denied, or allowed to proceed.
+- Each Vendor has its own set of subdirectories which correspond to datasets.
+- The pre-filter-<ENV>-DistributionApiEndpoints lambda is packaged up and sent to AWS via the 4th module named `post-deploy-mods`
+  - Note: The Deployment in Terraspace was configured so the deployment of post-deploy-mods happens AFTER the `cumulus` module.  
+If this deployment happens before the `cumulus` module, then the vendor filter function will not be located in its proper place at the back end of the API Gateway for Distribution Endpoints.  
+
+
+### Updating Vendor Based Data Access Filter
+
+Directly in the Code:
+- Note: It is better to update the local copy of the code rather than AWS deployed version.  See section below.
+- Log in to the AWS Dashboard (Testing only works in UAT or PROD since there is no sandbox set up with ESDIS cognito authentication)
+- Browse to the Lambda functions on AWS.
+  - Search for "pre-filter-DistributionApiEndpoints"
+  - Search URL: https://us-west-2.console.aws.amazon.com/lambda/home?region=us-west-2#/functions?fo=and&o0=%3A&v0=pre-filter-DistributionApiEndpoints
+- Open the Lambda function and view. 
+ - On UAT this function is called, "cumulus-uat-pre-filter-DistributionApiEndpoints" 		// https://us-west-2.console.aws.amazon.com/lambda/home?region=us-west-2#/functions/cumulus-uat-pre-filter-DistributionApiEndpoints?tab=code
+ - On PROD this function is called, "cumulus-prod-pre-filter-DistributionApiEndpoints" 	// https://us-west-2.console.aws.amazon.com/lambda/home?region=us-west-2#/functions/cumulus-prod-pre-filter-DistributionApiEndpoints?tab=code
+- Edit the code, by following the steps under "Updating the Code definition to add a new vendor"
+- When code updates are completed, make sure to save (ctrl+s) and then click on Deploy
+
+Updating the Code definition to add a new vendor
+- Edit the local copy of the Code (found in `apps/stacks/post-deploy-mods/resources/lambdas/pre-filter-DistributionApiEndpoints/src/lambda_function.py` )
+  - Look for a variable named: `vendor_to_dataset_map`
+This is a python dictionary.  The top level keys are vendor names.
+At the time of this writing, the current vendor names are: `planet` and `maxar`.
+The value after each of these vendor names is an array which lists the top level directories where that vendor's datasets are found.
+For example, under the vendor `maxar` we have multiple datasets which have S3 directory names of: `['WV04_MSI_L1B___1', 'WV04_Pan_L1B___1','WV03_MSI_L1B___1', 'WV03_Pan_L1B___1','WV02_MSI_L1B___1', 'WV02_Pan_L1B___1','WV01_MSI_L1B___1', 'WV01_Pan_L1B___1','GE01_MSI_L1B___1', 'GE01_Pan_L1B___1']`
+  - To add a new vendor (`testvendor`), 
+    - create a new top level key such as `testvendor`
+    - next, add an array containing all of the subdirectories for that vendor.
+      - If there is only 1 to add, it will be a single element string array. 
+Example:  `'testvendor': ['tv01_data']` 	// Adding a vendor called, `testvendor` with a single dataset directory called, `tv01_data`.
+  - Important Note. The vendor names should be lowercase and have no spaces or non-alpha numeric characters.  The first character should not be a number.  Not following this note may lead to errors for users attempting to download data.
+      
+
+
+END 
+
+
 
 [Cumulus API]:
   https://nasa.github.io/cumulus-api/

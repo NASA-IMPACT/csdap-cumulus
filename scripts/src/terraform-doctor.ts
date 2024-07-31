@@ -11,7 +11,7 @@
  *
  * where:
  *
- *   - MODULE is one of: cumulus, data-persistence, rds-cluster
+ *   - MODULE is one of: cumulus, data-persistence, rds-cluster, post-deploy-mods
  *   - PRESCRIPTION is the list of commands output by terraform-doctor.  After
  *     changing directory to the corresponding module path, run every command
  *     output by terraform-doctor before changing directory back to `/work`.

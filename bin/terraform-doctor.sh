@@ -23,7 +23,7 @@ set -eou pipefail
 _module=${1:-}
 
 if [[ -z "${_module}" ]]; then
-  echo "Usage: ${0} [cumulus | data-persistence | rds-cluster]" 2>&1
+  echo "Usage: ${0} [cumulus | data-persistence | rds-cluster | post-deploy-mods]" 2>&1
   echo "" 2>&1
   echo "ERROR: No module specified." 2>&1
   exit 1
