@@ -1,12 +1,12 @@
 # main.tf for post-deploy-mods
 
 # Define the Lambda Function
-resource "aws_lambda_function" "pre_filter_DistributionApiEndpoints" {
+resource "aws_lambda_function" "pre_filter_DistApiEndpoints" {
   # function_name = "ks-test-pre-filter-DistributionApiEndpoints"
-  function_name = "${var.prefix}-pre-filter-DistributionApiEndpoints"
+  function_name = "${var.prefix}-pre-filter-DistApiEndpoints"
   filename      = "${path.module}/resources/lambdas/pre-filter-DistributionApiEndpoints/distro/lambda.zip"
-  role          = aws_iam_role.lambda_exec_pre_filter_DistributionApiEndpoints.arn
-  handler       = "index.preFilterDistributionApiEndpointsHandler"
+  role          = aws_iam_role.lambda_exec_pre_filter_DistApiEndpoints.arn
+  handler       = "index.preFilterDistApiEndpoints"
   runtime       = "python3.10" #local.lambda_runtime
   timeout       = 300
   memory_size   = 3008
@@ -15,13 +15,14 @@ resource "aws_lambda_function" "pre_filter_DistributionApiEndpoints" {
 
   lifecycle {
     create_before_destroy = true
+    prevent_destroy = true
   }
 }
 
 # Define the Execution Role and Policy
-resource "aws_iam_role" "lambda_exec_pre_filter_DistributionApiEndpoints" {
+resource "aws_iam_role" "lambda_exec_pre_filter_DistApiEndpoints" {
   #name = "lambda_exec_role_pre_filter_DistributionApiEndpoints"
-  name = "${var.prefix}-lambda_exe_role_pf_DistApiEndpoints"  # Must be 64 chars or less
+  name = "${var.prefix}-lamb_exe_role_pf_DistApiEndpoints"  # Must be 64 chars or less
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -40,14 +41,14 @@ resource "aws_iam_role" "lambda_exec_pre_filter_DistributionApiEndpoints" {
 
 # Define an attachment to the aws_iam_role above
 resource "aws_iam_role_policy_attachment" "lambda_exec_policy" {
-  role = aws_iam_role.lambda_exec_pre_filter_DistributionApiEndpoints.name
+  role = aws_iam_role.lambda_exec_pre_filter_DistApiEndpoints.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
 # Define another policy attachment to allow invoking of another lambda
 resource "aws_iam_policy" "lambda_invoke_policy" {
   #name        = "lambda_invoke_policy"
-  name        = "${var.prefix}-lambda_invoke_policy"
+  name        = "${var.prefix}-lambda_pf_invoke_policy"
   description = "Policy to allow Lambda functions to invoke other Lambda functions"
   policy      = jsonencode({
     Version = "2012-10-17"
@@ -65,7 +66,7 @@ resource "aws_iam_policy" "lambda_invoke_policy" {
 
 # Attach the Policy, which allows a Lambda to be Invoked, to the Lambda Role
 resource "aws_iam_role_policy_attachment" "lambda_invoke_policy_attachment" {
-  role        = aws_iam_role.lambda_exec_pre_filter_DistributionApiEndpoints.name
+  role        = aws_iam_role.lambda_exec_pre_filter_DistApiEndpoints.name
   policy_arn  = aws_iam_policy.lambda_invoke_policy.arn
 }
 
@@ -100,7 +101,7 @@ data "aws_api_gateway_resource" "proxy_resource" {
 #  http_method = "GET"
 #  integration_http_method = "POST" #"GET"
 #  type = "AWS_PROXY"
-#  uri = aws_lambda_function.pre_filter_DistributionApiEndpoints.invoke_arn
+#  uri = aws_lambda_function.pre_filter_DistApiEndpoints.invoke_arn
 #}
 
 # Update the integration for the root resource with GET method
@@ -110,14 +111,14 @@ resource "aws_api_gateway_integration" "proxy_lambda_integration" {
   http_method = "ANY"
   integration_http_method = "POST" #"GET"
   type = "AWS_PROXY"
-  uri = aws_lambda_function.pre_filter_DistributionApiEndpoints.invoke_arn
+  uri = aws_lambda_function.pre_filter_DistApiEndpoints.invoke_arn
 }
 
 # Ensure the Lambda function as the necessary permissions to be invoked by API Gateway
 resource "aws_lambda_permission" "api_gateway" {
   statement_id = "AllowAPIGatewayInvoke"
   action = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.pre_filter_DistributionApiEndpoints.function_name
+  function_name = aws_lambda_function.pre_filter_DistApiEndpoints.function_name
   principal = "apigateway.amazonaws.com"
   source_arn = "${data.aws_api_gateway_rest_api.distribution_api.execution_arn}/*/*"
 }
