@@ -1,4 +1,4 @@
-# Imports Section
+# Import Section
 import json
 
 # For catching generic errors
@@ -7,11 +7,12 @@ import sys
 # To call another lambda, from this lambda
 import boto3
 
+
 # SETTINGS
 #
 # This function's name (for logging purposes)
 #this_function_name = "cumulus-prod-pre-filter-DistributionApiEndpoints"
-this_function_name = "cumulus-kris-sbx7894-pre-filter-DistributionApiEndpoints"
+this_function_name = "cumulus-kris-sbx7894-pre-filter-DistApiEndpoints"
 
 #
 # If this is set to False, this function does nothing extra than the original lambda did, it just allows a pass through
@@ -185,7 +186,7 @@ def lambda_handler(event, context):
           statusCode = 200
 
           msg_to_user = f'"insufficient permissions"'
-          # ret_event = {'statusCode': 200, 'body': json.dumps('Hello from Lambda!:  cumulus-uat-pre-filter-DistributionApiEndpoints') }
+          # ret_event = {'statusCode': 200, 'body': json.dumps('Hello from Lambda!:  cumulus-uat-pre-filter-DistApiEndpoints') }
           ret_event = {'statusCode': statusCode, 'body': json.dumps(f'{msg_to_user}')}
 
 
