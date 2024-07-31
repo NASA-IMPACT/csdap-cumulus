@@ -4,14 +4,14 @@
 resource "aws_lambda_function" "pre_filter_DistributionApiEndpoints" {
   # function_name = "ks-test-pre-filter-DistributionApiEndpoints"
   function_name = "${var.prefix}-pre-filter-DistributionApiEndpoints"
-  filename      = "${path.module}/resources/lambdas/pre-filter-DistributionApiEndpoints/dist/lambda.zip"
+  filename      = "${path.module}/resources/lambdas/pre-filter-DistributionApiEndpoints/distro/lambda.zip"
   role          = aws_iam_role.lambda_exec_pre_filter_DistributionApiEndpoints.arn
   handler       = "index.preFilterDistributionApiEndpointsHandler"
   runtime       = "python3.10" #local.lambda_runtime
   timeout       = 300
   memory_size   = 3008
 
-  source_code_hash = filebase64sha256("${path.module}/resources/lambdas/pre-filter-DistributionApiEndpoints/dist/lambda.zip")
+  source_code_hash = filebase64sha256("${path.module}/resources/lambdas/pre-filter-DistributionApiEndpoints/distro/lambda.zip")
 }
 
 # Define the Execution Role and Policy

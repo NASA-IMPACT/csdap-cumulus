@@ -23,8 +23,8 @@ FULL_PREFIX_PATH="$CURRENT_DIR/app/stacks/post-deploy-mods/resources/lambdas/pre
 
 # File Path Variables
 LAMBDA_FILE_ORIGINAL="$FULL_PREFIX_PATH/src/lambda_function.py"
-LAMBDA_FILE="$FULL_PREFIX_PATH/dist/lambda_function.py"
-ZIP_FILE="$FULL_PREFIX_PATH/dist/lambda.zip"
+LAMBDA_FILE="$FULL_PREFIX_PATH/distro/lambda_function.py"
+ZIP_FILE="$FULL_PREFIX_PATH/distro/lambda.zip"
 
 # First, replace some of the code with the correct prefix
 #CUMULUS_PREFIX=$1   # CUMULUS_PREFIX should already be an environment variable
