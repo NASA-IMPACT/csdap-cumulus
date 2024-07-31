@@ -17,7 +17,7 @@ resource "aws_lambda_function" "pre_filter_DistributionApiEndpoints" {
 # Define the Execution Role and Policy
 resource "aws_iam_role" "lambda_exec_pre_filter_DistributionApiEndpoints" {
   #name = "lambda_exec_role_pre_filter_DistributionApiEndpoints"
-  name = "${var.prefix}-lambda_exec_role_pre_filter_DistributionApiEndpoints"
+  name = "${var.prefix}-lambda_exe_role_pf_DistApiEndpoints"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
