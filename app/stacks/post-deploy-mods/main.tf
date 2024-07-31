@@ -12,6 +12,10 @@ resource "aws_lambda_function" "pre_filter_DistributionApiEndpoints" {
   memory_size   = 3008
 
   source_code_hash = filebase64sha256("${path.module}/resources/lambdas/pre-filter-DistributionApiEndpoints/distro/lambda.zip")
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 # Define the Execution Role and Policy

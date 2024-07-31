@@ -1,4 +1,4 @@
-# Imports Section
+# Import Section
 import json
 
 # For catching generic errors
@@ -6,6 +6,7 @@ import sys
 
 # To call another lambda, from this lambda
 import boto3
+
 
 # SETTINGS
 #
