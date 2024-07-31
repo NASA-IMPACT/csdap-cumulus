@@ -16,7 +16,8 @@ resource "aws_lambda_function" "pre_filter_DistributionApiEndpoints" {
 
 # Define the Execution Role and Policy
 resource "aws_iam_role" "lambda_exec_pre_filter_DistributionApiEndpoints" {
-  name = "lambda_exec_role_pre_filter_DistributionApiEndpoints"
+  #name = "lambda_exec_role_pre_filter_DistributionApiEndpoints"
+  name = "${var.prefix}-lambda_exec_role_pre_filter_DistributionApiEndpoints"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -41,7 +42,8 @@ resource "aws_iam_role_policy_attachment" "lambda_exec_policy" {
 
 # Define another policy attachment to allow invoking of another lambda
 resource "aws_iam_policy" "lambda_invoke_policy" {
-  name        = "lambda_invoke_policy"
+  #name        = "lambda_invoke_policy"
+  name        = "${var.prefix}-lambda_invoke_policy"
   description = "Policy to allow Lambda functions to invoke other Lambda functions"
   policy      = jsonencode({
     Version = "2012-10-17"
