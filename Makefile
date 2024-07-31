@@ -119,7 +119,7 @@ fmt: docker
 init-%: docker
 	$(TERRASPACE) init $*
 
-install: docker
+install: docker zip_lambdas
 	$(DOCKER_RUN) $(IMAGE) -ic "YARN_SILENT=1 yarn install --ignore-optional && YARN_SILENT=1 yarn --cwd scripts install"
 
 ## logs: Shows last 10 lines of all Terraspace logs
@@ -187,3 +187,7 @@ update-launchpad:
 ## validate-STACK: Runs `terraform validate` for specified STACK
 validate-%: docker
 	$(TERRASPACE) validate $*
+
+## Zip any lambda functions to prepare for deployment
+zip_lambdas:
+	sh app/stacks/post-deploy-mods/resources/lambdas/pre-filter-DistributionApiEndpoints/zip_lambda.sh
