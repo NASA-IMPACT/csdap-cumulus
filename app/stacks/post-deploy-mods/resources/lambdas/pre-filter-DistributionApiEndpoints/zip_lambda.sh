@@ -14,13 +14,13 @@ echo "TS_ENV is: $TS_ENV"
 TSENV_VALUE=$(grep "^TS_ENV=" $DOTENV | cut -d '=' -f 2)  # Examples: kris-sbx7894 or uat or prod
 #
 # If the TSENV_VALUE is blank, then set try setting it another way
-if [-z "$TSENV_VALUE" ]; then
+if [ -z "$TSENV_VALUE" ]; then
   TSENV_VALUE=$TS_ENV
   echo "TSENV_VALUE was blank, so set by TS_ENV.  TSENV_VALUE is now set to: $TSENV_VALUE"
 fi
 #
 # If the TSENV_VALUE is STILL blank, then set it to
-if [-z "$TSENV_VALUE" ]; then
+if [ -z "$TSENV_VALUE" ]; then
   TSENV_VALUE="BLANK"
   echo "TSENV_VALUE was STILL blank, so set by TS_ENV.  TSENV_VALUE is now set to default of: $TSENV_VALUE"
 fi
