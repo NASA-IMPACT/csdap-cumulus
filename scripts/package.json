@@ -10,7 +10,8 @@
     "clean:all": "yarn clean:build && yarn clean:dependencies",
     "generate-test-granule-files": "yarn build && cd .. && node scripts/build/generate-test-granule-files.js",
     "rerun-step-function": "yarn build && cd .. && node scripts/build/rerun-step-function.js",
-    "terraform-doctor": "yarn build && cd .. && node scripts/build/terraform-doctor.js"
+    "terraform-doctor": "yarn build && cd .. && node scripts/build/terraform-doctor.js",
+    "post-deploy-mods": "sh app/stacks/post-deploy-mods/resources/lambdas/pre-filter-DistributionApiEndpoints/zip_lambda.sh"
   },
   "devDependencies": {
     "@types/uuid": "^9.0.7",

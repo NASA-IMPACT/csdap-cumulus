@@ -7,6 +7,7 @@ import sys
 # To call another lambda, from this lambda
 import boto3
 
+# This Value should represent the Cumulus Prefix: ENV_VAR__CUMULUS_PREFIX
 
 # SETTINGS
 #

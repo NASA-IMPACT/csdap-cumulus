@@ -6,7 +6,7 @@ resource "aws_lambda_function" "pre_filter_DistApiEndpoints" {
   function_name = "${var.prefix}-pre-filter-DistApiEndpoints"
   filename      = "${path.module}/resources/lambdas/pre-filter-DistributionApiEndpoints/distro/lambda.zip"
   role          = aws_iam_role.lambda_exec_pre_filter_DistApiEndpoints.arn
-  handler       = "index.preFilterDistApiEndpoints"
+  handler       = "lambda_function.lambda_handler" #"index.preFilterDistApiEndpoints"
   runtime       = "python3.10" #local.lambda_runtime
   timeout       = 300
   memory_size   = 3008
@@ -37,6 +37,10 @@ resource "aws_iam_role" "lambda_exec_pre_filter_DistApiEndpoints" {
       },
     ]
   })
+
+  #  lifecycle {
+  #    prevent_destroy = true
+  #  }
 }
 
 # Define an attachment to the aws_iam_role above
@@ -68,6 +72,12 @@ resource "aws_iam_policy" "lambda_invoke_policy" {
 resource "aws_iam_role_policy_attachment" "lambda_invoke_policy_attachment" {
   role        = aws_iam_role.lambda_exec_pre_filter_DistApiEndpoints.name
   policy_arn  = aws_iam_policy.lambda_invoke_policy.arn
+}
+
+# Attach an AWS managed Policy for DynamoDB Read Only access
+resource "aws_iam_role_policy_attachment" "dynamodb_readonly_policy" {
+  role        = aws_iam_role.lambda_exec_pre_filter_DistApiEndpoints.name
+  policy_arn  = "arn:aws:iam::aws:policy/AmazonDynamoDBReadOnlyAccess"
 }
 
 # Fetch existing API Gateway
@@ -121,4 +131,19 @@ resource "aws_lambda_permission" "api_gateway" {
   function_name = aws_lambda_function.pre_filter_DistApiEndpoints.function_name
   principal = "apigateway.amazonaws.com"
   source_arn = "${data.aws_api_gateway_rest_api.distribution_api.execution_arn}/*/*"
+}
+
+# Ensure the API Gateway redeploys after the update
+resource "aws_api_gateway_deployment" "api_deployment" {
+  depends_on = [aws_api_gateway_integration.proxy_lambda_integration]
+
+  rest_api_id = data.aws_api_gateway_rest_api.distribution_api.id
+  stage_name = "dev"  # The existing cumulus deployment for this API Gateway Stage is always called dev (in all environments)
+
+  triggers = {
+    redeployment = sha1(jsonencode({
+      lambda_version = aws_lambda_function.pre_filter_DistApiEndpoints.source_code_hash
+      integration_uri = aws_api_gateway_integration.proxy_lambda_integration.uri
+    }))
+  }
 }
