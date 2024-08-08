@@ -7,9 +7,27 @@
 # Spacer to make the terminal output easier to follow
 echo ""
 
+echo "TS_ENV is: $TS_ENV"
+
 # This should extract TS_ENV from the current .envfile
 # DOTENV should be available to this script when called from inside the makefile
 TSENV_VALUE=$(grep "^TS_ENV=" $DOTENV | cut -d '=' -f 2)  # Examples: kris-sbx7894 or uat or prod
+#
+# If the TSENV_VALUE is blank, then set try setting it another way
+if [-z "$TSENV_VALUE" ]; then
+  TSENV_VALUE=$TS_ENV
+  echo "TSENV_VALUE was blank, so set by TS_ENV.  TSENV_VALUE is now set to: $TSENV_VALUE"
+fi
+#
+# If the TSENV_VALUE is STILL blank, then set it to
+if [-z "$TSENV_VALUE" ]; then
+  TSENV_VALUE="BLANK"
+  echo "TSENV_VALUE was STILL blank, so set by TS_ENV.  TSENV_VALUE is now set to default of: $TSENV_VALUE"
+fi
+
+# Output the TSENV value
+echo "TSENV_VALUE should be set now.  It is currently set to: $TSENV_VALUE"
+
 CUMULUS_PREFIX_VAR="cumulus-$TSENV_VALUE"
 echo "zip_lambdas.sh: CUMULUS_PREFIX_VAR is: $CUMULUS_PREFIX_VAR"
 
