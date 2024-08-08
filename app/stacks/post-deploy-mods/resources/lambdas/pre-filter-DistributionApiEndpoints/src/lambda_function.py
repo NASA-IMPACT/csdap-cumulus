@@ -73,6 +73,20 @@ vendor_to_dataset_map = {
 # (3b) If the user's request is valid, a file download should start, just the same way as it used to before this filter was installed.
 
 
+# The name of the function varies with environment (including the aws account number)
+def get_original_FunctionName():
+  original_FunctionName__UAT = 'arn:aws:lambda:us-west-2:201920261686:function:ENV_VAR__CUMULUS_PREFIX-DistributionApiEndpoints'
+  original_FunctionName__PROD = 'arn:aws:lambda:us-west-2:410469285047:function:ENV_VAR__CUMULUS_PREFIX-DistributionApiEndpoints'
+
+  # Default is to return the PROD name.
+  ret_name = original_FunctionName__PROD
+
+  # Are we on UAT or PROD?
+  if ("cumulus-uat" in this_function_name):
+    ret_name = original_FunctionName__UAT
+
+  return ret_name
+
 # Main Lambda Handler
 def lambda_handler(event, context):
   print(f'{this_function_name}:         STARTED')
@@ -99,8 +113,9 @@ def lambda_handler(event, context):
     # Important Note: This requires the execution role to have permissions
     # #
     # # FunctionName='arn:aws:lambda:us-west-2:410469285047:function:cumulus-prod-DistributionApiEndpoints',
+    function_name_param = get_original_FunctionName()  # 'arn:aws:lambda:us-west-2:410469285047:function:cumulus-uat-DistributionApiEndpoints', # 'arn:aws:lambda:us-west-2:410469285047:function:ENV_VAR__CUMULUS_PREFIX-DistributionApiEndpoints',
     response__From_Original_Lambda = client.invoke(
-      FunctionName='arn:aws:lambda:us-west-2:410469285047:function:ENV_VAR__CUMULUS_PREFIX-DistributionApiEndpoints',
+      FunctionName=function_name_param,
       InvocationType='RequestResponse',
       Payload=json.dumps(event)
     )
