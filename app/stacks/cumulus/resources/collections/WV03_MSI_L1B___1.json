@@ -1,7 +1,7 @@
 {
   "name": "WV03_MSI_L1B",
   "version": "1",
-  "duplicateHandling": "skip",
+  "duplicateHandling": "replace",
   "granuleId": ".*",
   "granuleIdExtraction": "^(WV03_.+-M1BS-.+_P\\d{3}).+(?<!rename)$",
   "sampleFileName": "WV03_20140824082814_10400100012AD900_14AUG24082814-M1BS-504548417070_01_P001-BROWSE.jpg",

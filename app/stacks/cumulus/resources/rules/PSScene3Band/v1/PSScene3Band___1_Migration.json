@@ -1,0 +1,20 @@
+{
+  "name": "PSScene3Band___1_Migration",
+  "state": "DISABLED",
+  "provider": "cumulus",
+  "collection": {
+    "name": "PSScene3Band",
+    "version": "1"
+  },
+  "workflow": "DiscoverAndQueueGranules",
+  "rule": {
+    "type": "onetime"
+  },
+  "meta": {
+    "providerPathFormat": "'planet/PSScene3Band/'yyyyMMdd",
+    "ingestedPathFormat": "'PSScene3Band___1/PSScene3Band/'yyyy/MM/dd",
+    "startDate": "2020-12-01T00:00:00Z",
+    "endDate": "2020-12-03T00:00:00Z",
+    "step": "P1D"
+  }
+}
