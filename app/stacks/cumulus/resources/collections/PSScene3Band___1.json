@@ -3,9 +3,9 @@
   "version": "1",
   "duplicateHandling": "replace",
   "granuleId": ".*",
-  "granuleIdExtraction": "^(\\d{8}_\\d{6}_.+)(?:_\\dB_.+|-BROWSE.png|_cmr[.]json|_metadata[.]json)$",
+  "granuleIdExtraction": "^(\\d{8}_\\d{6}_.+)(?:_\\dB_.+|-BROWSE.png|_cmr[.]json|_metadata[.]json|-thumb.png)$",
   "sampleFileName": "20160628_204526_1_0c74_3B_Analytic_DN_metadata.xml",
-  "ignoreFilesConfigForDiscovery": true,
+  "ignoreFilesConfigForDiscovery": false,
   "url_path": "{cmrMetadata.CollectionReference.ShortName}___{cmrMetadata.CollectionReference.Version}/{dateFormat(cmrMetadata.TemporalExtent.SingleDateTime, YYYY)}/{dateFormat(cmrMetadata.TemporalExtent.SingleDateTime, MM)}/{dateFormat(cmrMetadata.TemporalExtent.SingleDateTime, DD)}/{cmrMetadata.GranuleUR}",
   "files": [
     {
@@ -16,7 +16,7 @@
     },
     {
       "regex": "^(\\d{8}_\\d{6}_.+)(?:.*-thumb.png)$",
-      "sampleFileName": "20150601_090322_090c-thumb.png",
+      "sampleFileName": "20160628_204526_1_0c74-thumb.png",
       "type": "browse",
       "bucket": "public"
     }

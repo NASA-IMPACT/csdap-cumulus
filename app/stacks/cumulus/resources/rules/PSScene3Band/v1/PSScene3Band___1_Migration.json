@@ -11,10 +11,11 @@
     "type": "onetime"
   },
   "meta": {
+    "discoverOnly": false,
     "providerPathFormat": "'planet/PSScene3Band/'yyyyMMdd",
-    "ingestedPathFormat": "'PSScene3Band___1/PSScene3Band/'yyyy/MM/dd",
-    "startDate": "2020-12-01T00:00:00Z",
-    "endDate": "2020-12-03T00:00:00Z",
+    "ingestedPathFormat": "'PSScene3Band___1/'yyyy/MM/dd",
+    "startDate": "2015-01-01T00:00:00Z",
+    "endDate": "2021-01-01T00:00:00Z",
     "step": "P1D"
   }
 }
