@@ -113,9 +113,9 @@
                     "Lambda.SdkClientException",
                     "Lambda.TooManyRequestsException"
                   ],
-                  "IntervalSeconds": 4,
+                  "IntervalSeconds": 6,
                   "MaxAttempts": 6,
-                  "BackoffRate": 2,
+                  "BackoffRate": 3,
                   "JitterStrategy": "FULL"
                 },
                 {

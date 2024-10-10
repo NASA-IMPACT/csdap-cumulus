@@ -18,7 +18,7 @@ this_function_name = "ENV_VAR__CUMULUS_PREFIX-pre-filter-DistApiEndpoints"
 #
 # If this is set to False, this function does nothing extra than the original lambda did, it just allows a pass through
 # If this is set to True, this function does the normal request, then attempts to detect a request for a file, if this IS a file request, then it checks EULA permissions for the current user
-is_post_EULA_filter_enabled = True  # True # False
+is_post_EULA_filter_enabled = False   # True # False
 #
 # Which dynamo DB table holds the Access Tokens after a succesful authentication?
 #dynamo_db__table_name = 'cumulus-prod-DistributionAccessTokensTable'
