@@ -117,7 +117,8 @@
     "@cumulus/**/got": "^11.8.6",
     "@cumulus/**/xml2js": "^0.6.0",
     "got/**/http-cache-semantics": "^4.1.1",
-    "nyc/**/json5": "^2.2.2"
+    "nyc/**/json5": "^2.2.2",
+    "@cumulus/**/follow-redirects": "^1.15.6"
   },
   "files": [
     "build/main",
