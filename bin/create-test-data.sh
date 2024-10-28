@@ -10,7 +10,8 @@ echo -n "Determining provider bucket..."
 provider_bucket="$(
   echo 'var.buckets["provider"]["name"]' |
     terraspace console cumulus 2>/dev/null |
-    grep "${CUMULUS_PREFIX}"
+    grep "${CUMULUS_PREFIX}" |
+    sed -E 's/"(.+)"/\1/'
 )"
 echo "${provider_bucket}"
 
