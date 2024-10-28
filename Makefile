@@ -119,7 +119,7 @@ fmt: docker
 init-%: docker
 	$(TERRASPACE) init $*
 
-install: docker zip_lambdas
+install: docker
 	$(DOCKER_RUN) $(IMAGE) -ic "YARN_SILENT=1 yarn install --ignore-optional && YARN_SILENT=1 yarn --cwd scripts install"
 
 ## logs: Shows last 10 lines of all Terraspace logs
