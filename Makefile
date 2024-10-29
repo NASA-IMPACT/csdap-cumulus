@@ -190,5 +190,5 @@ validate-%: docker
 
 ## Zip any lambda functions to prepare for deployment
 zip_lambdas:
-	export DOTENV=$(DOTENV) && \
+	DOTENV=$(DOTENV) \
 	sh app/stacks/post-deploy-mods/resources/lambdas/pre-filter-DistributionApiEndpoints/zip_lambda.sh
