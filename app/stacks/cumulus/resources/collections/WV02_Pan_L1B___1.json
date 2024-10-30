@@ -1,7 +1,7 @@
 {
   "name": "WV02_Pan_L1B",
   "version": "1",
-  "duplicateHandling": "skip",
+  "duplicateHandling": "replace",
   "granuleId": ".*",
   "granuleIdExtraction": "^(WV02_.+-P1BS-.+_P\\d{3}).+(?<!rename)$",
   "sampleFileName": "WV02_20091118021009_103001000286DF00_09NOV18021009-P1BS-052385675010_01_P001-BROWSE.jpg",

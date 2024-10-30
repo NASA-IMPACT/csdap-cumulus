@@ -1,0 +1,191 @@
+{
+    "GranuleUR": "WV02_20091118022743_1030010002A94100_09NOV18022743-M2AS-052511027010_01_P001",
+    "ProviderDates": [
+        {
+            "Date": "2011-04-13T10:25:00.000000Z",
+            "Type": "Create"
+        }
+    ],
+    "CollectionReference": {
+        "ShortName": "WV02_MSI_L2A",
+        "Version": "1"
+    },
+    "AccessConstraints": {
+        "Description": "The National Geospatial-Intelligence Agency (NGA), in partnership with the Civil Applications Committee (CAC), which includes NASA, provides access to its immense archive of unclassified commercial high-resolution satellite data from several of the DigitalGlobe (a Maxar Technologies company) satellites, to non-DOD government agencies under terms of its NextView contract. For NASA funded researchers all data requests must be approved by CSDA data managers",
+        "Value": 1
+    },
+    "DataGranule": {
+        "DayNightFlag": "Day",
+        "ProductionDateTime": "2011-04-13T10:25:00.000000Z",
+        "ArchiveAndDistributionInformation": [
+            {
+                "Name": "WV02_20091118022743_1030010002A94100_09NOV18022743-M2AS-052511027010_01_P001-BROWSE.jpg",
+                "SizeInBytes": 125237,
+                "FormatType": "Native",
+                "Format": "JPEG",
+                "Checksum": {
+                    "Value": "1b9e5f7506038f00d8dbf4eaedd63d7b04256a766d8d261b965bdcbf902f97fe",
+                    "Algorithm": "SHA-256"
+                },
+                "MimeType": "image/jpeg"
+            },
+            {
+                "Name": "WV02_20091118022743_1030010002A94100_09NOV18022743-M2AS-052511027010_01_P001.tar",
+                "SizeInBytes": 15,
+                "FormatType": "Native",
+                "Format": "TAR",
+                "Checksum": {
+                    "Value": "614386865b5e2e6deef338a31e4edf13fc2f05a8564abb666b8becf5bc8b22bc",
+                    "Algorithm": "SHA-256"
+                },
+                "MimeType": "application/tar"
+            },
+            {
+                "Name": "WV02_20091118022743_1030010002A94100_09NOV18022743-M2AS-052511027010_01_P001.ntf",
+                "SizeInBytes": 15,
+                "FormatType": "Native",
+                "Format": "NITF21NCDRD",
+                "Checksum": {
+                    "Value": "614386865b5e2e6deef338a31e4edf13fc2f05a8564abb666b8becf5bc8b22bc",
+                    "Algorithm": "SHA-256"
+                },
+                "MimeType": "Not provided"
+            },
+            {
+                "Name": "WV02_20091118022743_1030010002A94100_09NOV18022743-M2AS-052511027010_01_P001.xml",
+                "SizeInBytes": 15,
+                "FormatType": "Native",
+                "Format": "XML",
+                "Checksum": {
+                    "Value": "614386865b5e2e6deef338a31e4edf13fc2f05a8564abb666b8becf5bc8b22bc",
+                    "Algorithm": "SHA-256"
+                },
+                "MimeType": "application/xml"
+            }
+        ]
+    },
+    "TemporalExtent": {
+        "SingleDateTime": "2009-11-18T02:27:43.412336Z"
+    },
+    "SpatialExtent": {
+        "HorizontalSpatialDomain": {
+            "Geometry": {
+                "GPolygons": [
+                    {
+                        "Boundary": {
+                            "Points": [
+                                {
+                                    "Longitude": 118.52885483,
+                                    "Latitude": -20.26341339
+                                },
+                                {
+                                    "Longitude": 118.53044033,
+                                    "Latitude": -20.4244916
+                                },
+                                {
+                                    "Longitude": 118.72945326,
+                                    "Latitude": -20.42262869
+                                },
+                                {
+                                    "Longitude": 118.72766183,
+                                    "Latitude": -20.26156643
+                                },
+                                {
+                                    "Longitude": 118.52885483,
+                                    "Latitude": -20.26341339
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "MeasuredParameters": [
+        {
+            "ParameterName": "Top of Atmosphere (TOA) visible reflectance"
+        }
+    ],
+    "Platforms": [
+        {
+            "ShortName": "WORLDVIEW-2",
+            "Instruments": [
+                {
+                    "ShortName": "WV110"
+                }
+            ]
+        }
+    ],
+    "Projects": [
+        {
+            "ShortName": "CSDA"
+        }
+    ],
+    "RelatedUrls": [
+        {
+            "URL": "https://csdap-maxar-delivery.s3.us-west-2.amazonaws.com/css/nga/WV02/2A/2009/322/WV02_1030010002A94100_X2AS_052511027010_01/WV02_20091118022743_1030010002A94100_09NOV18022743-M2AS-052511027010_01_P001-BROWSE.jpg",
+            "Type": "GET DATA",
+            "Description": "Browse Imagery",
+            "Format": "JPEG",
+            "MimeType": "image/jpeg",
+            "Size": 125237.0,
+            "SizeUnit": "NA"
+        },
+        {
+            "URL": "https://csdap-maxar-delivery.s3.us-west-2.amazonaws.com/css/nga/WV02/2A/2009/322/WV02_1030010002A94100_X2AS_052511027010_01/WV02_20091118022743_1030010002A94100_09NOV18022743-M2AS-052511027010_01_P001.tar",
+            "Type": "GET DATA",
+            "Description": "Compressed granule",
+            "Format": "TAR",
+            "MimeType": "application/tar",
+            "Size": 378880.0,
+            "SizeUnit": "NA"
+        },
+        {
+            "URL": "https://csdap-maxar-delivery.s3.us-west-2.amazonaws.com/css/nga/WV02/2A/2009/322/WV02_1030010002A94100_X2AS_052511027010_01/WV02_20091118022743_1030010002A94100_09NOV18022743-M2AS-052511027010_01_P001.ntf",
+            "Type": "GET DATA",
+            "Description": "Imagery in NITF 2.1 Commercial Dataset Requirements Document (NCDRD) format or NITF21NCDRD format",
+            "Format": "NITF21NCDRD",
+            "MimeType": "Not provided",
+            "Size": 180557549.0,
+            "SizeUnit": "NA"
+        },
+        {
+            "URL": "https://csdap-maxar-delivery.s3.us-west-2.amazonaws.com/css/nga/WV02/2A/2009/322/WV02_1030010002A94100_X2AS_052511027010_01/WV02_20091118022743_1030010002A94100_09NOV18022743-M2AS-052511027010_01_P001.xml",
+            "Type": "GET DATA",
+            "Description": "Metadata file",
+            "Format": "XML",
+            "MimeType": "application/xml",
+            "Size": 11558.0,
+            "SizeUnit": "NA"
+        },
+        {
+            "URL": "https://csdap-maxar-delivery.s3.us-west-2.amazonaws.com/css/nga/WV02/2A/2009/322/WV02_1030010002A94100_X2AS_052511027010_01/WV02_20091118022743_1030010002A94100_09NOV18022743-M2AS-052511027010_01_P001-thumb.jpg",
+            "Type": "GET RELATED VISUALIZATION",
+            "Description": "Browse Imagery",
+            "Format": "JPEG",
+            "MimeType": "image/jpeg",
+            "Size": 125237.0,
+            "SizeUnit": "NA"
+        }
+    ],
+    "CloudCover": 0.0,
+    "MetadataSpecification": {
+        "URL": "https://cdn.earthdata.nasa.gov/umm/granule/v1.6.4",
+        "Name": "UMM-G",
+        "Version": "1.6.4"
+    },
+    "AdditionalAttributes": [
+        {
+            "Name": "Mean Sun Elevation",
+            "Values": [
+                "70.5"
+            ]
+        },
+        {
+            "Name": "Maximum Angle Off Nadir",
+            "Values": [
+                "34.4"
+            ]
+        }
+    ]
+}

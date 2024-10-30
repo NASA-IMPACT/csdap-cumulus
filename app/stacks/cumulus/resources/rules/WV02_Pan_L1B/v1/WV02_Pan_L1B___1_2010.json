@@ -14,8 +14,8 @@
     "discoverOnly": false,
     "providerPathFormat": "'css/nga/WV02/1B/'yyyy/DDD",
     "ingestedPathFormat": "'WV02_Pan_L1B___1/'yyyy/DDD",
-    "startDate": "2022-01-01T00:00:00Z",
-    "endDate": "2023-01-01T00:00:00Z",
+    "startDate": "2010-01-01T00:00:00Z",
+    "endDate": "2011-01-01T00:00:00Z",
     "step": "P1D"
   }
 }
