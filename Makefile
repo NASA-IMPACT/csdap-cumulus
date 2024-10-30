@@ -155,7 +155,7 @@ plan-%: install
 ## pre-deploy-setup: Setup resources prior to initial deployment (idempotent)
 pre-deploy-setup: all-init
 	# Ensure buckets exist, grab the name of the "internal" bucket, and copy launchpad.pfx there.
-	$(DOCKER_RUN) --interactive $(IMAGE) -ic "bin/ensure-buckets-exist.sh 2>/dev/null
+	$(DOCKER_RUN) --interactive $(IMAGE) -ic "bin/ensure-buckets-exist.sh 2>/dev/null"
 
 ## terraform-doctor-STACK: Fixes "duplicate resource" errors for specified STACK
 terraform-doctor-%: docker
@@ -190,4 +190,5 @@ validate-%: docker
 
 ## Zip any lambda functions to prepare for deployment
 zip_lambdas:
+	DOTENV=$(DOTENV) \
 	sh app/stacks/post-deploy-mods/resources/lambdas/pre-filter-DistributionApiEndpoints/zip_lambda.sh
