@@ -7,12 +7,13 @@ import sys
 # To call another lambda, from this lambda
 import boto3
 
+# This Value should represent the Cumulus Prefix: cumulus-jayanthi-cba
 
 # SETTINGS
 #
 # This function's name (for logging purposes)
 #this_function_name = "cumulus-prod-pre-filter-DistributionApiEndpoints"
-this_function_name = "cumulus-kris-sbx7894-pre-filter-DistApiEndpoints"
+this_function_name = "cumulus-jayanthi-cba-pre-filter-DistApiEndpoints"
 
 #
 # If this is set to False, this function does nothing extra than the original lambda did, it just allows a pass through
@@ -21,7 +22,7 @@ is_post_EULA_filter_enabled = True  # True # False
 #
 # Which dynamo DB table holds the Access Tokens after a succesful authentication?
 #dynamo_db__table_name = 'cumulus-prod-DistributionAccessTokensTable'
-dynamo_db__table_name = 'cumulus-kris-sbx7894-DistributionAccessTokensTable'
+dynamo_db__table_name = 'cumulus-jayanthi-cba-DistributionAccessTokensTable'
 
 #
 # All Possible Dataset directories by Vendor - When a new vendor or dataset is added, add to this list.
@@ -72,6 +73,20 @@ vendor_to_dataset_map = {
 # (3b) If the user's request is valid, a file download should start, just the same way as it used to before this filter was installed.
 
 
+# The name of the function varies with environment (including the aws account number)
+def get_original_FunctionName():
+  original_FunctionName__UAT = 'arn:aws:lambda:us-west-2:201920261686:function:cumulus-jayanthi-cba-DistributionApiEndpoints'
+  original_FunctionName__PROD = 'arn:aws:lambda:us-west-2:410469285047:function:cumulus-jayanthi-cba-DistributionApiEndpoints'
+
+  # Default is to return the PROD name.
+  ret_name = original_FunctionName__PROD
+
+  # Are we on UAT or PROD?
+  if ("cumulus-uat" in this_function_name):
+    ret_name = original_FunctionName__UAT
+
+  return ret_name
+
 # Main Lambda Handler
 def lambda_handler(event, context):
   print(f'{this_function_name}:         STARTED')
@@ -98,8 +113,9 @@ def lambda_handler(event, context):
     # Important Note: This requires the execution role to have permissions
     # #
     # # FunctionName='arn:aws:lambda:us-west-2:410469285047:function:cumulus-prod-DistributionApiEndpoints',
+    function_name_param = get_original_FunctionName()  # 'arn:aws:lambda:us-west-2:410469285047:function:cumulus-uat-DistributionApiEndpoints', # 'arn:aws:lambda:us-west-2:410469285047:function:cumulus-jayanthi-cba-DistributionApiEndpoints',
     response__From_Original_Lambda = client.invoke(
-      FunctionName='arn:aws:lambda:us-west-2:410469285047:function:cumulus-kris-sbx7894-DistributionApiEndpoints',
+      FunctionName=function_name_param,
       InvocationType='RequestResponse',
       Payload=json.dumps(event)
     )
