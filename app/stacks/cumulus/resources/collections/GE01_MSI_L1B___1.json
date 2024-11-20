@@ -1,51 +1,51 @@
 {
-  "name": "GE01_MSI_L1B",
-  "version": "1",
-  "duplicateHandling": "replace",
-  "granuleId": ".*",
-  "granuleIdExtraction": "^(GE01_.+-M1BS-.+_P\\d{3}).+$",
-  "sampleFileName": "GE01_20150410011735_10504100127F6300_15APR10011735-M1BS-502547447070_01_P001-BROWSE.jpg",
-  "url_path": "{cmrMetadata.CollectionReference.ShortName}___{cmrMetadata.CollectionReference.Version}/{dateFormat(cmrMetadata.TemporalExtent.SingleDateTime, YYYY)}/{dateFormat(cmrMetadata.TemporalExtent.SingleDateTime, DDDD)}/{cmrMetadata.GranuleUR}",
-  "meta": {
-    "preferredQueueBatchSize": 1
-  },
-  "ignoreFilesConfigForDiscovery": false,
-  "files": [
-    {
-      "regex": ".*-thumb[.]jpg$",
-      "sampleFileName": "GE01_20150410011735_10504100127F6300_15APR10011735-M1BS-502547447070_01_P001-thumb.jpg",
-      "type": "browse",
-      "bucket": "public"
-    },
-    {
-      "regex": ".*-BROWSE[.]jpg$",
-      "sampleFileName": "GE01_20150410011735_10504100127F6300_15APR10011735-M1BS-502547447070_01_P001-BROWSE.jpg",
-      "type": "data",
-      "bucket": "protected"
-    },
-    {
-      "regex": ".*-cmr[.]json$",
-      "sampleFileName": "GE01_20150410011735_10504100127F6300_15APR10011735-M1BS-502547447070_01_P001-cmr.json",
-      "type": "metadata",
-      "bucket": "protected"
-    },
-    {
-      "regex": ".*[.]tar$",
-      "sampleFileName": "GE01_20150410011735_10504100127F6300_15APR10011735-M1BS-502547447070_01_P001.tar",
-      "type": "data",
-      "bucket": "protected"
-    },
-    {
-      "regex": ".*[.]ntf$",
-      "sampleFileName": "GE01_20150410011735_10504100127F6300_15APR10011735-M1BS-502547447070_01_P001.ntf",
-      "type": "data",
-      "bucket": "protected"
-    },
-    {
-      "regex": ".*[.]xml$",
-      "sampleFileName": "GE01_20150410011735_10504100127F6300_15APR10011735-M1BS-502547447070_01_P001.xml",
-      "type": "data",
-      "bucket": "protected"
-    }
-  ]
+	"name": "GE01_MSI_L1B",
+	"version": "1",
+	"duplicateHandling": "replace",
+	"granuleId": ".*",
+	"granuleIdExtraction": "^(GE01_.+-M1BS-.+_P\\d{3}).+$",
+	"sampleFileName": "GE01_20150410011735_10504100127F6300_15APR10011735-M1BS-502547447070_01_P001-BROWSE.jpg",
+	"url_path": "{cmrMetadata.CollectionReference.ShortName}___{cmrMetadata.CollectionReference.Version}/{dateFormat(cmrMetadata.TemporalExtent.SingleDateTime, YYYY)}/{dateFormat(cmrMetadata.TemporalExtent.SingleDateTime, DDDD)}/{cmrMetadata.GranuleUR}",
+	"meta": {
+		"preferredQueueBatchSize": 1
+	},
+	"ignoreFilesConfigForDiscovery": false,
+	"files": [
+		{
+			"regex": ".*-thumb[.]jpg$",
+			"sampleFileName": "GE01_20150410011735_10504100127F6300_15APR10011735-M1BS-502547447070_01_P001-thumb.jpg",
+			"type": "browse",
+			"bucket": "public"
+		},
+		{
+			"regex": ".*-BROWSE[.]jpg$",
+			"sampleFileName": "GE01_20150410011735_10504100127F6300_15APR10011735-M1BS-502547447070_01_P001-BROWSE.jpg",
+			"type": "data",
+			"bucket": "protected"
+		},
+		{
+			"regex": ".*-cmr[.]json$",
+			"sampleFileName": "GE01_20150410011735_10504100127F6300_15APR10011735-M1BS-502547447070_01_P001-cmr.json",
+			"type": "metadata",
+			"bucket": "protected"
+		},
+		{
+			"regex": ".*[.]tar$",
+			"sampleFileName": "GE01_20150410011735_10504100127F6300_15APR10011735-M1BS-502547447070_01_P001.tar",
+			"type": "data",
+			"bucket": "protected"
+		},
+		{
+			"regex": ".*[.]ntf$",
+			"sampleFileName": "GE01_20150410011735_10504100127F6300_15APR10011735-M1BS-502547447070_01_P001.ntf",
+			"type": "data",
+			"bucket": "protected"
+		},
+		{
+			"regex": ".*[.]xml$",
+			"sampleFileName": "GE01_20150410011735_10504100127F6300_15APR10011735-M1BS-502547447070_01_P001.xml",
+			"type": "data",
+			"bucket": "protected"
+		}
+	]
 }

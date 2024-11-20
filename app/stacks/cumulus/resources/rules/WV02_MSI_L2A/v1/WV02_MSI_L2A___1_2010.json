@@ -1,5 +1,5 @@
 {
-  "name": "WV02_MSI_L2A___1_UAT",
+  "name": "WV02_MSI_L2A___1_2010",
   "state": "DISABLED",
   "rule": {
     "type": "onetime"
@@ -14,8 +14,8 @@
     "discoverOnly": false,
     "providerPathFormat": "'css/nga/WV02/2A/'yyyy/DDD",
     "ingestedPathFormat": "'WV02_MSI_L2A___1/'yyyy/DDD",
-    "startDate": "2009-11-18T00:00:00Z",
-    "endDate": "2009-11-19T00:00:00Z",
+    "startDate": "2010-01-01T00:00:00Z",
+    "endDate": "2011-01-01T00:00:00Z",
     "step": "P1D"
   }
 }

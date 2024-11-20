@@ -35,7 +35,7 @@
                 "FormatType": "Native",
                 "Format": "TAR",
                 "Checksum": {
-                    "Value": "614386865b5e2e6deef338a31e4edf13fc2f05a8564abb666b8becf5bc8b22bc",
+                    "Value": "d0897e14b49ae8c98b0946242433731da25bb8ad3c1344ccbef2b3b59ad98554",
                     "Algorithm": "SHA-256"
                 },
                 "MimeType": "application/tar"
@@ -46,7 +46,7 @@
                 "FormatType": "Native",
                 "Format": "NITF21NCDRD",
                 "Checksum": {
-                    "Value": "614386865b5e2e6deef338a31e4edf13fc2f05a8564abb666b8becf5bc8b22bc",
+                    "Value": "89ff86c137754b94bdb364658b45a8bb618367fd91560673c7cb8421d3d5e249",
                     "Algorithm": "SHA-256"
                 },
                 "MimeType": "Not provided"
@@ -57,7 +57,7 @@
                 "FormatType": "Native",
                 "Format": "XML",
                 "Checksum": {
-                    "Value": "614386865b5e2e6deef338a31e4edf13fc2f05a8564abb666b8becf5bc8b22bc",
+                    "Value": "c2d407a26e7c5307337da18b87417e06b70d4ab14989271c2d3084e720272cde",
                     "Algorithm": "SHA-256"
                 },
                 "MimeType": "application/xml"
@@ -124,38 +124,11 @@
     "RelatedUrls": [
         {
             "URL": "https://csdap-maxar-delivery.s3.us-west-2.amazonaws.com/css/nga/WV02/2A/2009/322/WV02_1030010002A94100_X2AS_052511027010_01/WV02_20091118022743_1030010002A94100_09NOV18022743-M2AS-052511027010_01_P001-BROWSE.jpg",
-            "Type": "GET DATA",
+            "Type": "GET RELATED VISUALIZATION",
             "Description": "Browse Imagery",
             "Format": "JPEG",
             "MimeType": "image/jpeg",
             "Size": 125237.0,
-            "SizeUnit": "NA"
-        },
-        {
-            "URL": "https://csdap-maxar-delivery.s3.us-west-2.amazonaws.com/css/nga/WV02/2A/2009/322/WV02_1030010002A94100_X2AS_052511027010_01/WV02_20091118022743_1030010002A94100_09NOV18022743-M2AS-052511027010_01_P001.tar",
-            "Type": "GET DATA",
-            "Description": "Compressed granule",
-            "Format": "TAR",
-            "MimeType": "application/tar",
-            "Size": 378880.0,
-            "SizeUnit": "NA"
-        },
-        {
-            "URL": "https://csdap-maxar-delivery.s3.us-west-2.amazonaws.com/css/nga/WV02/2A/2009/322/WV02_1030010002A94100_X2AS_052511027010_01/WV02_20091118022743_1030010002A94100_09NOV18022743-M2AS-052511027010_01_P001.ntf",
-            "Type": "GET DATA",
-            "Description": "Imagery in NITF 2.1 Commercial Dataset Requirements Document (NCDRD) format or NITF21NCDRD format",
-            "Format": "NITF21NCDRD",
-            "MimeType": "Not provided",
-            "Size": 180557549.0,
-            "SizeUnit": "NA"
-        },
-        {
-            "URL": "https://csdap-maxar-delivery.s3.us-west-2.amazonaws.com/css/nga/WV02/2A/2009/322/WV02_1030010002A94100_X2AS_052511027010_01/WV02_20091118022743_1030010002A94100_09NOV18022743-M2AS-052511027010_01_P001.xml",
-            "Type": "GET DATA",
-            "Description": "Metadata file",
-            "Format": "XML",
-            "MimeType": "application/xml",
-            "Size": 11558.0,
             "SizeUnit": "NA"
         },
         {
