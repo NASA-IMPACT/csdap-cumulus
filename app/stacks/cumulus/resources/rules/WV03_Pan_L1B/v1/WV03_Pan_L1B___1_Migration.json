@@ -1,0 +1,21 @@
+{
+  "name": "WV03_Pan_L1B___1_Migration",
+  "state": "DISABLED",
+  "rule": {
+    "type": "onetime"
+  },
+  "provider": "cumulus",
+  "collection": {
+    "name": "WV03_Pan_L1B",
+    "version": "1"
+  },
+  "workflow": "DiscoverAndQueueGranules",
+  "meta": {
+    "discoverOnly": false,
+    "providerPathFormat": "'WV03_Pan_L1B___1/'yyyy/DDD",
+    "ingestedPathFormat": "'WV03_Pan_L1B___1/'yyyy/DDD",
+    "startDate": "2014-01-01T00:00:00Z",
+    "endDate": "2023-01-01T00:00:00Z",
+    "step": "P1D"
+  }
+}
