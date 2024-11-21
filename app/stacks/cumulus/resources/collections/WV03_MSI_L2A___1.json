@@ -1,0 +1,57 @@
+{
+  "name": "WV03_MSI_L2A",
+  "version": "1",
+  "duplicateHandling": "replace",
+  "granuleId": ".*",
+  "granuleIdExtraction": "^(WV03_.+[-|_]M2AS[-|_].+_P\\d{3}).+$",
+  "sampleFileName": "WV03_20140922093430_104001000269A900_14SEP22093430-M2AS-500357909030_01_P001-BROWSE.jpg",
+  "url_path": "{cmrMetadata.CollectionReference.ShortName}___{cmrMetadata.CollectionReference.Version}/{dateFormat(cmrMetadata.TemporalExtent.SingleDateTime, YYYY)}/{dateFormat(cmrMetadata.TemporalExtent.SingleDateTime, DDDD)}/{cmrMetadata.GranuleUR}",
+  "meta": {
+    "preferredQueueBatchSize": 1
+  },
+  "ignoreFilesConfigForDiscovery": false,
+  "files": [
+    {
+      "regex": ".*-thumb[.]jpg$",
+      "sampleFileName": "WV03_20140922093430_104001000269A900_14SEP22093430-M2AS-500357909030_01_P001-thumb.jpg",
+      "type": "browse",
+      "bucket": "public"
+    },
+    {
+      "regex": ".*-BROWSE[.]jpg$",
+      "sampleFileName": "WV03_20140922093430_104001000269A900_14SEP22093430-M2AS-500357909030_01_P001-BROWSE.jpg",
+      "type": "data",
+      "bucket": "protected"
+    },
+    {
+      "regex": ".*-cmr[.]json$",
+      "sampleFileName": "WV03_20140922093430_104001000269A900_14SEP22093430-M2AS-500357909030_01_P001-cmr.json",
+      "type": "metadata",
+      "bucket": "protected"
+    },
+    {
+      "regex": ".*[.]tar$",
+      "sampleFileName": "WV03_20140922093430_104001000269A900_14SEP22093430-M2AS-500357909030_01_P001.tar",
+      "type": "data",
+      "bucket": "protected"
+    },
+    {
+      "regex": ".*[.]ntf$",
+      "sampleFileName": "WV03_20140922093430_104001000269A900_14SEP22093430-M2AS-500357909030_01_P001.ntf",
+      "type": "data",
+      "bucket": "protected"
+    },
+    {
+      "regex": ".*[.]tif$",
+      "sampleFileName": "WV03_20140922093430_104001000269A900_14SEP22093430-M2AS-500357909030_01_P001.tif",
+      "type": "data",
+      "bucket": "protected"
+    },
+    {
+      "regex": ".*[.]xml$",
+      "sampleFileName": "WV03_20140922093430_104001000269A900_14SEP22093430-M2AS-500357909030_01_P001.xml",
+      "type": "data",
+      "bucket": "protected"
+    }
+  ]
+}

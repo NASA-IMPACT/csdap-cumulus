@@ -1,0 +1,21 @@
+{
+  "name": "WV02_MSI_L2A___1",
+  "state": "DISABLED",
+  "rule": {
+    "type": "onetime"
+  },
+  "provider": "maxar",
+  "collection": {
+    "name": "WV02_MSI_L2A",
+    "version": "1"
+  },
+  "workflow": "DiscoverAndQueueGranules",
+  "meta": {
+    "discoverOnly": false,
+    "providerPathFormat": "'css/nga/WV02/2A/'yyyy/DDD",
+    "ingestedPathFormat": "'WV02_MSI_L2A___1/'yyyy/DDD",
+    "startDate": "2016-01-01T00:00:00Z",
+    "endDate": "2023-01-01T00:00:00Z",
+    "step": "P1D"
+  }
+}
