@@ -11,6 +11,12 @@ locals {
 
   cmr_provider = "CSDA"
 
+  cnm_to_cma_version  = "1.8.0"
+  cnm_to_cma_zip_name = "cnmToGranule-${local.cnm_to_cma_version}.zip"
+
+  cnm_response_version  = "2.2.0"
+  cnm_response_zip_name = "cnmResponse-${local.cnm_response_version}.zip"
+
   dynamo_tables = jsondecode("<%= json_output('data-persistence.dynamo_tables') %>")
 
   ecs_task_cpu                = 768
@@ -365,6 +371,115 @@ resource "aws_lambda_function" "record_workflow_failure" {
   layers           = [module.cma.lambda_layer_version_arn]
 
   tags = local.tags
+
+  dynamic "vpc_config" {
+    for_each = length(module.vpc.subnets.ids) == 0 ? [] : [1]
+    content {
+      subnet_ids         = module.vpc.subnets.ids
+      security_group_ids = [aws_security_group.egress_only.id]
+    }
+  }
+}
+
+resource "null_resource" "download_cnm_to_cma_zip_file" {
+  triggers = {
+    always_run = local.cnm_to_cma_version
+    bucket     = var.system_bucket
+  }
+
+  provisioner "local-exec" {
+    command = "curl -s -L -o ${local.cnm_to_cma_zip_name} https://github.com/podaac/cumulus-cnm-to-granule/releases/download/v${local.cnm_to_cma_version}/${local.cnm_to_cma_zip_name}"
+  }
+}
+
+resource "aws_s3_object" "cnm_to_cma_lambda_zip" {
+  depends_on = [null_resource.download_cnm_to_cma_zip_file]
+  bucket     = var.system_bucket
+  key        = "${var.prefix}/${local.cnm_to_cma_zip_name}"
+  source     = local.cnm_to_cma_zip_name
+
+  provisioner "local-exec" {
+    interpreter = ["bash", "-c"]
+    command     = "rm -f ${local.cnm_to_cma_zip_name}"
+  }
+}
+
+resource "aws_lambda_function" "cnm_to_cma" {
+  depends_on       = [aws_s3_object.cnm_to_cma_lambda_zip]
+  function_name    = "${var.prefix}-CNMToCMA"
+  s3_bucket        = var.system_bucket
+  s3_key           = aws_s3_object.cnm_to_cma_lambda_zip.id
+  handler          = "gov.nasa.cumulus.CnmToGranuleHandler::handleRequestStreams"
+  role             = module.cumulus.lambda_processing_role_arn
+  runtime          = "java11"
+  timeout          = 300
+  memory_size      = 128
+
+  source_code_hash = aws_s3_object.cnm_to_cma_lambda_zip.etag
+  layers           = [module.cma.lambda_layer_version_arn]
+
+  tags = local.tags
+
+  environment {
+    variables = {
+      stackName                   = var.prefix
+      CUMULUS_MESSAGE_ADAPTER_DIR = "/opt/"
+    }
+  }
+
+  dynamic "vpc_config" {
+    for_each = length(module.vpc.subnets.ids) == 0 ? [] : [1]
+    content {
+      subnet_ids         = module.vpc.subnets.ids
+      security_group_ids = [aws_security_group.egress_only.id]
+    }
+  }
+}
+
+resource "null_resource" "download_cnm_response_zip_file" {
+  triggers = {
+    always_run = local.cnm_response_version
+    bucket     = var.system_bucket
+  }
+  provisioner "local-exec" {
+    command = "curl -s -L -o ${local.cnm_response_zip_name} https://github.com/podaac/cumulus-cnm-response-task/releases/download/v${local.cnm_response_version}/${local.cnm_response_zip_name}"
+  }
+}
+
+resource "aws_s3_object" "cnm_response_lambda_zip" {
+  depends_on = [null_resource.download_cnm_response_zip_file]
+  bucket     = var.system_bucket
+  key        = "${var.prefix}/${local.cnm_response_zip_name}"
+  source     = local.cnm_response_zip_name
+
+  provisioner "local-exec" {
+    interpreter = ["bash", "-c"]
+    command     = "rm -f ${local.cnm_response_zip_name}"
+  }
+}
+
+resource "aws_lambda_function" "cnm_response" {
+  depends_on       = [aws_s3_object.cnm_response_lambda_zip]
+  function_name    = "${var.prefix}-CnmResponse"
+  s3_bucket        = var.system_bucket
+  s3_key           = aws_s3_object.cnm_response_lambda_zip.id
+  handler          = "gov.nasa.cumulus.CNMResponse::handleRequestStreams"
+  role             = module.cumulus.lambda_processing_role_arn
+  runtime          = "java11"
+  timeout          = 300
+  memory_size      = 256
+
+  source_code_hash = aws_s3_object.cnm_response_lambda_zip.etag
+  layers           = [module.cma.lambda_layer_version_arn]
+
+  tags = local.tags
+
+  environment {
+    variables = {
+      stackName                   = var.prefix
+      CUMULUS_MESSAGE_ADAPTER_DIR = "/opt/"
+    }
+  }
 
   dynamic "vpc_config" {
     for_each = length(module.vpc.subnets.ids) == 0 ? [] : [1]
