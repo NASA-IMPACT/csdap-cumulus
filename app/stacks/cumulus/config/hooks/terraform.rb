@@ -24,6 +24,7 @@ class PatchCumulus18_1_0
       "cumulus/tf-modules/ingest/message_template.tf",
       "discover_granules_workflow/tf-modules/workflow/main.tf",
       "ingest_and_publish_granule_workflow/tf-modules/workflow/main.tf",
+      "cnm_ingest_and_publish_granule_workflow/tf-modules/workflow/main.tf",
     ]
 
     filepaths.each do |filepath|

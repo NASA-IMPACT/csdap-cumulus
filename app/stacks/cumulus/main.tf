@@ -590,6 +590,35 @@ module "ingest_and_publish_granule_workflow" {
   })
 }
 
+module "cnm_ingest_and_publish_granule_workflow" {
+  depends_on = [
+    aws_lambda_function.cnm_response,
+    aws_lambda_function.cnm_to_cma
+  ]
+
+  source = "https://github.com/nasa/cumulus/releases/download/<%= cumulus_version %>/terraform-aws-cumulus.zip//tf-modules/workflow"
+
+  prefix          = var.prefix
+  name            = "CNMIngestAndPublishGranule"
+  workflow_config = module.cumulus.workflow_config
+  system_bucket   = var.system_bucket
+  tags            = local.tags
+
+  state_machine_definition = templatefile("${path.module}/templates/cnm-ingest-and-publish-granule-workflow.asl.json", {
+    cnm_to_cma_task_arn: aws_lambda_function.cnm_to_cma.arn,
+    require_cmr_files_task_arn : aws_lambda_function.require_cmr_files.arn,
+    sync_granule_task_arn : module.cumulus.sync_granule_task.task_arn,
+    add_ummg_checksums_task_arn : aws_lambda_function.add_ummg_checksums.arn,
+    add_missing_file_checksums_task_arn : module.cumulus.add_missing_file_checksums_task.task_arn,
+    move_granules_task_arn : module.cumulus.move_granules_task.task_arn,
+    update_granules_cmr_metadata_file_links_task_arn : module.cumulus.update_granules_cmr_metadata_file_links_task.task_arn,
+    copy_to_archive_adapter_task_arn : module.cumulus.orca_copy_to_archive_adapter_task.task_arn,
+    post_to_cmr_task_arn : module.cumulus.post_to_cmr_task.task_arn,
+    cnm_response_task_arn: aws_lambda_function.cnm_response.arn,
+    record_workflow_failure_task_arn : aws_lambda_function.record_workflow_failure.arn,
+  })
+}
+
 module "cumulus" {
   source = "https://github.com/nasa/cumulus/releases/download/<%= cumulus_version %>/terraform-aws-cumulus.zip//tf-modules/cumulus"
 
