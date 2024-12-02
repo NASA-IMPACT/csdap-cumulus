@@ -580,8 +580,6 @@ module "ingest_and_publish_granule_workflow" {
     sync_granule_task_arn : module.cumulus.sync_granule_task.task_arn,
     add_ummg_checksums_task_arn : aws_lambda_function.add_ummg_checksums.arn,
     add_missing_file_checksums_task_arn : module.cumulus.add_missing_file_checksums_task.task_arn,
-    fake_processing_task_arn : module.cumulus.fake_processing_task.task_arn,
-    files_to_granules_task_arn : module.cumulus.files_to_granules_task.task_arn,
     move_granules_task_arn : module.cumulus.move_granules_task.task_arn,
     update_granules_cmr_metadata_file_links_task_arn : module.cumulus.update_granules_cmr_metadata_file_links_task.task_arn,
     copy_to_archive_adapter_task_arn : module.cumulus.orca_copy_to_archive_adapter_task.task_arn,
