@@ -1,0 +1,38 @@
+{
+	"restore_to__bucket_name":"csda-cumulus-kris-sbx7894-protected-7894",
+
+	"config": {
+		"buckets": {
+		  "protected": {
+		    "name": "csda-cumulus-kris-sbx7894-protected-7894",
+		    "type": "protected"
+		  },
+		  "internal": {
+		    "name": "csda-cumulus-kris-sbx7894-internal-7894",
+		    "type": "internal"
+		  },
+		  "private": {
+		    "name": "csda-cumulus-kris-sbx7894-private-7894",
+		    "type": "private"
+		  },
+		  "public": {
+		    "name": "csda-cumulus-kris-sbx7894-public-7894",
+		    "type": "public"
+		  },
+		  "orca_default": {
+		    "name": "csda-cumulus-cba-uat-orca-archive",
+		    "type": "orca"
+		  }
+		},
+		"fileBucketMaps": [
+		  {
+		    "regex": "^(\\d{8}_\\d{6}_.+)(?:_\\dB_.+|_thumb.*|_cmr[.]json|_metadata[.]json)$",
+		    "sampleFileName": "20160628_204526_1_0c74_3B_Analytic_DN_metadata.xml",
+		    "bucket": "protected"
+		  }
+		],
+		"s3MultipartChunksizeMb": 200,
+		"excludedFileExtensions": [],
+		"asyncOperationId": "e3d8b981-0da4-4cad-84c5-c12d2f1094bc"
+		}
+}
