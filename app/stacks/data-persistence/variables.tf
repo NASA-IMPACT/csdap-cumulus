@@ -5,6 +5,7 @@ variable "elasticsearch_config" {
     instance_count = number
     instance_type  = string
     version        = string
+    volume_type    = string
     volume_size    = number
   })
   default = {
@@ -12,6 +13,7 @@ variable "elasticsearch_config" {
     instance_count = 1
     instance_type  = "t2.small.elasticsearch"
     version        = "5.3"
+    volume_type    = "gp2"
     volume_size    = 10
   }
 }

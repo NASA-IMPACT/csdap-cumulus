@@ -482,7 +482,7 @@ module "cumulus" {
   deploy_to_ngap = true
 
   cumulus_message_adapter_lambda_layer_version_arn = module.cma.lambda_layer_version_arn
-  async_operation_image                            = "cumuluss/async-operation:47"
+  async_operation_image                            = "cumuluss/async-operation:52"
 
   vpc_id            = module.vpc.vpc_id
   lambda_subnet_ids = module.vpc.subnets.ids

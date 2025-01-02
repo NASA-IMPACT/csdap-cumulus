@@ -42,4 +42,18 @@ module "rds_cluster" {
   subnets             = module.vpc.subnets.ids
   tags                = { Deployment = var.prefix }
   vpc_id              = module.vpc.vpc_id
+
+  # This part is to allow Orca v9.0.5 to succeed while doing Cumulus upgrade from 18.2.0 to 18.3.3
+  db_parameters = [
+    {
+      name  = "shared_preload_libraries"
+      value = "pg_stat_statements,auto_explain"
+      apply_method = "pending-reboot"
+    },
+    {
+      name         = "rds.force_ssl"
+      value        = 0
+      apply_method = "pending-reboot"
+    }
+  ]
 }
