@@ -16,5 +16,6 @@ elasticsearch_config = {
   instance_count = 4
   instance_type  = "r5.large.elasticsearch"
   version        = "5.3"
+  volume_type    = "gp2"
   volume_size    = 500
 }
