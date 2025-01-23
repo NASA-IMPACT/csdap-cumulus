@@ -17,8 +17,9 @@
 - [Destroying a Deployment](#destroying-a-deployment)
 - [Cognito Integration](#cognito-integration)
   - [Updating Vendor Based Data Access Filter](#updating-vendor-based-data-access-filter)
-
-
+- [Manual Database Changes](#manual-database-changes)
+  - [Reference Material](#reference-material) 
+  - [Connecting with psql](#connecting-with-psql)
 
 ## Update Launchpad Certificate
 
@@ -846,6 +847,106 @@ For example, under the vendor `maxar` we have multiple datasets which have S3 di
 Example:  `'testvendor': ['tv01_data']` 	// Adding a vendor called, `testvendor` with a single dataset directory called, `tv01_data`.
   - Important Note. The vendor names should be lowercase and have no spaces or non-alpha numeric characters.  The first character should not be a number.  Not following this note may lead to errors for users attempting to download data.
       
+
+## Manual Database Changes
+
+During the Upgrade to Cumulus 18.4.0, there are steps that should run fine during deployment when there exists a fresh or empty database, however these processes would time out on a production in-use database.
+To solve this, the need existed to connect directly to the database.
+Below is reference material regarding the Upgrade to v18.4.0 and can be used as an example of when one may need to connect to the Cumulus Database for manual or long-running changes.
+Further below are some additional details of how this upgrade was performed.
+
+### Reference Material
+
+Cumulus v18.4.0 Release Notes: 
+- https://github.com/nasa/cumulus/releases/tag/v18.4.0
+
+In the upgrade to Cumulus 18.4.0, there are two items that require Postgresql Database queries to be run.  These queries must be run in an environment that allows for a significant amount of time or a persistent connection to the database.  
+- CUMULUS-3320 Update executions table 
+  - https://nasa.github.io/cumulus/docs/next/upgrade-notes/upgrade_execution_table_CUMULUS_3320
+- CUMULUS-3449 
+  - https://nasa.github.io/cumulus/docs/next/upgrade-notes/update-cumulus_id-type-indexes-CUMULUS-3449
+
+Connect to Cumulus DB via Local Terminal
+- https://nasa.github.io/cumulus/docs/next/deployment/postgres_database_deployment/#connect-to-postgresql-db-via-pgadmin
+ 
+
+### Connecting with psql
+
+To solve the previous upgrade database changes, Amazon SSM can be used.
+Below is a breakdown of that approach.
+
+Things you will need.
+- Database Secrets Info (db-username, db-password, db-name)
+- Database Endpoint address (Looks like this: cumulus-<cumulus-prefix>-rds-serverless.cluster-<another-string>.<aws-region-string>.rds.amazonaws.com)
+- A private EC2 Instance using Amazon Linux 2023 (or future supported Amazon Linux versions)
+  - This EC2 Instance must reside within the same subnet as the RDS Cluster. 
+  - The name of the security group for this EC2 Instance
+  - An IAM role attached to the EC2 which has this policy in it: `AmazonSSManagedInstanceCore` 
+- For future operators, I've already set up an EC2 with the name 'maintenance' in it.  This instance remains off until it is needed.  
+  - If needed, go to the EC2 Console and Start the instance up 
+    - (AWS EC2 Web UI --> Instance State --> Start)
+
+After the EC2 instance is set up:
+- Modify the Inbound traffic on the Security Group for the RDS DB to allow PostgreSQL traffic (port 5432) from the Security group of the private EC2 
+
+Connect to the EC2
+- Go to AWS Session Manager
+- Start Session --> Select Instance (Select the EC2 instance) --> Click Start Session
+
+Once In the Instance via AWS Session Manager
+- Install Postgresql on the EC2
+```commandline
+# Check Linux Version 
+cat /etc/os-release
+
+# If server uses yum (Amazon Linux 2)
+sudo yum update -y
+which amazon-linux-extras                       # Verify Amazon Linux Extras are installed
+amazon-linux-extras list | grep postgresql 			# Verify at least 14 is available
+sudo amazon-linux-extras enable postgresql14
+sudo yum clean metadata
+sudo yum install -y postgresql
+psql --version      # // Output example: psql (PostgreSQL) 14.14
+
+# If server uses dnf (Amazon Linux 2023)
+sudo dnf update -y
+sudo dnf install -y postgresql15
+psql --version      # // Output example: psql (PostgreSQL) 15.9 
+```
+- Install tmux on the EC2
+```commandline
+# // Install tmux
+sudo yum install -y tmux
+```
+- Use tmux to get into a long-running terminal session that does not go away when the AWS Session Manager Times out (also connecting to the database instructions are in here).
+```commandline
+# // Create a new tmux session
+tmux new -s long_query     # long_query is just a name, it can be anything you want to call it
+
+# // Perform whatever commands are needed here
+#
+# // Connecting to the PostgreSQL
+psql -h <your-rds-endpoint> -U <db-username> -d <db-name>
+# // At this point you will be prompted for the DB Password
+
+# Run a test Query to ensure you are connected.
+# # This query should return a table listing table disk sizes
+psql> SELECT relname AS table_name, pg_size_pretty(pg_total_relation_size(relid)) AS total_size FROM pg_catalog.pg_statio_user_tables ORDER BY pg_total_relation_size(relid) DESC;
+
+# Run any long running query needed here. 
+
+# To Exit or Detach from tmux
+# ctrl + B, then D  		// This detaches the tmux session
+
+# From a normal, non-tmux terminal, list tmux sessions with this
+tmux ls   # // Lists any running tmux sessions
+
+# From a normal, non-tmux terinal, Reattach to a tmux session
+tmux attach -t long_query   # // Rejoins the existing tmux session called 'long_query', exactly as it was left
+``` 
+
+
+
 
 
 END 
