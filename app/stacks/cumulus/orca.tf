@@ -15,7 +15,7 @@ data "aws_secretsmanager_secret_version" "rds_cluster_user_credentials_secret_ve
 }
 
 module "orca" {
-  source = "https://github.com/nasa/cumulus-orca/releases/download/v9.0.5/cumulus-orca-terraform.zip"
+  source = "https://github.com/nasa/cumulus-orca/releases/download/v10.0.0/cumulus-orca-terraform.zip"
   #--------------------------
   # Cumulus variables
   #--------------------------
@@ -44,8 +44,9 @@ module "orca" {
   orca_default_bucket      = var.buckets.orca_default.name
   orca_reports_bucket_name = var.buckets.orca_reports.name
   rds_security_group_id    = local.rds_security_group
-  s3_access_key            = data.aws_ssm_parameter.orca_s3_access_key.value
-  s3_secret_key            = data.aws_ssm_parameter.orca_s3_secret_key.value
+  #s3_access_key            = data.aws_ssm_parameter.orca_s3_access_key.value
+  #s3_secret_key            = data.aws_ssm_parameter.orca_s3_secret_key.value
+  db_cluster_identifier    = "${var.prefix}-rds-serverless"
 
   # OPTIONAL
 
