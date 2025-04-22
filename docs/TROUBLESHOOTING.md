@@ -32,6 +32,32 @@ new certificate file (`.pfx`) as well as a new passphrase/password.  For
 instructions on what to do with the new file and passphrase, see
 [OPERATING.md](./OPERATING.md).
 
+### CopyToArchive Always Fails with 403 (AccessDenied)
+
+NGAP has automated 'circuit breakers' set up to prevent cost overruns. Rules are 
+configured to freeze certain resources, which should be reverted once the trigger 
+event is resolved (likely related to cloud spend in Kion financials). We have 
+observed that ORCA buckets retain lockdown modifications post-revert and therefore 
+may not be covered automatically.
+
+Check the bucket policy on the target ORCA bucket for a statement labelled 
+`gsfc-ngap-circuit-breaker-added` with an explicit Deny defined. Confirm with
+the Project Owner before manual intervention. A version of the original policy, 
+before circuit breaker modification, should be available in AWS Config.
+
+```
+{
+  "Sid": "gsfc-ngap-circuit-breaker-added",
+  "Effect": "Deny",
+  "Principal": "*",
+  "Action": ["s3:PutObject*","s3:GetObject*","s3:ReplicateObject","s3:RestoreObject"],
+  "Resource": [...]
+}
+```
+
+NGAP maintains the circuit breaker systems so this behavior may change. 
+Other methods to [troubleshoot AccessDenied in S3] may be required.
+
 ## Deployment
 
 ### Error creating API Gateway Deployment: BadRequestException: Private REST API doesn't have a resource policy attached to it
@@ -626,3 +652,5 @@ module.
 
 [Find ENI Associations]:
   https://aws.amazon.com/premiumsupport/knowledge-center/lambda-eni-find-delete/
+[Troubleshoot AccessDenied in S3]:
+  https://docs.aws.amazon.com/AmazonS3/latest/userguide/troubleshoot-403-errors.html
