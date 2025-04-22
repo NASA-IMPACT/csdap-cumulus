@@ -2,6 +2,7 @@
 
 - [Ingestion](#ingestion)
   - [PostToCmr Always Fails with 401 (Unauthorized)](#posttocmr-always-fails-with-401-unauthorized)
+  - [CopyToArchive Always Fails with 403 (AccessDenied)](#copytoarchive-always-fails-with-403-accessdenied)
 - [Deployment](#deployment)
   - [Error creating API Gateway Deployment: BadRequestException: Private REST API doesn't have a resource policy attached to it](#error-creating-api-gateway-deployment-badrequestexception-private-rest-api-doesnt-have-a-resource-policy-attached-to-it)
   - [Aws::STS::Errors::InvalidClientTokenId: The security token included in the request is invalid](#awsstserrorsinvalidclienttokenid-the-security-token-included-in-the-request-is-invalid)
