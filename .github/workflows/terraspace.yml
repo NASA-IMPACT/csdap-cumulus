@@ -41,7 +41,7 @@ env:
   #
 jobs:
   terraspace:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     environment: ${{ inputs.TS_ENV }}
     env:
       TS_ENV: ${{ inputs.TS_ENV }}
@@ -101,6 +101,11 @@ jobs:
       - name: Install dependencies
         run: |
           yarn --non-interactive install
+
+      - name: Set Github Secrets as Environment Variables
+        run: |
+          echo "TF_ENV_URS_EDL_TEA_CLIENT_ID=${{ secrets.URS_EDL_TEA_CLIENT_ID }}" >> $GITHUB_ENV
+          echo "TF_ENV_URS_EDL_TEA_CLIENT_PASS=${{ secrets.URS_EDL_TEA_CLIENT_PASS }}" >> $GITHUB_ENV
 
       - name: Run Post Deploy Mods setup
         run: |

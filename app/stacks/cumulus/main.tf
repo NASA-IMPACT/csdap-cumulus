@@ -80,6 +80,10 @@ data "aws_secretsmanager_secret_version" "launchpad_pfx" {
   secret_id = data.aws_secretsmanager_secret.launchpad_pfx.id
 }
 
+# Helps enable s3credentials endpoint
+data "aws_lambda_function" "sts_credentials" { function_name = "gsfc-ngap-sh-s3-sts-get-keys" }
+data "aws_lambda_function" "sts_policy_helper" { function_name = "gsfc-ngap-sh-sts-policy-helper" }
+
 #-------------------------------------------------------------------------------
 # RESOURCES
 #-------------------------------------------------------------------------------
@@ -418,6 +422,9 @@ module "cumulus_distribution" {
   deploy_to_ngap            = true
   lambda_subnet_ids         = module.vpc.subnets.ids
 
+  sts_credentials_lambda_function_arn   = data.aws_lambda_function.sts_credentials.arn
+  sts_policy_helper_lambda_function_arn = data.aws_lambda_function.sts_policy_helper.arn
+
   oauth_client_id       = data.aws_ssm_parameter.csdap_client_id.value
   oauth_client_password = data.aws_ssm_parameter.csdap_client_password.value
   oauth_host_url        = var.csdap_host_url
@@ -428,6 +435,12 @@ module "cumulus_distribution" {
   system_bucket            = var.system_bucket
   tags                     = local.tags
   vpc_id                   = module.vpc.vpc_id
+
+  # Additional available options not used
+  #default_log_retention_days            = var.default_log_retention_days
+  #cloudwatch_log_retention_periods      = var.cloudwatch_log_retention_periods
+  #lambda_timeouts                       = var.lambda_timeouts
+  #lambda_memory_sizes                   = var.lambda_memory_sizes
 }
 
 module "discover_granules_workflow" {
@@ -503,10 +516,9 @@ module "cumulus" {
   rds_security_group         = local.rds_security_group
   rds_user_access_secret_arn = local.rds_user_access_secret_arn
 
-  # These are no longer used, but are required by the module, so we simply set
-  # them to empty strings.
-  urs_client_id       = ""
-  urs_client_password = ""
+  # URS connection info (added for s3 credentials endpoint)
+  urs_client_id       = var.urs_edl_tea_client_id
+  urs_client_password = var.urs_edl_tea_client_pass
 
   # <% if !in_sandbox? then %>
   metrics_es_host     = var.metrics_es_host
@@ -563,9 +575,32 @@ module "cumulus" {
   # <% end %>
   additional_log_groups_to_elk = var.additional_log_groups_to_elk
 
+  # These lines must be commented when using Cumulus Distribution and NOT using TEA
+  # Thin Egress App settings. Uncomment to use TEA.
+  # must match stage_name variable for thin-egress-app module
+  #tea_api_gateway_stage         = var.api_gateway_stage
+  #tea_external_api_endpoint     = module.thin_egress_app.api_endpoint
+  #tea_internal_api_endpoint     = module.thin_egress_app.internal_api_endpoint
+  #tea_rest_api_id               = module.thin_egress_app.rest_api.id
+  #tea_rest_api_root_resource_id = module.thin_egress_app.rest_api.root_resource_id
+
+
+  # Cumulus Distribution settings. This line is Uncommented when using using the Cumulus Distribution API instead of TEA.
   tea_external_api_endpoint                   = var.cumulus_distribution_url
+
   deploy_cumulus_distribution                 = true
-  deploy_distribution_s3_credentials_endpoint = false
+  deploy_distribution_s3_credentials_endpoint = true
+  # The above var is the correct one for using the cumulus_distribution api path for s3credentials endpoint
+
+  # This is for when using the s3credentials with the TEA module -- The other time this appears in the code is for using the Cumulus_Distribution module
+  #sts_credentials_lambda_function_arn = data.aws_lambda_function.sts_credentials.arn
+  #sts_policy_helper_lambda_function_arn = data.aws_lambda_function.sts_policy_helper.arn
+  #cmr_acl_based_credentials = true
+  
+  # Ok so there are two places where 'deploy_s3_credentials_endpoint' exist.  
+  # # If wanting this feature enabled, and using the attribute 'deploy_s3_credentials_endpoint' in the ThinEgressApp Module, 
+  # # then the one here needs to be set ot false - so they don't conflict.
+  #deploy_s3_credentials_endpoint = true
 
   tags = local.tags
 

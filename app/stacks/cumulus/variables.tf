@@ -165,6 +165,18 @@ variable "private_archive_api_gateway" {
   default = true
 }
 
+variable "rsa_priv_key" {
+  description = "The Private Key part of the JWT Token used by TEA Module as part of the TEA s3 credentials access"
+  type    = string
+  default = ""
+}
+
+variable "rsa_pub_key" {
+  description = "The Public Key part of the JWT Token used by TEA Module as part of the TEA s3 credentials access"
+  type    = string
+  default = ""
+}
+
 variable "s3_replicator_target_bucket" {
   type    = string
   default = null
@@ -199,4 +211,22 @@ variable "tags" {
   description = "Tags to be applied to Cumulus resources that support tags"
   type        = map(string)
   default     = {}
+}
+
+variable "urs_edl_tea_client_id" {
+  description = "The Client ID of the Earthdata login (URS) application for TEA s3 credentials access"
+  type    = string
+  default = ""
+}
+
+variable "urs_edl_tea_client_pass" {
+  description = "The Password of the Earthdata login (URS) application for TEA s3 credentials access"
+  type    = string
+  default = ""
+}
+
+variable "urs_url" {
+  description = "The URL of the Earthdata login (URS) site"
+  type        = string
+  default     = "https://uat.urs.earthdata.nasa.gov"
 }
