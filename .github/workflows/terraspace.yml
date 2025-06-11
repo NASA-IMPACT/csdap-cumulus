@@ -41,7 +41,7 @@ env:
   #
 jobs:
   terraspace:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     environment: ${{ inputs.TS_ENV }}
     env:
       TS_ENV: ${{ inputs.TS_ENV }}
