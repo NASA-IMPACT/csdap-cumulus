@@ -26,3 +26,5 @@ s3_replicator_target_bucket = "esdis-metrics-inbound-prod-csdap-distribution"
 # <% end %>
 
 s3_replicator_target_prefix = "input/s3_access/csdapprod"
+
+urs_url = "https://urs.earthdata.nasa.gov"

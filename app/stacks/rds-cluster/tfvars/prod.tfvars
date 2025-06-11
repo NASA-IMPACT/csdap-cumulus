@@ -4,3 +4,6 @@
 # In the near future, we may need to fine tune these for the ingest runs using serverless v2 
 #min_capacity = 2
 #max_capacity = 128 # 384 (note, using 384 will break the Serverless v2 upgrade on prod..)
+
+min_capacity = 2
+max_capacity = 4 # Tune this as needed.
