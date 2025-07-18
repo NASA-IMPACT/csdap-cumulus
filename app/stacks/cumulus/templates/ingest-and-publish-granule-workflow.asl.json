@@ -80,6 +80,7 @@
                     "downloadBucket": "{$.meta.buckets.protected.name}",
                     "duplicateHandling": "{$.meta.collection.duplicateHandling}",
                     "pdr": "{$.meta.pdr}",
+                    "useGranIdPath": false,
                     "cumulus_message": {
                       "input": "{$.payload}",
                       "outputs": [

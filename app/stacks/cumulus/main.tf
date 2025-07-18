@@ -495,7 +495,7 @@ module "cumulus" {
   deploy_to_ngap = true
 
   cumulus_message_adapter_lambda_layer_version_arn = module.cma.lambda_layer_version_arn
-  async_operation_image                            = "cumuluss/async-operation:52"
+  async_operation_image                            = "cumuluss/async-operation:53"
 
   vpc_id            = module.vpc.vpc_id
   lambda_subnet_ids = module.vpc.subnets.ids
@@ -553,14 +553,14 @@ module "cumulus" {
   system_bucket = var.system_bucket
   buckets       = var.buckets
 
-  elasticsearch_alarms            = local.elasticsearch_alarms
-  elasticsearch_domain_arn        = local.elasticsearch_domain_arn
-  elasticsearch_hostname          = local.elasticsearch_hostname
-  elasticsearch_security_group_id = local.elasticsearch_security_group_id
+  # Upgrade from v18.5.3 to v20.0.0 had a removal of elastic search params from the Cumulus Module
+  #elasticsearch_alarms            = local.elasticsearch_alarms
+  #elasticsearch_domain_arn        = local.elasticsearch_domain_arn
+  #elasticsearch_hostname          = local.elasticsearch_hostname
+  #elasticsearch_security_group_id = local.elasticsearch_security_group_id
+  #es_index_shards = 2
 
   dynamo_tables = local.dynamo_tables
-
-  es_index_shards = 2
 
   # Archive API settings
   token_secret                = random_string.token_secret.result
