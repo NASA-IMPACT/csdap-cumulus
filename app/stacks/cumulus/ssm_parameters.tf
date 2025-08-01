@@ -81,6 +81,14 @@ data "aws_ssm_parameter" "orca_s3_secret_key" {
   name = "/shared/cumulus/orca/dr/s3-secret-key"
 }
 
+# MCP Account ID -- Supporting CNM PROD
+# TODO - Account ID -- Supporting CNM UAT
+#
+data "aws_ssm_parameter" "mcp_account_id" {
+  name = "/shared/cumulus/mcp-account-id"
+}
+
+
 #-------------------------------------------------------------------------------
 # SSM Parameters required across ONLY non-sandbox (non-dev) environments
 #-------------------------------------------------------------------------------
