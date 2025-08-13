@@ -17,7 +17,7 @@ RUN : \
   # AWS CLI help system requires groff (not needed for CI)
   groff=1.22.4-8build1 \
   # AWS Support Tools Lambda FindEniMappings requires jq (not needed for CI)
-  jq=1.6-2.1ubuntu3 \
+  jq=1.6-2.1ubuntu3.1 \
   && apt-get autoremove -y \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
