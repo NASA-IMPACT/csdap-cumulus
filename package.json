@@ -68,6 +68,7 @@
     "axios": "^1.8.3",
     "date-fns": "^3.0.6",
     "duration-fns": "^3.0.1",
+    "follow-redirects": "^1.15.6",
     "fp-ts": "^2.11.5",
     "fp-ts-contrib": "^0.1.29",
     "http-cache-semantics": "^4.1.1",
@@ -121,7 +122,8 @@
     "got/**/http-cache-semantics": "^4.1.1",
     "nyc/**/json5": "^2.2.2",
     "@cumulus/**/follow-redirects": "^1.15.6",
-    "@cumulus/**/axios": "^1.8.3"
+    "@cumulus/**/axios": "^1.8.3",
+    "@cumulus/**/glob": "^9.0.0"
   },
   "files": [
     "build/main",
