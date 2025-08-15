@@ -1,0 +1,20 @@
+{
+  "name": "WV04_MSI_L1B___1_CNM",
+  "state": "ENABLED",
+  "workflow": "CNMIngestAndPublishGranule",
+  "provider": "cumulus",
+  "collection": {
+    "name": "WV04_MSI_L1B",
+    "version": "1"
+  },
+  "rule": {
+    "type": "sns",
+    "value": "arn:aws:sns:us-west-2:772632177894:cumulus-kris-sbx7894-cnm-submission-topic"
+  },
+  "meta": {
+    "cnmResponseMethod": "sns"
+  },
+  "tags": [
+    "cnm"
+  ]
+}
