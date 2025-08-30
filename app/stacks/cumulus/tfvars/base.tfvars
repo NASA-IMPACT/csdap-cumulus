@@ -58,6 +58,11 @@ buckets = {
   }
   #-----<% else %>
   # Non-sandbox provider buckets
+  planet_UAT = {
+    name = "csda-cumulus-uat-cnm-test-1686"
+    type = "provider"
+  }
+  # Non-sandbox provider buckets
   planet = {
     name = "ss-ingest-prod-ingesteddata-uswest2"
     type = "provider"

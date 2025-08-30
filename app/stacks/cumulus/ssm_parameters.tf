@@ -84,8 +84,13 @@ data "aws_ssm_parameter" "orca_s3_secret_key" {
 # MCP Account ID -- Supporting CNM PROD
 # TODO - Account ID -- Supporting CNM UAT
 #
-data "aws_ssm_parameter" "mcp_account_id" {
-  name = "/shared/cumulus/mcp-account-id"
+#data "aws_ssm_parameter" "mcp_account_id" {
+#  name = "/shared/cumulus/mcp-account-id"
+#}
+# # SANDBOX and UAT point at the same AWS Account, but PROD points at a different one.
+# These values are defined on the NGAP AWS Account where the deployment happens.
+data "aws_ssm_parameter" "remote_cnm_account_id" {
+  name = "/shared/cumulus/remote-cnm-account-id"
 }
 
 

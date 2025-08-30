@@ -520,6 +520,7 @@
           "task_config": {
             "OriginalCNM": "{$.meta.cnm}",
             "distribution_endpoint": "{$.meta.distribution_endpoint}",
+            "CNMResponseStream": "{$.meta.cnmResponseStream}",
             "response-endpoint": "{$.meta.cnmResponseStream}",
             "region": "us-west-2",
             "type": "{$.meta.cnmResponseMethod}",

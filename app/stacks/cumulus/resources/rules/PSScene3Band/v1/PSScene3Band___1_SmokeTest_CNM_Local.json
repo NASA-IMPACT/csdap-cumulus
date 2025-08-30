@@ -1,18 +1,20 @@
 {
   "name": "PSScene3Band___1_SmokeTest_CNM_Local",
   "state": "ENABLED",
-  "workflow": "CNMIngestAndPublishGranule",
   "provider": "planet",
   "collection": {
     "name": "PSScene3Band",
     "version": "1"
   },
+  "workflow": "CNMIngestAndPublishGranule",
   "rule": {
     "type": "sns",
-    "value": "arn:aws:sns:us-west-2:772632177894:cumulus-kris-sbx7894-cnm-submission-topic"
+    "value": "arn:aws:sns:us-west-2:<REPLACE_WITH_NGAP_SANDBOX_AWS_ACCT_NUMBER>:cumulus-<ENV>-cnm-submission-topic"
   },
   "meta": {
-    "cnmResponseMethod": "sns"
+    "cnmResponseMethod": "sns",
+    "cnmResponseStream": "arn:aws:sns:us-west-2:<REPLACE_WITH_NGAP_SANDBOX_AWS_ACCT_NUMBER>:cumulus-<ENV>-cnm-response-topic",
+    "region": "us-west-2"
   },
   "tags": [
     "cnm"

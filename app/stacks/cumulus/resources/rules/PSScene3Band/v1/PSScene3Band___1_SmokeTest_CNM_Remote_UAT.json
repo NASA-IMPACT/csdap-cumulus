@@ -1,0 +1,22 @@
+{
+  "name": "PSScene3Band___1_SmokeTest_CNM_Remote_UAT",
+  "state": "ENABLED",
+  "workflow": "CNMIngestAndPublishGranule",
+  "provider": "planet",
+  "collection": {
+    "name": "PSScene3Band",
+    "version": "1"
+  },
+  "rule": {
+    "type": "sns",
+    "value": "arn:aws:sns:us-west-2:<REPLACE_WITH_REMOTE_AWS_ACCT_NUMBER>:csda-cumulus-uat-cnm-submission-topic"
+  },
+  "meta": {
+    "cnmResponseMethod": "sns",
+    "cnmResponseStream": "arn:aws:sns:us-west-2:<REPLACE_WITH_REMOTE_AWS_ACCT_NUMBER>:csda-cumulus-uat-cnm-response-topic",
+    "region": "us-west-2"
+  },
+  "tags": [
+    "cnm"
+  ]
+}
