@@ -131,6 +131,35 @@ resource "null_resource" "attach_system_bucket_policy" {
 }
 
 #-------------------------------------------------------------------------------
+# Additional permissions to allow use of Remote customer-managed key - Supports CNM Ingest
+#-------------------------------------------------------------------------------
+
+data "aws_iam_policy_document" "allow_use_remote_cnm_account_key" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "kms:Encrypt",
+      "kms:Decrypt",
+      "kms:ReEncrypt*",
+      "kms:GenerateDataKey*",
+      "kms:DescribeKey"
+    ]
+    resources = ["arn:aws:kms:us-west-2:${data.aws_ssm_parameter.remote_cnm_account_id.value}:*"]
+  }
+}
+# resources = ["arn:aws:kms:us-west-2:${data.ssm_parameters.mcp_account_id}:*"]
+
+resource "aws_iam_policy" "allow_use_remote_cnm_account_key" {
+  name   = "${var.prefix}-remote-cnm-key-policy"
+  policy = data.aws_iam_policy_document.allow_use_remote_cnm_account_key.json
+}
+
+resource "aws_iam_role_policy_attachment" "allow_use_remote_cnm_account_key" {
+  role       = module.cumulus.lambda_processing_role_name
+  policy_arn = aws_iam_policy.allow_use_remote_cnm_account_key.arn
+}
+
+#-------------------------------------------------------------------------------
 # Temporary workaround for dashboard permissions issue
 #-------------------------------------------------------------------------------
 

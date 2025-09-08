@@ -1,0 +1,5 @@
+{
+  "id": "planet_UAT",
+  "protocol": "s3",
+  "host": "csda-cumulus-uat-cnm-test-1686"
+}

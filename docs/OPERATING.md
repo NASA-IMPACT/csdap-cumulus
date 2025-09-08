@@ -20,6 +20,7 @@
 - [Manual Database Changes](#manual-database-changes)
   - [Reference Material](#reference-material) 
   - [Connecting with psql](#connecting-with-psql)
+- [Cloud Notification Mechinism (CNM) Ingest](#cnm-ingest)
 
 ## Update Launchpad Certificate
 
@@ -945,6 +946,134 @@ tmux ls   # // Lists any running tmux sessions
 tmux attach -t long_query   # // Rejoins the existing tmux session called 'long_query', exactly as it was left
 ``` 
 
+
+
+## CNM Ingest
+
+CNM is a method by which we can ingest granules by way of processing incoming messages.
+At a highlevel, a function or some data source will publish a message which has a list of granules and info to an SNS Topic we call the Submission topic.
+Next, the Cumulus Message Consumer Lamaba, which is listening to this topic reads the message and converts it into something the Cumulus Message Adapter can understand.
+Then the 'Ingest and Publish' workflow state machine takes over and ingests the granules.
+At the end of the 'Ingest and Publish' workflow, either a success or fail message is sent to a different SNS Topic we call the Response topic.
+
+### Configuring SNS Topics
+There are two topics that sit on either end of the CNM Pipeline.
+The Submission Topic is the input.  The Submission Topic is where a messages gets sent from an external function which contains granule information.
+The Cumulus Lambda function called `cumulus-<ENV>-messageConsumer` should be subscribed, have permissions and be listening to this topic for messages.
+To Subscribe the lambda function, `cumulus-<ENV>-messageConsumer` to a topic, here is an example AWS CLI command that does that.
+```
+# Replace ".env.sandbox" with your environment file
+DOTENV=.env.sandbox make bash     
+aws sns subscribe --topic-arn arn:aws:sns:us-west-2:<AWS_ACCOUNT_ID_THAT_OWNS_THE_TOPIC>:csda-cumulus-<TS_ENV_VAR>-cnm-submission-topic --protocol lambda --notification-endpoint arn:aws:lambda:us-west-2:<NGAP_AWS_ACCOUNT_ID>:function:cumulus-<TS_ENV_VAR>-messageConsumer
+```
+If there are any permission issues, here is an example command for adding the permission via AWS CLI from within the docker container:
+```
+# Replace ".env.sandbox" with your environment file
+DOTENV=.env.sandbox make bash     
+aws lambda add-permission --function-name arn:aws:lambda:us-west-2:<NGAP_AWS_ACCOUNT_ID>:function:cumulus-<TS_ENV_VAR>-messageConsumer --statement-id AllowSNS-To-Invoke-NGAP-Lambda --action lambda:InvokeFunction --principal sns.amazonaws.com --source-arn arn:aws:sns:us-west-2:<AWS_ACCOUNT_ID_THAT_OWNS_THE_TOPIC>:csda-cumulus-<TS_ENV_VAR>-cnm-submission-topic
+```
+This message is then processed by the workflow and that progress can be viewed in the AWS step function / AWS state machine interface.
+The response topic is simpler, no subscription required since Cumulus will simply be publishing to it.
+The set of permissions that are granted for cross account access on both topics are as follows:
+```
+"sns:ListSubscriptionsByTopic",
+"sns:Subscribe",
+"SNS:GetTopicAttributes",
+```
+There are both local and remote versions of both set of topics.
+- The Local versions of the topics are mainly used for testing only the work flow, independent of cross account permissions complications.  This also allows us to have the capability to have the topics local to the Cumulus AWS account if that funcitonality is desired in the future.
+ - See Smoke tests that have the name `bin/CNM_Local_*.sh`
+- The Remote versions of the topics are so that the code which initiates and receives confirmation lives on the same account where the request was initiated.  This lets us expect a closed loop on the source account.
+ - See Smoke tests that have the name `bin/CNM_Remote_*.sh`
+
+
+### Workflow definition
+The workflow is defined in the repo here:
+`app/stacks/cumulus/templates/cnm-ingest-and-publish-granule-workflow.asl.json`
+
+### Rules
+The rules for CNM are always enabled.
+Here is an example of one of the rules and their current requirments.
+Note: These rules must have references to the topic names.
+Also, there must be sufficient permissions on these topics in order for the rule to be accepted when adding it.
+```
+{
+  "name": "PSScene3Band___1_SmokeTest_CNM_Remote_UAT",
+  "state": "ENABLED",
+  "workflow": "CNMIngestAndPublishGranule",
+  "provider": "planet",
+  "collection": {
+    "name": "PSScene3Band",
+    "version": "1"
+  },
+  "rule": {
+    "type": "sns",
+    "value": "arn:aws:sns:us-west-2:<REPLACE_WITH_REMOTE_AWS_ACCT_NUMBER>:csda-cumulus-uat-cnm-submission-topic"
+  },
+  "meta": {
+    "cnmResponseMethod": "sns",
+    "cnmResponseStream": "arn:aws:sns:us-west-2:<REPLACE_WITH_REMOTE_AWS_ACCT_NUMBER>:csda-cumulus-uat-cnm-response-topic",
+    "region": "us-west-2"
+  },
+  "tags": [
+    "cnm"
+  ]
+}
+```
+After creating a rule file for your dataset, use commands simillar to this to add the rules.
+IMPORTANT: You may have to run the command twice.  I believe there is a cold start problem associated with checking Topic Permissions that can sometimes cause an inconsistent error.
+```
+DOTENV=.env.sandbox make bash
+cumulus rules add --data app/stacks/cumulus/resources/rules/COLLECTION_NAME/v1/RULE_FILE_NAME.json
+```
+
+### Format of the expected submission topic message
+The new CNM Smoke Tests, found in `bin/CNM_*.sh`, contain more complete examples of the expected message format.
+Here is a small sample showing the message format.
+```
+// // JSON Format
+// Note: URI_ROOT is a string that looks like this: "s3://source-bucket-name"
+{
+    "version": "1.5.1",
+    "provider": "planet",
+    "deliveryTime": "2024-10-12T16:50:23.458100",
+    "collection": "PSScene3Band",
+    "identifier": "58ac4ab1-22dc-4475-994e-154ee2c5e004",
+    "product":
+    {
+        "name": "PSScene3Band-20171201_031959_0f31",
+        "dataVersion": "1",
+        "files": 
+        [
+            {
+                "uri": "${URI_ROOT}/storage-ss-ingest-prod-ingesteddata-uswest2/planet/PSScene3Band-20171201_031959_0f31/20171201_031959_0f31_3B_Visual_metadata.xml",
+                "name": "20171201_031959_0f31_3B_Visual_metadata.xml",
+                "size": 15,
+                "type": "metadata",
+                "checksum": "e813d94ff840788d8d21f758304a2e7a",
+                "checksumType": "MD5"
+            },
+            
+            ... List of All files and their details to be ingested listed here ...
+            
+            { ... }
+        ]
+    }
+}
+```
+
+### Smoke Tests for CNM
+There are 4 new SmokeTests for CNM related functionality.
+Dimension one is to test Local or Remote which tests the topics.
+Dimension two is to do a full end-to-end test OR to ensure a workflow failure - so a fail message comes through the other side.
+Testing Local version of the topics - Let's us test the work flow independently of permissions issues.
+Testing Remote versions of the topics - Let's us test end-to-end (Sandbox and UAT) to ensure the whole process functions.
+Testing to Fail - Let's us test the communication without ingesting an actual granule - so now we can test in prod without overwriting any real production data - and also lets us test the fail messages so we can see how they get handled down stream.
+The 4 smoke tests can be found here:
+- `bin/CNM_Local_SmokeTest.sh`
+- `bin/CNM_Local_ToFail_SmokeTest.sh`
+- `bin/CNM_Remote_SmokeTest.sh`
+- `bin/CNM_Remote_ToFail_SmokeTest.sh`
 
 
 
