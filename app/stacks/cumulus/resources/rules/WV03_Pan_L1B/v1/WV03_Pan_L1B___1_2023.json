@@ -1,21 +1,21 @@
 {
-  "name": "WV01_Pan_L1B___1",
+  "name": "WV03_Pan_L1B___1_2023",
   "state": "DISABLED",
   "rule": {
     "type": "onetime"
   },
   "provider": "maxar",
   "collection": {
-    "name": "WV01_Pan_L1B",
+    "name": "WV03_Pan_L1B",
     "version": "1"
   },
   "workflow": "DiscoverAndQueueGranules",
   "meta": {
     "discoverOnly": false,
-    "providerPathFormat": "'css/nga/WV01/1B/'yyyy/DDD",
-    "ingestedPathFormat": "'WV01_Pan_L1B___1/'yyyy/DDD",
+    "providerPathFormat": "'css/nga/WV03/1B/'yyyy/DDD",
+    "ingestedPathFormat": "'WV03_Pan_L1B___1/'yyyy/DDD",
     "startDate": "2023-01-01T00:00:00Z",
-    "endDate": "2025-01-01T00:00:00Z",
+    "endDate": "2024-01-01T00:00:00Z",
     "step": "P1D"
   }
 }

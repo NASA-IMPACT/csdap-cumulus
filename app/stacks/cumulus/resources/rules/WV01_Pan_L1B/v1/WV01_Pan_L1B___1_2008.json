@@ -14,7 +14,7 @@
     "discoverOnly": false,
     "providerPathFormat": "'css/nga/WV01/1B/'yyyy/DDD",
     "ingestedPathFormat": "'WV01_Pan_L1B___1/'yyyy/DDD",
-    "startDate": "2008-01-01T00:00:00Z",
+    "startDate": "2008-02-01T00:00:00Z",
     "endDate": "2009-01-01T00:00:00Z",
     "step": "P1D"
   }

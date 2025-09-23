@@ -1,7 +1,7 @@
 {
   "name": "GE01_Pan_L1B",
   "version": "1",
-  "duplicateHandling": "skip",
+  "duplicateHandling": "replace",
   "granuleId": ".*",
   "granuleIdExtraction": "^(GE01_.+-P1BS-.+_P\\d{3}).+$",
   "sampleFileName": "GE01_20220412012140_105001002B1B4700_22APR12012140-P1BS-507956386020_01_P001-BROWSE.jpg",

@@ -1,21 +1,21 @@
 {
-  "name": "WV02_MSI_L1B___1_2009",
+  "name": "WV02_Pan_L1B___1_2015",
   "state": "DISABLED",
   "rule": {
     "type": "onetime"
   },
   "provider": "maxar",
   "collection": {
-    "name": "WV02_MSI_L1B",
+    "name": "WV02_Pan_L1B",
     "version": "1"
   },
   "workflow": "DiscoverAndQueueGranules",
   "meta": {
     "discoverOnly": false,
     "providerPathFormat": "'css/nga/WV02/1B/'yyyy/DDD",
-    "ingestedPathFormat": "'WV02_MSI_L1B___1/'yyyy/DDD",
-    "startDate": "2009-11-15T00:00:00Z",
-    "endDate": "2010-01-01T00:00:00Z",
+    "ingestedPathFormat": "'WV02_Pan_L1B___1/'yyyy/DDD",
+    "startDate": "2015-01-01T00:00:00Z",
+    "endDate": "2016-01-01T00:00:00Z",
     "step": "P1D"
   }
 }

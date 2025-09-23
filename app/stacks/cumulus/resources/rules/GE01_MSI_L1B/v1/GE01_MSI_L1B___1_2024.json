@@ -1,0 +1,21 @@
+{
+  "name": "GE01_MSI_L1B___1_2024",
+  "state": "DISABLED",
+  "rule": {
+    "type": "onetime"
+  },
+  "provider": "maxar",
+  "collection": {
+    "name": "GE01_MSI_L1B",
+    "version": "1"
+  },
+  "workflow": "DiscoverAndQueueGranules",
+  "meta": {
+    "discoverOnly": false,
+    "providerPathFormat": "'css/nga/GE01/1B/'yyyy/DDD",
+    "ingestedPathFormat": "'GE01_MSI_L1B___1/'yyyy/DDD",
+    "startDate": "2024-09-01T00:00:00Z",
+    "endDate": "2024-10-01T00:00:00Z",
+    "step": "P1D"
+  }
+}
