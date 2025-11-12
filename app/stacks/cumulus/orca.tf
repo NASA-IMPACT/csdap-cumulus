@@ -49,7 +49,9 @@ module "orca" {
   db_cluster_identifier    = "${var.prefix}-rds-serverless"
 
   # OPTIONAL
-
+  # deploy_rds_cluster_role_association                   = true
+  # deploy_rds_dedicated_instance_role_association        = false
+  # lambda_log_retention_in_days                         = 0
   # db_admin_username                                    = "postgres"
   # default_multipart_chunksize_mb                       = 250
   # metadata_queue_message_retention_time                = 777600
@@ -75,4 +77,7 @@ module "orca" {
   # sqs_maximum_message_size                             = 262144
   # staged_recovery_queue_message_retention_time_seconds = 432000
   # status_update_queue_message_retention_time_seconds   = 777600
+  # max_pool_connections                                 = 10
+  # max_concurrency                                      = 10
+  # lambda_xray                                          = "PassThrough"
 }

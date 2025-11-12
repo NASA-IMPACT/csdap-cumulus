@@ -317,51 +317,6 @@
               },
               "Type": "Task",
               "Resource": "${update_granules_cmr_metadata_file_links_task_arn}",
-              "Next": "CopyToArchive",
-              "Retry": [
-                {
-                  "ErrorEquals": [
-                    "Lambda.Unknown",
-                    "Lambda.ClientExecutionTimeoutException",
-                    "Lambda.ServiceException",
-                    "Lambda.AWSLambdaException",
-                    "Lambda.SdkClientException",
-                    "Lambda.TooManyRequestsException"
-                  ],
-                  "IntervalSeconds": 4,
-                  "MaxAttempts": 6,
-                  "BackoffRate": 2,
-                  "JitterStrategy": "FULL"
-                },
-                {
-                  "ErrorEquals": [
-                    "States.ALL"
-                  ],
-                  "IntervalSeconds": 8,
-                  "MaxAttempts": 3,
-                  "BackoffRate": 2,
-                  "JitterStrategy": "FULL"
-                }
-              ]
-            },
-            "CopyToArchive": {
-              "Parameters": {
-                "cma": {
-                  "event.$": "$",
-                  "task_config": {
-                    "s3MultipartChunksizeMb": "{$.meta.collection.meta.s3MultipartChunksizeMb}",
-                    "excludedFileExtensions": "{$.meta.collection.meta.orca.excludedFileExtensions}",
-                    "providerId": "{$.meta.provider.id}",
-                    "providerName": "{$.meta.provider.name}",
-                    "executionId": "{$.cumulus_meta.execution_name}",
-                    "collectionShortname": "{$.meta.collection.name}",
-                    "collectionVersion": "{$.meta.collection.version}",
-                    "defaultBucketOverride": "{$.meta.collection.meta.orca.defaultBucketOverride}"
-                  }
-                }
-              },
-              "Type": "Task",
-              "Resource": "${copy_to_archive_adapter_task_arn}",
               "Next": "PostToCmr",
               "Retry": [
                 {

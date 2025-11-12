@@ -602,7 +602,7 @@ module "ingest_and_publish_granule_workflow" {
     files_to_granules_task_arn : module.cumulus.files_to_granules_task.task_arn,
     move_granules_task_arn : module.cumulus.move_granules_task.task_arn,
     update_granules_cmr_metadata_file_links_task_arn : module.cumulus.update_granules_cmr_metadata_file_links_task.task_arn,
-    copy_to_archive_adapter_task_arn : module.cumulus.orca_copy_to_archive_adapter_task.task_arn,
+    #copy_to_archive_adapter_task_arn : module.cumulus.orca_copy_to_archive_adapter_task.task_arn,
     post_to_cmr_task_arn : module.cumulus.post_to_cmr_task.task_arn,
     record_workflow_failure_task_arn : aws_lambda_function.record_workflow_failure.arn,
   })
@@ -631,7 +631,7 @@ module "cnm_ingest_and_publish_granule_workflow" {
     add_missing_file_checksums_task_arn : module.cumulus.add_missing_file_checksums_task.task_arn,
     move_granules_task_arn : module.cumulus.move_granules_task.task_arn,
     update_granules_cmr_metadata_file_links_task_arn : module.cumulus.update_granules_cmr_metadata_file_links_task.task_arn,
-    copy_to_archive_adapter_task_arn : module.cumulus.orca_copy_to_archive_adapter_task.task_arn,
+    #copy_to_archive_adapter_task_arn : module.cumulus.orca_copy_to_archive_adapter_task.task_arn,
     post_to_cmr_task_arn : module.cumulus.post_to_cmr_task.task_arn,
     cnm_response_task_arn: aws_lambda_function.cnm_response.arn,
     record_workflow_failure_task_arn : aws_lambda_function.record_workflow_failure.arn,
