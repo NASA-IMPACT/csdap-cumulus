@@ -71,6 +71,7 @@ JSON_MESSAGE=$(cat <<-EOF
     "deliveryTime": "2024-10-12T16:50:23.458100",
     "collection": "PSScene3Band",
     "identifier": "58ac4ab1-22dc-4475-994e-154ee2c5e004",
+    "custom_field_id": "12345_MY_CUSTOM_ID_9876",
     "product":
     {
         "name": "PSScene3Band-20171201_031959_0f31",
