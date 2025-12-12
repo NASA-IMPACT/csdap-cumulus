@@ -23,7 +23,7 @@ module "rds_cluster" {
   db_admin_password           = random_password.db_password.result
   db_admin_username           = "postgres"
   deletion_protection         = true
-  engine_version              = "13.12"
+  engine_version              = "13.20"
   parameter_group_family_v13  = "aurora-postgresql13"
   permissions_boundary_arn = local.permissions_boundary_arn
   prefix                   = var.prefix
@@ -45,6 +45,7 @@ module "rds_cluster" {
   vpc_id              = module.vpc.vpc_id
   # Possible Future v20.x parameter
   #rejectUnauthorized  = false
+  enable_upgrade = false
 
   # This part is to allow Orca v9.0.5 to succeed while doing Cumulus upgrade from 18.2.0 to 18.3.3
   db_parameters = [
