@@ -45,7 +45,10 @@ module "rds_cluster" {
   vpc_id              = module.vpc.vpc_id
   # Possible Future v20.x parameter
   #rejectUnauthorized  = false
-  enable_upgrade = false
+  
+  # When doing a Postgresql Engine Upgrade, Change this value back to false and 
+  # only a new parameter group will get deployed that can be used to upgrade your db via AWS Web UI
+  enable_upgrade = true
 
   # This part is to allow Orca v9.0.5 to succeed while doing Cumulus upgrade from 18.2.0 to 18.3.3
   db_parameters = [
