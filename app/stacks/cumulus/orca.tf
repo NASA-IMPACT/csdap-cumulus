@@ -15,7 +15,7 @@ data "aws_secretsmanager_secret_version" "rds_cluster_user_credentials_secret_ve
 }
 
 module "orca" {
-  source = "https://github.com/nasa/cumulus-orca/releases/download/v10.1.0/cumulus-orca-terraform.zip"
+  source = "https://github.com/nasa/cumulus-orca/releases/download/v10.1.2/cumulus-orca-terraform.zip"
   #--------------------------
   # Cumulus variables
   #--------------------------
@@ -47,9 +47,16 @@ module "orca" {
   #s3_access_key            = data.aws_ssm_parameter.orca_s3_access_key.value
   #s3_secret_key            = data.aws_ssm_parameter.orca_s3_secret_key.value
   db_cluster_identifier    = "${var.prefix}-rds-serverless"
+  #
+  # v10.1.1 -- 0 for log retention means the logs never expire.
+  lambda_log_retention_in_days = 0
 
   # OPTIONAL
 
+  # v10.1.1 vars - parallelism
+  # max_pool_connections = 
+  # max_concurrency = 
+  #
   # db_admin_username                                    = "postgres"
   # default_multipart_chunksize_mb                       = 250
   # metadata_queue_message_retention_time                = 777600
