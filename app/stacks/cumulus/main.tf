@@ -12,10 +12,10 @@ locals {
   cmr_provider = "CSDA"
 
   # CNM Related Update
-  cnm_to_cma_version  = "1.8.0"
+  cnm_to_cma_version  = "3.2.0"
   cnm_to_cma_zip_name = "cnmToGranule-${local.cnm_to_cma_version}.zip"
   #
-  cnm_response_version  = "2.2.0"
+  cnm_response_version  = "3.2.0"
   cnm_response_zip_name = "cnmResponse-${local.cnm_response_version}.zip"
 
   dynamo_tables = jsondecode("<%= json_output('data-persistence.dynamo_tables') %>")
@@ -29,7 +29,7 @@ locals {
   elasticsearch_hostname          = jsondecode("<%= json_output('data-persistence.elasticsearch_hostname') %>")
   elasticsearch_security_group_id = jsondecode("<%= json_output('data-persistence.elasticsearch_security_group_id') %>")
 
-  lambda_runtime = "nodejs16.x"
+  lambda_runtime = "nodejs20.x"
 
   lambda_timeouts = {
     AddMissingFileChecksums            = 900
@@ -418,7 +418,7 @@ resource "aws_lambda_function" "cnm_to_cma" {
   s3_key           = aws_s3_object.cnm_to_cma_lambda_zip.id
   handler          = "gov.nasa.cumulus.CnmToGranuleHandler::handleRequestStreams"
   role             = module.cumulus.lambda_processing_role_arn
-  runtime          = "java11"
+  runtime          = "java21"
   timeout          = 300
   memory_size      = 128
 
@@ -472,7 +472,7 @@ resource "aws_lambda_function" "cnm_response" {
   s3_key           = aws_s3_object.cnm_response_lambda_zip.id
   handler          = "gov.nasa.cumulus.CNMResponse::handleRequestStreams"
   role             = module.cumulus.lambda_processing_role_arn
-  runtime          = "java11"
+  runtime          = "java21"
   timeout          = 300
   memory_size      = 256
 
