@@ -3,6 +3,7 @@
   "compilerOptions": {
     "incremental": false,
     "outDir": "build/main",
+    "lib": ["ESNext"],
     "rootDirs": [
       "src",
       "scripts/src"

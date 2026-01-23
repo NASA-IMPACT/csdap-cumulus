@@ -4,6 +4,7 @@
     "incremental": true,
     "outDir": "build",
     "rootDir": "src",
+    "lib": ["ESNext"],
   },
   "include": [
     "src/**/*.ts"
