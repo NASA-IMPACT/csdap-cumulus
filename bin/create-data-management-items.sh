@@ -53,7 +53,7 @@ function sync_providers() {
   local _provider_bucket
   local _tmpdir
 
-  if [[ ${TS_ENV} =~ ^(sit|uat|ops|prod)$ ]]; then
+  if [[ ${TS_ENV} =~ ^(sit|uat|prod)$ ]]; then
     sync_items "${_resources_path}" "providers"
   else
     echo -n "Determining provider bucket..."

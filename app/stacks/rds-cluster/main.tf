@@ -23,8 +23,9 @@ module "rds_cluster" {
   db_admin_password           = random_password.db_password.result
   db_admin_username           = "postgres"
   deletion_protection         = true
-  engine_version              = "13.20"
+  engine_version              = "17.4"
   parameter_group_family_v13  = "aurora-postgresql13"
+  parameter_group_family_v17  = "aurora-postgresql17"
   permissions_boundary_arn = local.permissions_boundary_arn
   prefix                   = var.prefix
   provision_user_database  = true
