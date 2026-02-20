@@ -12,7 +12,8 @@ locals {
   cmr_provider = "CSDA"
 
   # CNM Related Update
-  cnm_to_cma_version  = "3.2.0"
+  #cnm_to_cma_version  = "3.2.0"
+  cnm_to_cma_version  = "2.1.0"
   cnm_to_cma_zip_name = "cnmToGranule-${local.cnm_to_cma_version}.zip"
   #
   cnm_response_version  = "3.2.0"
@@ -722,8 +723,9 @@ module "cumulus" {
   # <% if !in_sandbox? then %>
   log_destination_arn              = data.aws_ssm_parameter.log_destination_arn.value
   report_sns_topic_subscriber_arns = ["arn:aws:iam::${data.aws_ssm_parameter.metrics_aws_account_id.value}:root"]
-  # <% end %>
   additional_log_groups_to_elk = var.additional_log_groups_to_elk
+  # <% end %>
+  
 
   # These lines must be commented when using Cumulus Distribution and NOT using TEA
   # Thin Egress App settings. Uncomment to use TEA.

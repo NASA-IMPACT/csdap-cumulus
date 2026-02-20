@@ -17,10 +17,11 @@ module Terraspace::Project::EnvHelper
   # account, or any deployment to the non-CBA ("old") UAT AWS account that is
   # a "development" deployment (i.e., not the official UAT deployment).
   # Conversely, any deployment that is *not* a SIT, UAT, or Prod (OPS)
-  # deployment is a sandbox deployment.
+  # deployment is a sandbox deployment.  
+  # Update: Note:, we now have a Sandbox env called OPS, had to adjust code for that.
 
   def in_sandbox?
-    %w{uat sit prod ops}.none?{ |env_part|
+    %w{uat sit prod}.none?{ |env_part|
       Terraspace.env.downcase == env_part
     }
   end

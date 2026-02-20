@@ -9,8 +9,8 @@ variable "buckets" {
 variable "cmr_environment" {
   type = string
   validation {
-    condition     = length(regexall("^(?:UAT|OPS)$", var.cmr_environment)) == 1
-    error_message = "ERROR: Valid types are \"UAT\" and \"OPS\"!"
+    condition     = length(regexall("^(?:UAT)$", var.cmr_environment)) == 1
+    error_message = "ERROR: Valid types are \"UAT\"!"
   }
 }
 
