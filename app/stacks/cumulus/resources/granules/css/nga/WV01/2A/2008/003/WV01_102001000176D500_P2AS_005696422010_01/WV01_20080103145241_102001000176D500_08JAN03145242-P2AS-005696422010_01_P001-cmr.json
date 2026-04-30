@@ -1,13 +1,13 @@
 {
-    "GranuleUR": "WV01_20071231044012_1020010001E9B500_07DEC31044012-P1BS-505051421030_01_P024",
+    "GranuleUR": "WV01_20080103145241_102001000176D500_08JAN03145242-P2AS-005696422010_01_P001",
     "ProviderDates": [
         {
-            "Date": "2021-02-11T05:48:55.000000Z",
+            "Date": "2008-01-03T16:52:02.000000Z",
             "Type": "Create"
         }
     ],
     "CollectionReference": {
-        "ShortName": "WV01_Pan_L1B",
+        "ShortName": "WV01_Pan_L2A",
         "Version": "1"
     },
     "AccessConstraints": {
@@ -16,48 +16,48 @@
     },
     "DataGranule": {
         "DayNightFlag": "Day",
-        "ProductionDateTime": "2021-02-11T05:48:55.000000Z",
+        "ProductionDateTime": "2008-01-03T16:52:02.000000Z",
         "ArchiveAndDistributionInformation": [
             {
-                "Name": "WV01_20071231044012_1020010001E9B500_07DEC31044012-P1BS-505051421030_01_P024-BROWSE.jpg",
-                "SizeInBytes": 150782,
+                "Name": "WV01_20080103145241_102001000176D500_08JAN03145242-P2AS-005696422010_01_P001-BROWSE.jpg",
+                "SizeInBytes": 113377,
                 "FormatType": "Native",
                 "Format": "JPEG",
                 "Checksum": {
-                    "Value": "03bcd7046be3a31c22149599520ce8fec0f11a58d3fefb62749635bc07467cb2",
+                    "Value": "64bab6da4a96eeba2c12525c1d478b34cfd70e4bc1292c0cd568289989bb78d4",
                     "Algorithm": "SHA-256"
                 },
                 "MimeType": "image/jpeg"
             },
             {
-                "Name": "WV01_20071231044012_1020010001E9B500_07DEC31044012-P1BS-505051421030_01_P024.tar",
-                "SizeInBytes": 2682880,
+                "Name": "WV01_20080103145241_102001000176D500_08JAN03145242-P2AS-005696422010_01_P001.tar",
+                "SizeInBytes": 307200,
                 "FormatType": "Native",
                 "Format": "TAR",
                 "Checksum": {
-                    "Value": "575eba6d11c60f78b5dbdf58a64b323854ea5abd9f8bc3df17f7c691551fc7e5",
+                    "Value": "1b851f0793608628eee5c7cca72bd7fdeac21c8fc9f8208c4eb1d475c3429e04",
                     "Algorithm": "SHA-256"
                 },
                 "MimeType": "application/tar"
             },
             {
-                "Name": "WV01_20071231044012_1020010001E9B500_07DEC31044012-P1BS-505051421030_01_P024.ntf",
-                "SizeInBytes": 1215762640,
+                "Name": "WV01_20080103145241_102001000176D500_08JAN03145242-P2AS-005696422010_01_P001.ntf",
+                "SizeInBytes": 665447542,
                 "FormatType": "Native",
-                "Format": "Not provided",
+                "Format": "NITF21NCDRD",
                 "Checksum": {
-                    "Value": "bfec7b1ea6ce5479d5b9fa837747a8862c0ee2c73797b3ef2e9ac7ac236da6a8",
+                    "Value": "aa251adce7aeeed2d2d6ae3820c73a747aae27cea6205b597d2a593c1c576a5a",
                     "Algorithm": "SHA-256"
                 },
                 "MimeType": "Not provided"
             },
             {
-                "Name": "WV01_20071231044012_1020010001E9B500_07DEC31044012-P1BS-505051421030_01_P024.xml",
-                "SizeInBytes": 1227436,
+                "Name": "WV01_20080103145241_102001000176D500_08JAN03145242-P2AS-005696422010_01_P001.xml",
+                "SizeInBytes": 9597,
                 "FormatType": "Native",
                 "Format": "XML",
                 "Checksum": {
-                    "Value": "316e3d077880dd8abb0282e250d3a2050a588576e3a3d24d61e1c2f7ecdfb4de",
+                    "Value": "b56959f07db6771cfb42bd4a577d7189b23e47e2d97e3e33ebc7374bf2d975bb",
                     "Algorithm": "SHA-256"
                 },
                 "MimeType": "application/xml"
@@ -65,7 +65,7 @@
         ]
     },
     "TemporalExtent": {
-        "SingleDateTime": "2007-12-31T04:40:12.384958Z"
+        "SingleDateTime": "2008-01-03T14:52:41.959314Z"
     },
     "SpatialExtent": {
         "HorizontalSpatialDomain": {
@@ -75,24 +75,24 @@
                         "Boundary": {
                             "Points": [
                                 {
-                                    "Longitude": 91.73298645,
-                                    "Latitude": 35.99824629
+                                    "Longitude": -70.00233347,
+                                    "Latitude": -27.02835223
                                 },
                                 {
-                                    "Longitude": 91.73429239,
-                                    "Latitude": 35.951025
+                                    "Longitude": -70.00390957,
+                                    "Latitude": -27.20506587
                                 },
                                 {
-                                    "Longitude": 91.95856233,
-                                    "Latitude": 35.97115495
+                                    "Longitude": -69.79075655,
+                                    "Latitude": -27.2064306
                                 },
                                 {
-                                    "Longitude": 91.95860413,
-                                    "Latitude": 36.0196681
+                                    "Longitude": -69.78951499,
+                                    "Latitude": -27.02970666
                                 },
                                 {
-                                    "Longitude": 91.73298645,
-                                    "Latitude": 35.99824629
+                                    "Longitude": -70.00233347,
+                                    "Latitude": -27.02835223
                                 }
                             ]
                         }
@@ -123,52 +123,52 @@
     ],
     "RelatedUrls": [
         {
-            "URL": "https://csdap-maxar-delivery.s3.us-west-2.amazonaws.com/WV01_20071231044012_1020010001E9B500_07DEC31044012-P1BS-505051421030_01_P024-BROWSE.jpg",
+            "URL": "https://csdap-maxar-delivery.s3.us-west-2.amazonaws.com/css/nga/WV01/2A/2008/003/WV01_102001000176D500_P2AS_005696422010_01/WV01_20080103145241_102001000176D500_08JAN03145242-P2AS-005696422010_01_P001-BROWSE.jpg",
             "Type": "GET DATA",
             "Description": "Browse Imagery",
             "Format": "JPEG",
             "MimeType": "image/jpeg",
-            "Size": 150782.0,
+            "Size": 113377.0,
             "SizeUnit": "NA"
         },
         {
-            "URL": "https://csdap-maxar-delivery.s3.us-west-2.amazonaws.com/WV01_20071231044012_1020010001E9B500_07DEC31044012-P1BS-505051421030_01_P024.tar",
+            "URL": "https://csdap-maxar-delivery.s3.us-west-2.amazonaws.com/css/nga/WV01/2A/2008/003/WV01_102001000176D500_P2AS_005696422010_01/WV01_20080103145241_102001000176D500_08JAN03145242-P2AS-005696422010_01_P001.tar",
             "Type": "GET DATA",
             "Description": "Compressed granule",
             "Format": "TAR",
             "MimeType": "application/tar",
-            "Size": 2682880.0,
+            "Size": 307200.0,
             "SizeUnit": "NA"
         },
         {
-            "URL": "https://csdap-maxar-delivery.s3.us-west-2.amazonaws.com/WV01_20071231044012_1020010001E9B500_07DEC31044012-P1BS-505051421030_01_P024.ntf",
+            "URL": "https://csdap-maxar-delivery.s3.us-west-2.amazonaws.com/css/nga/WV01/2A/2008/003/WV01_102001000176D500_P2AS_005696422010_01/WV01_20080103145241_102001000176D500_08JAN03145242-P2AS-005696422010_01_P001.ntf",
             "Type": "GET DATA",
-            "Description": "Imagery in NITF 2.1 Commercial Dataset Requirements Document(NCDRD) format or NITF21NCDRD format",
-            "Format": "Not provided",
+            "Description": "Imagery in NITF 2.1 Commercial Dataset Requirements Document (NCDRD) format or NITF21NCDRD format",
+            "Format": "NITF21NCDRD",
             "MimeType": "Not provided",
-            "Size": 1215762640.0,
+            "Size": 665447542.0,
             "SizeUnit": "NA"
         },
         {
-            "URL": "https://csdap-maxar-delivery.s3.us-west-2.amazonaws.com/WV01_20071231044012_1020010001E9B500_07DEC31044012-P1BS-505051421030_01_P024.xml",
+            "URL": "https://csdap-maxar-delivery.s3.us-west-2.amazonaws.com/css/nga/WV01/2A/2008/003/WV01_102001000176D500_P2AS_005696422010_01/WV01_20080103145241_102001000176D500_08JAN03145242-P2AS-005696422010_01_P001.xml",
             "Type": "GET DATA",
             "Description": "Metadata file",
             "Format": "XML",
             "MimeType": "application/xml",
-            "Size": 1227436.0,
+            "Size": 9597.0,
             "SizeUnit": "NA"
         },
-	{
-            "URL": "https://csdap-maxar-delivery.s3.us-west-2.amazonaws.com/WV01_20071231044012_1020010001E9B500_07DEC31044012-P1BS-505051421030_01_P024-thumb.jpg",
-            "Type": "GET DATA",
+        {
+            "URL": "https://csdap-maxar-delivery.s3.us-west-2.amazonaws.com/css/nga/WV01/2A/2008/003/WV01_102001000176D500_P2AS_005696422010_01/WV01_20080103145241_102001000176D500_08JAN03145242-P2AS-005696422010_01_P001-thumb.jpg",
+            "Type": "GET RELATED VISUALIZATION",
             "Description": "Browse Imagery",
             "Format": "JPEG",
             "MimeType": "image/jpeg",
-            "Size": 150782.0,
+            "Size": 113377.0,
             "SizeUnit": "NA"
         }
     ],
-    "CloudCover": 0.0,
+    "CloudCover": 0.035,
     "MetadataSpecification": {
         "URL": "https://cdn.earthdata.nasa.gov/umm/granule/v1.6.4",
         "Name": "UMM-G",
@@ -176,21 +176,15 @@
     },
     "AdditionalAttributes": [
         {
-            "Name": "Mean Ground Sample Distance",
-            "Values": [
-                "0.588"
-            ]
-        },
-        {
             "Name": "Mean Sun Elevation",
             "Values": [
-                "28.4"
+                "64.5"
             ]
         },
         {
             "Name": "Maximum Angle Off Nadir",
             "Values": [
-                "24.3"
+                "23.8"
             ]
         }
     ]

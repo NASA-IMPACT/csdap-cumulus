@@ -4,7 +4,7 @@
   "duplicateHandling": "replace",
   "granuleId": ".*",
   "granuleIdExtraction": "^(WV01_.+-P2AS-.+_P\\d{3}).+$",
-  "sampleFileName": "WV01_20071231044012_1020010001E9B500_07DEC31044012-P2AS-505051421030_01_P024-BROWSE.jpg",
+  "sampleFileName": "WV01_20080103145241_102001000176D500_08JAN03145242-P2AS-005696422010_01_P001-BROWSE.jpg",
   "url_path": "{cmrMetadata.CollectionReference.ShortName}___{cmrMetadata.CollectionReference.Version}/{dateFormat(cmrMetadata.TemporalExtent.SingleDateTime, YYYY)}/{dateFormat(cmrMetadata.TemporalExtent.SingleDateTime, DDDD)}/{cmrMetadata.GranuleUR}",
   "meta": {
     "preferredQueueBatchSize": 1
@@ -13,37 +13,37 @@
   "files": [
     {
       "regex": ".*-thumb[.]jpg$",
-      "sampleFileName": "WV01_20071231044012_1020010001E9B500_07DEC31044012-P2AS-505051421030_01_P024-thumb.jpg",
+      "sampleFileName": "WV01_20080103145241_102001000176D500_08JAN03145242-P2AS-005696422010_01_P001-thumb.jpg",
       "type": "browse",
       "bucket": "public"
     },
     {
       "regex": ".*-BROWSE[.]jpg$",
-      "sampleFileName": "WV01_20071231044012_1020010001E9B500_07DEC31044012-P2AS-505051421030_01_P024-BROWSE.jpg",
+      "sampleFileName": "WV01_20080103145241_102001000176D500_08JAN03145242-P2AS-005696422010_01_P001-BROWSE.jpg",
       "type": "data",
       "bucket": "protected"
     },
     {
       "regex": ".*-cmr[.]json$",
-      "sampleFileName": "WV01_20071231044012_1020010001E9B500_07DEC31044012-P2AS-505051421030_01_P024-cmr.json",
+      "sampleFileName": "WV01_20080103145241_102001000176D500_08JAN03145242-P2AS-005696422010_01_P001-cmr.json",
       "type": "metadata",
       "bucket": "protected"
     },
     {
       "regex": ".*[.]tar$",
-      "sampleFileName": "WV01_20071231044012_1020010001E9B500_07DEC31044012-P2AS-505051421030_01_P024.tar",
+      "sampleFileName": "WV01_20080103145241_102001000176D500_08JAN03145242-P2AS-005696422010_01_P001.tar",
       "type": "data",
       "bucket": "protected"
     },
     {
       "regex": ".*[.]ntf$",
-      "sampleFileName": "WV01_20071231044012_1020010001E9B500_07DEC31044012-P2AS-505051421030_01_P024.ntf",
+      "sampleFileName": "WV01_20080103145241_102001000176D500_08JAN03145242-P2AS-005696422010_01_P001.ntf",
       "type": "data",
       "bucket": "protected"
     },
     {
       "regex": ".*[.]xml$",
-      "sampleFileName": "WV01_20071231044012_1020010001E9B500_07DEC31044012-P2AS-505051421030_01_P024.xml",
+      "sampleFileName": "WV01_20080103145241_102001000176D500_08JAN03145242-P2AS-005696422010_01_P001.xml",
       "type": "data",
       "bucket": "protected"
     }
