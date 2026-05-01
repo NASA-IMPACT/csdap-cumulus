@@ -17,7 +17,7 @@ cumulus_distribution_url = "https://data.csdap.earthdata.nasa.gov/"
 cumulus_distribution_url = "https://data.csda.earthdata.nasa.gov/"
 # <% end %>
 
-metrics_es_host = "https://d23fzndssjmbvi.cloudfront.net/"
+metrics_es_host = "d23fzndssjmbvi.cloudfront.net"
 
 # <% if in_cba? then %>
 s3_replicator_target_bucket = "cloud-metrics-inbound-prod-csdap-distribution"
