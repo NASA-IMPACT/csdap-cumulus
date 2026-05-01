@@ -10,7 +10,8 @@ csdap_host_url = "https://auth.csdap.uat.earthdatacloud.nasa.gov/"
 # Trailing slash is required
 cumulus_distribution_url = "https://data.csdap.uat.earthdata.nasa.gov/"
 
-metrics_es_host = "https://dmzza2al43z4f.cloudfront.net/"
+#metrics_es_host = "https://dmzza2al43z4f.cloudfront.net/"
+metrics_es_host = "dmzza2al43z4f.cloudfront.net"
 
 s3_replicator_target_bucket = "cloud-metrics-inbound-uat-csdap-distribution"
 s3_replicator_target_prefix = "input/s3_access/csdapuat"
