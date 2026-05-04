@@ -14,7 +14,7 @@
     "discoverOnly": false,
     "providerPathFormat": "'WV01_Pan_L2A___1/'yyyy/DDD",
     "ingestedPathFormat": "'WV01_Pan_L2A___1/'yyyy/DDD",
-    "startDate": "2007-01-01T00:00:00Z",
+    "startDate": "2008-01-01T00:00:00Z",
     "endDate": "2022-01-01T00:00:00Z",
     "step": "P1D"
   }
