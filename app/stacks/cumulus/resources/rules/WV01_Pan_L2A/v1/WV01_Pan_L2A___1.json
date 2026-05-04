@@ -4,7 +4,7 @@
   "rule": {
     "type": "onetime"
   },
-  "provider": "cumulus",
+  "provider": "maxar",
   "collection": {
     "name": "WV01_Pan_L2A",
     "version": "1"
@@ -12,9 +12,9 @@
   "workflow": "DiscoverAndQueueGranules",
   "meta": {
     "discoverOnly": false,
-    "providerPathFormat": "'WV01_Pan_L2A___1/'yyyy/DDD",
+    "providerPathFormat": "'css/nga/WV01/2A/'yyyy/DDD",
     "ingestedPathFormat": "'WV01_Pan_L2A___1/'yyyy/DDD",
-    "startDate": "2008-01-01T00:00:00Z",
+    "startDate": "2007-01-01T00:00:00Z",
     "endDate": "2022-01-01T00:00:00Z",
     "step": "P1D"
   }
