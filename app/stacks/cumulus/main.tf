@@ -67,7 +67,7 @@ data "external" "lambda_archive_exploded" {
   program = [
     "/bin/bash",
     "-ic",
-    "yarn -s install >/dev/null && yarn -s tf:lambda:archive-exploded"
+    "yarn -s install --frozen-lockfile >/dev/null && yarn -s tf:lambda:archive-exploded"
   ]
 }
 
