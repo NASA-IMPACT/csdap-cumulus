@@ -47,9 +47,11 @@
     "version": "standard-version",
     "reset-hard": "git clean -dfx && git reset --hard && yarn",
     "prepare-release": "run-s reset-hard test cov:check doc:html version doc:publish",
+    "lambda:prune": "find ${PWD}/${npm_package_config_lambda_archive_dir} -type f \\( -name '*.d.ts' -o -name '*.d.ts.map' -o -name '*.js.map' -o -name '*.tsbuildinfo' \\) -delete && find ${PWD}/${npm_package_config_lambda_archive_dir}/node_modules -type d \\( -name test -o -name tests -o -name __tests__ -o -name doc -o -name example -o -name examples -o -name coverage -o -name benchmark -o -name benchmarks \\) -prune -exec rm -rf {} + && find ${PWD}/${npm_package_config_lambda_archive_dir}/node_modules -type f \\( -name '*.map' -o -name '*.ts' -o -name '*.md' \\) -delete",
     "lambda:install": "yarn install --production --no-bin-links --modules-folder ${PWD}/${npm_package_config_lambda_archive_dir}/node_modules && rm -rf ${PWD}/${npm_package_config_lambda_archive_dir}/node_modules/aws-sdk && rm -rf ${PWD}/${npm_package_config_lambda_archive_dir}/node_modules/'@types'",
-    "lambda:archive-exploded": "run-s build test lambda:install",
-    "tf:lambda:archive-exploded": "yarn lambda:archive-exploded >&2 && echo { '\"'dir'\"': '\"'${PWD}/${npm_package_config_lambda_archive_dir}'\"' }"
+    "lambda:archive-exploded": "run-s clean:build build test lambda:install lambda:prune lambda:diagnose-size",
+    "lambda:diagnose-size": "echo '---- lambda package sizes ----' >&2; du -sh ${PWD}/${npm_package_config_lambda_archive_dir} >&2 || true; du -sh ${PWD}/${npm_package_config_lambda_archive_dir}/node_modules >&2 || true; echo '---- largest node_modules entries ----' >&2; du -sh ${PWD}/${npm_package_config_lambda_archive_dir}/node_modules/* 2>/dev/null | sort -h | tail -40 >&2 || true",
+    "tf:lambda:archive-exploded": "yarn lambda:archive-exploded >&2 && yarn lambda:diagnose-size >&2 && echo { '\"'dir'\"': '\"'${PWD}/${npm_package_config_lambda_archive_dir}'\"' }"
   },
   "engines": {
     "node": ">=20"
@@ -60,12 +62,12 @@
     "@aws-sdk/lib-dynamodb": "^3.621.0",
     "@aws-sdk/lib-storage": "^3.621.0",
     "@aws-sdk/types": "^3.621.0",
-    "@cumulus/aws-client": "21.2.0",
-    "@cumulus/cmrjs": "21.2.0",
-    "@cumulus/common": "21.2.0",
-    "@cumulus/cumulus-message-adapter-js": "2.0.4",
+    "@cumulus/aws-client": "21.2.1",
+    "@cumulus/cmrjs": "21.2.1",
+    "@cumulus/common": "21.2.1",
+    "@cumulus/cumulus-message-adapter-js": "2.2.0",
     "@smithy/util-stream": "^2.0.17",
-    "axios": "^1.8.3",
+    "axios": "^1.13.5",
     "date-fns": "^3.0.6",
     "duration-fns": "^3.0.1",
     "follow-redirects": "^1.15.6",
@@ -82,8 +84,8 @@
   "devDependencies": {
     "@ava/typescript": "^4.1.0",
     "@aws-sdk/client-dynamodb": "^3.621.0",
-    "@cumulus/api-client": "21.2.0",
-    "@cumulus/types": "21.2.0",
+    "@cumulus/api-client": "21.2.1",
+    "@cumulus/types": "21.2.1",
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
     "@tsconfig/node20": "^20.1.4",
     "@types/aws-lambda": "^8.10.85",
@@ -124,7 +126,7 @@
     "got/**/http-cache-semantics": "^4.1.1",
     "nyc/**/json5": "^2.2.2",
     "@cumulus/**/follow-redirects": "^1.15.6",
-    "@cumulus/**/axios": "^1.8.3",
+    "@cumulus/**/axios": "^1.13.5",
     "@cumulus/**/glob": "^9.0.0",
     "nyc/**/glob": "^9.0.0",
     "@cumulus/aws-client/@aws-sdk/signature-v4-crt/@aws-sdk/crt-loader/aws-crt/mqtt/help-me/glob": "^9.0.0"
