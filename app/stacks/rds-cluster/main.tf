@@ -16,6 +16,20 @@ module "vpc" {
   source = "../../modules/vpc"
 }
 
+## Solution for Bug during Upgrade from v21.2.1 to v21.3.0
+## Bug with Log Group already created, uncomment this and set change to the correct environment to load the state locally in order to deploy
+## Should only need to do this once per environment for the upgrade
+##
+## This tells local terraform that the log group has already been created in a previous deployment
+#import {
+#  to = module.rds_cluster.aws_cloudwatch_log_group.postgresql_logs
+#  
+#  id = "/aws/rds/cluster/cumulus-kris-sbx7894-rds-serverless/postgresql"
+#  #id = "/aws/rds/cluster/cumulus-ops-rds-serverless/postgresql"
+#  #id = "/aws/rds/cluster/cumulus-uat-rds-serverless/postgresql"
+#  #id = "/aws/rds/cluster/cumulus-prod-rds-serverless/postgresql"
+#}
+
 module "rds_cluster" {
   source = "https://github.com/nasa/cumulus/releases/download/<%= cumulus_version %>/terraform-aws-cumulus-rds.zip"
 
@@ -29,6 +43,12 @@ module "rds_cluster" {
   permissions_boundary_arn = local.permissions_boundary_arn
   prefix                   = var.prefix
   provision_user_database  = true
+
+  # Keep RDS PostgreSQL CloudWatch logs forever.
+  # Cumulus 21.3.x now manages this log group inside the RDS Module.
+  # Setting 0 means keep forever
+  postgresql_log_retention_days = 0
+
   min_capacity             = var.min_capacity
   max_capacity             = var.max_capacity
   # ORCA requires us to use a password that contains a special character, but there is
