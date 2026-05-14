@@ -30,7 +30,7 @@ locals {
   elasticsearch_hostname          = jsondecode("<%= json_output('data-persistence.elasticsearch_hostname') %>")
   elasticsearch_security_group_id = jsondecode("<%= json_output('data-persistence.elasticsearch_security_group_id') %>")
 
-  lambda_runtime = "nodejs20.x"
+  lambda_runtime = "nodejs22.x"
 
   lambda_timeouts = {
     AddMissingFileChecksums            = 900
@@ -646,7 +646,7 @@ module "cumulus" {
   deploy_to_ngap = true
 
   cumulus_message_adapter_lambda_layer_version_arn = module.cma.lambda_layer_version_arn
-  async_operation_image                            = "cumuluss/async-operation:53"
+  async_operation_image                            = "cumuluss/async-operation:55"
 
   vpc_id            = module.vpc.vpc_id
   lambda_subnet_ids = module.vpc.subnets.ids

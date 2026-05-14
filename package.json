@@ -54,7 +54,7 @@
     "tf:lambda:archive-exploded": "yarn lambda:archive-exploded >&2 && yarn lambda:diagnose-size >&2 && echo { '\"'dir'\"': '\"'${PWD}/${npm_package_config_lambda_archive_dir}'\"' }"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.621.0",
@@ -62,10 +62,10 @@
     "@aws-sdk/lib-dynamodb": "^3.621.0",
     "@aws-sdk/lib-storage": "^3.621.0",
     "@aws-sdk/types": "^3.621.0",
-    "@cumulus/aws-client": "21.2.1",
-    "@cumulus/cmrjs": "21.2.1",
-    "@cumulus/common": "21.2.1",
-    "@cumulus/cumulus-message-adapter-js": "2.2.0",
+    "@cumulus/aws-client": "21.3.0",
+    "@cumulus/cmrjs": "21.3.0",
+    "@cumulus/common": "21.3.0",
+    "@cumulus/cumulus-message-adapter-js": "2.4.0",
     "@smithy/util-stream": "^2.0.17",
     "axios": "^1.13.5",
     "date-fns": "^3.0.6",
@@ -82,19 +82,19 @@
     "xml2js": "^0.6.0"
   },
   "devDependencies": {
-    "@ava/typescript": "^4.1.0",
+    "@ava/typescript": "^6.0.0",
     "@aws-sdk/client-dynamodb": "^3.621.0",
-    "@cumulus/api-client": "21.2.1",
-    "@cumulus/types": "21.2.1",
+    "@cumulus/api-client": "21.3.0",
+    "@cumulus/types": "21.3.0",
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
-    "@tsconfig/node20": "^20.1.4",
+    "@tsconfig/node22": "^22.0.5",
     "@types/aws-lambda": "^8.10.85",
     "@types/lodash": "^4.14.177",
-    "@types/node": "^16.11.1",
+    "@types/node": "^22.0.0",
     "@types/uuid": "^9.0.7",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
-    "ava": "^5.3.1",
+    "ava": "^6.4.1",
     "codecov": "^3.5.0",
     "cumulus-cli": "github:NASA-IMPACT/cumulus-cli#d274e3e",
     "cz-conventional-changelog": "^3.3.0",
