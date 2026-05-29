@@ -4,7 +4,7 @@
   "rule": {
     "type": "onetime"
   },
-  "provider": "cumulus",
+  "provider": "maxar",
   "collection": {
     "name": "GE01_MSI_L2A",
     "version": "1"
