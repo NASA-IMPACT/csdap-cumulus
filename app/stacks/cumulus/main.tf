@@ -16,8 +16,10 @@ locals {
   cnm_to_cma_version  = "2.1.0"
   cnm_to_cma_zip_name = "cnmToGranule-${local.cnm_to_cma_version}.zip"
   #
-  cnm_response_version  = "3.2.0"
-  cnm_response_zip_name = "cnmResponse-${local.cnm_response_version}.zip"
+  # # This was moved to Cumulus Modules in v21.3.2 - CNM Migration for 21.3.2
+  #
+  #cnm_response_version  = "3.2.0"
+  #cnm_response_zip_name = "cnmResponse-${local.cnm_response_version}.zip"
 
   dynamo_tables = jsondecode("<%= json_output('data-persistence.dynamo_tables') %>")
 
@@ -444,59 +446,66 @@ resource "aws_lambda_function" "cnm_to_cma" {
   }
 }
 
-resource "null_resource" "download_cnm_response_zip_file" {
-  triggers = {
-    always_run = local.cnm_response_version
-    bucket     = var.system_bucket
-  }
-  provisioner "local-exec" {
-    command = "curl -s -L -o ${local.cnm_response_zip_name} https://github.com/podaac/cumulus-cnm-response-task/releases/download/v${local.cnm_response_version}/${local.cnm_response_zip_name}"
-  }
-}
+# # This was moved to Cumulus Modules in v21.3.2 - CNM Migration for 21.3.2
+#
+#resource "null_resource" "download_cnm_response_zip_file" {
+#  triggers = {
+#    always_run = local.cnm_response_version
+#    bucket     = var.system_bucket
+#  }
+#  provisioner "local-exec" {
+#    command = "curl -s -L -o ${local.cnm_response_zip_name} https://github.com/podaac/cumulus-cnm-response-task/releases/download/v${local.cnm_response_version}/${local.cnm_response_zip_name}"
+#  }
+#}
 
-resource "aws_s3_object" "cnm_response_lambda_zip" {
-  depends_on = [null_resource.download_cnm_response_zip_file]
-  bucket     = var.system_bucket
-  key        = "${var.prefix}/${local.cnm_response_zip_name}"
-  source     = local.cnm_response_zip_name
+# # This was moved to Cumulus Modules in v21.3.2 - CNM Migration for 21.3.2
+#
+#resource "aws_s3_object" "cnm_response_lambda_zip" {
+#  depends_on = [null_resource.download_cnm_response_zip_file]
+#  bucket     = var.system_bucket
+#  key        = "${var.prefix}/${local.cnm_response_zip_name}"
+#  source     = local.cnm_response_zip_name
+#
+#  provisioner "local-exec" {
+#    interpreter = ["bash", "-c"]
+#    command     = "rm -f ${local.cnm_response_zip_name}"
+#  }
+#}
 
-  provisioner "local-exec" {
-    interpreter = ["bash", "-c"]
-    command     = "rm -f ${local.cnm_response_zip_name}"
-  }
-}
+# # This was moved to Cumulus Modules in v21.3.2 - CNM Migration for 21.3.2
+#
+#resource "aws_lambda_function" "cnm_response" {
+#  depends_on       = [aws_s3_object.cnm_response_lambda_zip]
+#  function_name    = "${var.prefix}-CnmResponse"
+#  s3_bucket        = var.system_bucket
+#  s3_key           = aws_s3_object.cnm_response_lambda_zip.id
+#  handler          = "gov.nasa.cumulus.CNMResponse::handleRequestStreams"
+#  role             = module.cumulus.lambda_processing_role_arn
+#  runtime          = "java21"
+#  timeout          = 300
+#  memory_size      = 256
+#
+#  source_code_hash = aws_s3_object.cnm_response_lambda_zip.etag
+#  layers           = [module.cma.lambda_layer_version_arn]
+#
+#  tags = local.tags
+#
+#  environment {
+#    variables = {
+#      stackName                   = var.prefix
+#      CUMULUS_MESSAGE_ADAPTER_DIR = "/opt/"
+#    }
+#  }
+#
+#  dynamic "vpc_config" {
+#    for_each = length(module.vpc.subnets.ids) == 0 ? [] : [1]
+#    content {
+#      subnet_ids         = module.vpc.subnets.ids
+#      security_group_ids = [aws_security_group.egress_only.id]
+#    }
+#  }
+#}
 
-resource "aws_lambda_function" "cnm_response" {
-  depends_on       = [aws_s3_object.cnm_response_lambda_zip]
-  function_name    = "${var.prefix}-CnmResponse"
-  s3_bucket        = var.system_bucket
-  s3_key           = aws_s3_object.cnm_response_lambda_zip.id
-  handler          = "gov.nasa.cumulus.CNMResponse::handleRequestStreams"
-  role             = module.cumulus.lambda_processing_role_arn
-  runtime          = "java21"
-  timeout          = 300
-  memory_size      = 256
-
-  source_code_hash = aws_s3_object.cnm_response_lambda_zip.etag
-  layers           = [module.cma.lambda_layer_version_arn]
-
-  tags = local.tags
-
-  environment {
-    variables = {
-      stackName                   = var.prefix
-      CUMULUS_MESSAGE_ADAPTER_DIR = "/opt/"
-    }
-  }
-
-  dynamic "vpc_config" {
-    for_each = length(module.vpc.subnets.ids) == 0 ? [] : [1]
-    content {
-      subnet_ids         = module.vpc.subnets.ids
-      security_group_ids = [aws_security_group.egress_only.id]
-    }
-  }
-}
 #
 # CNM Resources END
 
@@ -612,7 +621,7 @@ module "ingest_and_publish_granule_workflow" {
 # CNM Workflow and Statemachine Definition
 module "cnm_ingest_and_publish_granule_workflow" {
   depends_on = [
-    aws_lambda_function.cnm_response,
+    #aws_lambda_function.cnm_response,
     aws_lambda_function.cnm_to_cma
   ]
 
@@ -634,7 +643,8 @@ module "cnm_ingest_and_publish_granule_workflow" {
     update_granules_cmr_metadata_file_links_task_arn : module.cumulus.update_granules_cmr_metadata_file_links_task.task_arn,
     copy_to_archive_adapter_task_arn : module.cumulus.orca_copy_to_archive_adapter_task.task_arn,
     post_to_cmr_task_arn : module.cumulus.post_to_cmr_task.task_arn,
-    cnm_response_task_arn: aws_lambda_function.cnm_response.arn,
+    #cnm_response_task_arn: aws_lambda_function.cnm_response.arn,
+    cnm_response_task_arn: module.cumulus.cnm_response_task.task_arn,
     record_workflow_failure_task_arn : aws_lambda_function.record_workflow_failure.arn,
   })
 }
