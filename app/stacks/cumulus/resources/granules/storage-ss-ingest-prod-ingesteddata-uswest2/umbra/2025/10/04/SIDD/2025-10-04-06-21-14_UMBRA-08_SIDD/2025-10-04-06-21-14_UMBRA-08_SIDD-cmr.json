@@ -1,0 +1,121 @@
+{
+    "GranuleUR": "2025-10-04-06-21-14_UMBRA-08_SIDD",
+    "ProviderDates": [
+        {
+            "Date": "2026-06-16T16:34:20.102949Z",
+            "Type": "Insert"
+        },
+        {
+            "Date": "2026-06-16T16:34:20.102949Z",
+            "Type": "Update"
+        }
+    ],
+    "CollectionReference": {
+        "ShortName": "Umbra_sidd",
+        "Version": "1"
+    },
+    "AccessConstraints": {
+        "Description": "Access restricted to users approved by CSDA Program",
+        "Value": 1.0
+    },
+    "DataGranule": {
+        "ArchiveAndDistributionInformation": [
+            {
+                "Name": "2025-10-04-06-21-14_UMBRA-08_SIDD_MM.nitf",
+                "SizeInBytes": 512074671,
+                "MimeType": "Not provided",
+                "Checksum": {
+                    "Value": "d50110b056c7d358330d35e2ecb9e2660a2a51",
+                    "Algorithm": "MD5"
+                }
+            },
+            {
+                "Name": "2025-10-04-06-21-14_UMBRA-08.stac.v2.json",
+                "SizeInBytes": 7772,
+                "MimeType": "application/json",
+                "Checksum": {
+                    "Value": "d50110a8188091293f39109412e2bf9d4d63f8",
+                    "Algorithm": "MD5"
+                }
+            }
+        ],
+        "DayNightFlag": "Day",
+        "ProductionDateTime": "2025-10-04T06:21:15Z"
+    },
+    "TemporalExtent": {
+        "RangeDateTime": {
+            "BeginningDateTime": "2025-10-04T06:21:15Z",
+            "EndingDateTime": "2025-10-04T06:21:18.000001Z"
+        }
+    },
+    "SpatialExtent": {
+        "HorizontalSpatialDomain": {
+            "Geometry": {
+                "GPolygons": [
+                    {
+                        "Boundary": {
+                            "Points": [
+                                {
+                                    "Longitude": -118.06242397745638,
+                                    "Latitude": 34.77219185104929
+                                },
+                                {
+                                    "Longitude": -118.02999646566643,
+                                    "Latitude": 34.808462119652724
+                                },
+                                {
+                                    "Longitude": -118.07398019819311,
+                                    "Latitude": 34.83521188076999
+                                },
+                                {
+                                    "Longitude": -118.10639891451474,
+                                    "Latitude": 34.798930055029125
+                                },
+                                {
+                                    "Longitude": -118.06242397745638,
+                                    "Latitude": 34.77219185104929
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "Platforms": [
+        {
+            "ShortName": "Umbra SAR Constellation",
+            "Instruments": [
+                {
+                    "ShortName": "Umbra X-SAR"
+                }
+            ]
+        }
+    ],
+    "Projects": [
+        {
+            "ShortName": "CSDA"
+        }
+    ],
+    "RelatedUrls": [
+        {
+            "URL": "s3://ss-ingest-staging-ingesteddatac45dd6b6-3xhhk78ir4sw/storage/umbra/2025/10/04/SIDD/2025-10-04-06-21-14_UMBRA-08_SIDD/2025-10-04-06-21-14_UMBRA-08_SIDD_MM.nitf",
+            "Type": "GET DATA VIA DIRECT ACCESS",
+            "Description": "Imagery in NITF 2.1 Commercial Dataset Requirements Document (NCDRD) format or NITF21NCDRD format",
+            "Format": "NITF21NCDRD",
+            "MimeType": "Not provided"
+        },
+        {
+            "URL": "s3://ss-ingest-staging-ingesteddatac45dd6b6-3xhhk78ir4sw/storage/umbra/2025/10/04/SIDD/2025-10-04-06-21-14_UMBRA-08_SIDD/2025-10-04-06-21-14_UMBRA-08.stac.v2.json",
+            "Type": "EXTENDED METADATA",
+            "Description": "STAC metadata file",
+            "Format": "JSON",
+            "MimeType": "application/json"
+        }
+    ],
+    "MetadataSpecification": {
+        "URL": "https://cdn.earthdata.nasa.gov/umm/granule/v1.6.6",
+        "Name": "UMM-G",
+        "Version": "1.6.6"
+    }
+}
