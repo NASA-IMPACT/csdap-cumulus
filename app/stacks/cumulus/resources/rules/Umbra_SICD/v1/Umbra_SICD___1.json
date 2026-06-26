@@ -1,0 +1,21 @@
+{
+  "name": "Umbra_SICD___1",
+  "state": "DISABLED",
+  "rule": {
+    "type": "onetime"
+  },
+  "provider": "umbra",
+  "collection": {
+    "name": "Umbra_SICD",
+    "version": "1"
+  },
+  "workflow": "DiscoverAndQueueGranules",
+  "meta": {
+    "discoverOnly": false,
+    "providerPathFormat": "'storage-ss-ingest-prod-ingesteddata-uswest2/umbra/'yyyy'/'MM'/'dd'/SICD'",
+    "ingestedPathFormat": "'Umbra_SICD___1/'yyyy/MM/dd",
+    "startDate": "2023-01-01T00:00:00Z",
+    "endDate": "2027-01-01T00:00:00Z",
+    "step": "P1D"
+  }
+}
