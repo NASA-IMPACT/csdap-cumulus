@@ -1,0 +1,21 @@
+{
+  "name": "Umbra_SICD___1_SmokeTest",
+  "state": "DISABLED",
+  "rule": {
+    "type": "onetime"
+  },
+  "provider": "planet",
+  "collection": {
+    "name": "Umbra_SICD",
+    "version": "1"
+  },
+  "workflow": "DiscoverAndQueueGranules",
+  "meta": {
+  	"discoverOnly": false,
+    "providerPathFormat": "'storage-ss-ingest-prod-ingesteddata-uswest2/umbra/'yyyy'/'MM'/'dd'/SICD'",
+    "ingestedPathFormat": "'Umbra_SICD___1/'yyyy/MM/dd",
+    "startDate": "2025-10-03T00:00:00Z",
+    "endDate": "2025-10-05T00:00:00Z",
+    "step": "P1D"
+  }
+}
