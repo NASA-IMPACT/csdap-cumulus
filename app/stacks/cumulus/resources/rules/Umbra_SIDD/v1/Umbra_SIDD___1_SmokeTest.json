@@ -4,7 +4,7 @@
   "rule": {
     "type": "onetime"
   },
-  "provider": "umbra",
+  "provider": "planet",
   "collection": {
     "name": "Umbra_SIDD",
     "version": "1"

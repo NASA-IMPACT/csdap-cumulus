@@ -3,12 +3,14 @@
   "version": "1",
   "duplicateHandling": "replace",
   "granuleId": ".*",
-  "granuleIdExtraction": "^(\\d{4}-\\d{2}-\\d{2}-\\d{2}-\\d{2}-\\d{2}_[A-Z]+-\\d{2}.+)$",
+  "granuleIdExtraction": "^(\\d{4}-\\d{2}-\\d{2}-\\d{2}-\\d{2}-\\d{2}_[A-Z]+-\\d{2}).+$",
   "sampleFileName": "2025-10-04-06-21-14_UMBRA-08_SICD_MM.nitf",
   "ignoreFilesConfigForDiscovery": false,
-  "url_path": "{cmrMetadata.CollectionReference.ShortName}___{cmrMetadata.CollectionReference.Version}/{dateFormat(cmrMetadata.TemporalExtent.SingleDateTime, YYYY)}/{dateFormat(cmrMetadata.TemporalExtent.SingleDateTime, MM)}/{dateFormat(cmrMetadata.TemporalExtent.SingleDateTime, DD)}/{cmrMetadata.GranuleUR}",
+  "url_path": "{cmrMetadata.CollectionReference.ShortName}___{cmrMetadata.CollectionReference.Version}/{dateFormat(cmrMetadata.TemporalExtent.RangeDateTime.BeginningDateTime, YYYY)}/{dateFormat(cmrMetadata.TemporalExtent.RangeDateTime.BeginningDateTime, MM)}/{dateFormat(cmrMetadata.TemporalExtent.RangeDateTime.BeginningDateTime, DD)}/{cmrMetadata.GranuleUR}",
   "meta": {
-    "preferredQueueBatchSize": 1
+    "preferredQueueBatchSize": 1,
+    "prefixGranuleIds": true,
+    "granuleRecoveryWorkflow": "OrcaRecoveryWorkflow"
   },
   "files": [
   	{
