@@ -77,3 +77,7 @@ buckets = {
   }
   #-----<% end %>
 }
+
+# Bucket Lifecycle Rules - iss560 - Default of 30 for all environments, override to 2 days in UAT for testing.
+expire_noncurrent_version_days  = 30
+expired_delete_marker           = true

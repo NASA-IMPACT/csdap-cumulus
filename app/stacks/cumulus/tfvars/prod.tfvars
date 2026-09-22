@@ -28,3 +28,6 @@ s3_replicator_target_bucket = "esdis-metrics-inbound-prod-csdap-distribution"
 s3_replicator_target_prefix = "input/s3_access/csdapprod"
 
 urs_url = "https://urs.earthdata.nasa.gov"
+
+# Bucket Lifecycle Rules - iss560 - Just being sure that prod stays at 30 days
+expire_noncurrent_version_days  = 30

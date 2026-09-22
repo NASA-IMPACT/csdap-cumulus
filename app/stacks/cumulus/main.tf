@@ -389,6 +389,64 @@ resource "aws_lambda_function" "record_workflow_failure" {
   }
 }
 
+
+
+# Bucket Lifecycle Rules -  Protected bucket lifecycle rules
+resource "aws_s3_bucket_lifecycle_configuration" "protected_lifecycle" {
+  bucket = var.buckets.protected.name
+
+  rule {
+    id     = "expire_noncurrent_versions_protected"
+    status = "Enabled"
+
+    noncurrent_version_expiration {
+      noncurrent_days = var.expire_noncurrent_version_days
+    }
+
+    filter {}
+  }
+
+  rule {
+    id     = "remove_expired_delete_markers_protected"
+    status = "Enabled"
+
+    expiration {
+      expired_object_delete_marker = true
+    }
+
+    filter {}
+  }
+}
+
+# Bucket Lifecycle Rules -  Public bucket lifecycle rules
+resource "aws_s3_bucket_lifecycle_configuration" "public_lifecycle" {
+  bucket = var.buckets.public.name
+
+  rule {
+    id     = "expire_noncurrent_versions_public"
+    status = "Enabled"
+
+    noncurrent_version_expiration {
+      noncurrent_days = var.expire_noncurrent_version_days
+    }
+
+    filter {}
+  }
+
+  rule {
+    id     = "remove_expired_delete_markers_public"
+    status = "Enabled"
+
+    expiration {
+      expired_object_delete_marker = true
+    }
+
+    filter {}
+  }
+}
+
+
+
 # CNM Resources START
 #
 resource "null_resource" "download_cnm_to_cma_zip_file" {
