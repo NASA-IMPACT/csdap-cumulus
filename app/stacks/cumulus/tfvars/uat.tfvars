@@ -17,3 +17,6 @@ s3_replicator_target_bucket = "cloud-metrics-inbound-uat-csdap-distribution"
 s3_replicator_target_prefix = "input/s3_access/csdapuat"
 
 urs_url = "https://uat.urs.earthdata.nasa.gov"
+
+# Bucket Lifecycle Rules - iss560 - Default of 30 for all environments, override to 2 days in UAT for testing.
+expire_noncurrent_version_days  = 2

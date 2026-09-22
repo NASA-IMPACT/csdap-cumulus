@@ -18,6 +18,22 @@ variable "system_bucket" {
   type = string
 }
 
+
+# Bucket Lifecycle Rules - iss560
+variable "expire_noncurrent_version_days" {
+  type = number
+  description = "Number of days before noncurrent object versions expire"
+  default = 30
+}
+
+# Bucket Lifecycle Rules - iss560
+variable "expired_delete_marker" {
+  type        = bool
+  description = "Whether to remove expired delete markers"
+  default     = true
+}
+
+
 #-------------------------------------------------------------------------------
 # OPTIONAL
 #-------------------------------------------------------------------------------
