@@ -416,6 +416,35 @@ resource "aws_s3_bucket_lifecycle_configuration" "protected_lifecycle" {
 
     filter {}
   }
+
+  # iss561 - Support Existing Rule - delete incomplete multipart uploads
+  rule {
+      id     = "delete-incomplete-mpu-7d"
+      status = "Enabled"
+
+      abort_incomplete_multipart_upload {
+        days_after_initiation = 7
+      }
+
+      filter {}
+    }
+
+  # iss561 - Support Existing Rule - Transition to Intelligent-tiering
+  rule {
+      id     = "transition-to-int"
+      status = "Enabled"
+
+      filter {
+        object_size_greater_than = 133120
+      }
+
+      transition {
+        days          = 0
+        storage_class = "INTELLIGENT_TIERING"
+      }
+    }
+
+
 }
 
 # Bucket Lifecycle Rules -  Public bucket lifecycle rules
@@ -443,6 +472,33 @@ resource "aws_s3_bucket_lifecycle_configuration" "public_lifecycle" {
 
     filter {}
   }
+
+  # iss561 - Support Existing Rule - delete incomplete multipart uploads
+  rule {
+      id     = "delete-incomplete-mpu-7d"
+      status = "Enabled"
+
+      abort_incomplete_multipart_upload {
+        days_after_initiation = 7
+      }
+
+      filter {}
+    }
+
+  # iss561 - Support Existing Rule - Transition to Intelligent-tiering
+  rule {
+      id     = "transition-to-int"
+      status = "Enabled"
+
+      filter {
+        object_size_greater_than = 133120
+      }
+
+      transition {
+        days          = 0
+        storage_class = "INTELLIGENT_TIERING"
+      }
+    }
 }
 
 
