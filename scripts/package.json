@@ -22,6 +22,6 @@
     "@aws-sdk/client-sfn": "^3.529.0",
     "@aws-sdk/client-sts": "^3.529.0",
     "cmd-ts": "0.13.0",
-    "lodash": "^4.17.21"
+    "lodash": "^4.18.1"
   }
 }
