@@ -54,7 +54,7 @@
     "tf:lambda:archive-exploded": "yarn lambda:archive-exploded >&2 && yarn lambda:diagnose-size >&2 && echo { '\"'dir'\"': '\"'${PWD}/${npm_package_config_lambda_archive_dir}'\"' }"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=22.23.4"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.621.0",
