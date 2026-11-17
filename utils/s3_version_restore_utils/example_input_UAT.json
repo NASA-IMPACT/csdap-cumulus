@@ -1,0 +1,18 @@
+
+{
+  "bucket": "csda-cumulus-uat-protected-1686",
+  "objects": [
+    {
+      "key": "planet/PSScene3Band/20171201_031958_0f31_1B_Analytic_metadata.xml",
+      "version_id": "fyxbQDhJ1EKyP3vy8bRL7.aV1XgZ4iuK"
+    },
+    {
+      "key": "planet/PSScene3Band/20171201_031958_0f31_1B_Analytic_DN.tif",
+      "version_id": "udd9L7jYdk2LOgPVaoWTbZAWG4ZSwpr6"
+    },
+    {
+      "key": "planet/PSScene3Band/20171201_031958_0f31_1B_Analytic_DN_udm.tif",
+      "version_id": "knlTeenNPWADvIaUYUdk8qrJFuwWPhzR"
+    }
+  ]
+}
