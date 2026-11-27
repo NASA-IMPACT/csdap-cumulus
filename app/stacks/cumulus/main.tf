@@ -726,7 +726,7 @@ module "ingest_and_publish_granule_workflow" {
     files_to_granules_task_arn : module.cumulus.files_to_granules_task.task_arn,
     move_granules_task_arn : module.cumulus.move_granules_task.task_arn,
     update_granules_cmr_metadata_file_links_task_arn : module.cumulus.update_granules_cmr_metadata_file_links_task.task_arn,
-    copy_to_archive_adapter_task_arn : module.cumulus.orca_copy_to_archive_adapter_task.task_arn,
+    #copy_to_archive_adapter_task_arn : module.cumulus.orca_copy_to_archive_adapter_task.task_arn,
     post_to_cmr_task_arn : module.cumulus.post_to_cmr_task.task_arn,
     record_workflow_failure_task_arn : aws_lambda_function.record_workflow_failure.arn,
   })
@@ -755,7 +755,7 @@ module "cnm_ingest_and_publish_granule_workflow" {
     add_missing_file_checksums_task_arn : module.cumulus.add_missing_file_checksums_task.task_arn,
     move_granules_task_arn : module.cumulus.move_granules_task.task_arn,
     update_granules_cmr_metadata_file_links_task_arn : module.cumulus.update_granules_cmr_metadata_file_links_task.task_arn,
-    copy_to_archive_adapter_task_arn : module.cumulus.orca_copy_to_archive_adapter_task.task_arn,
+    #copy_to_archive_adapter_task_arn : module.cumulus.orca_copy_to_archive_adapter_task.task_arn,
     post_to_cmr_task_arn : module.cumulus.post_to_cmr_task.task_arn,
     #cnm_response_task_arn: aws_lambda_function.cnm_response.arn,
     cnm_response_task_arn: module.cumulus.cnm_response_task.task_arn,
@@ -784,9 +784,10 @@ module "cumulus" {
   ecs_cluster_max_size            = 2
   key_name                        = var.key_name
 
-  orca_api_uri                    = module.orca.orca_api_deployment_invoke_url
-  orca_lambda_copy_to_archive_arn = module.orca.orca_lambda_copy_to_archive_arn
-  orca_sfn_recovery_workflow_arn  = module.orca.orca_sfn_recovery_workflow_arn
+  # Refactor - Decommissioning ORCA
+  #orca_api_uri                    = module.orca.orca_api_deployment_invoke_url
+  #orca_lambda_copy_to_archive_arn = module.orca.orca_lambda_copy_to_archive_arn
+  #orca_sfn_recovery_workflow_arn  = module.orca.orca_sfn_recovery_workflow_arn
 
   rds_security_group         = local.rds_security_group
   rds_user_access_secret_arn = local.rds_user_access_secret_arn
